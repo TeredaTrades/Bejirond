@@ -1,0 +1,11 @@
+{
+	"appId": "com.teredatrades.tallybook",
+	"appName": "TallyBook",
+	"webDir": "dist",
+	"server": {
+		"androidScheme": "https"
+	},
+	"android": {
+		"allowMixedContent": false
+	}
+}

@@ -8,7 +8,7 @@ import {
   CheckSquare, CheckCircle2, Circle, ClipboardList, Bell, BellOff, BellRing, Calculator,
   Home, Newspaper, ShoppingBag, Landmark, ExternalLink, RefreshCw, VolumeX,
   PiggyBank, Plane, MapPin, Luggage, Palette, Sun, Moon, PartyPopper, LayoutGrid,
-  Upload, Sparkles, Move
+  Upload, Sparkles, Move, Languages
 } from "lucide-react";
 import { Preferences } from "@capacitor/preferences";
 import { Capacitor, registerPlugin } from "@capacitor/core";
@@ -18,6 +18,7 @@ import { LocalNotifications } from "@capacitor/local-notifications";
 import { App as CapacitorApp } from "@capacitor/app";
 import jsPDF from "jspdf";
 import { APP_VARIANT, IS_BUNDLE, PRODUCTS, BUNDLE_PRODUCT, productById } from "./appConfig";
+import { LANGUAGES, DEFAULT_LANGUAGE, getTranslator } from "./i18n";
 import { exportProductData, readExportFile, importProductData, hasExistingData, PRODUCT_DATA_SCOPES } from "./dataPortability";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
@@ -404,19 +405,19 @@ function AmountInput({ value, onChange, currencySymbol = "", placeholder = "0", 
   );
 }
 
-function BottomNav({ tab, setTab }) {
+function BottomNav({ tab, setTab, t }) {
   const items = [
     // The Expenses Manager standalone build drops Home entirely (see App's initial
     // tab/stack below) — it lands straight on the business selector, so there's no
     // Home screen to link to from here.
-    APP_VARIANT !== "expenses-manager" && { id: "home", label: "Home", icon: Home },
+    APP_VARIANT !== "expenses-manager" && { id: "home", label: t("nav.home"), icon: Home },
     // Only the bundle (or the Expenses Manager standalone build) has a
     // dedicated Cashbooks tab — other single-tool builds reach their one
     // tool from the Home card instead.
-    (IS_BUNDLE || APP_VARIANT === "expenses-manager") && { id: "books", label: "Cashbooks", icon: BookMarked },
-    { id: "help", label: "Help", icon: HelpCircle },
-    { id: "more", label: IS_BUNDLE ? "Import" : "More በጅሮንድ Apps", icon: LayoutGrid },
-    { id: "settings", label: "Settings", icon: SettingsIcon },
+    (IS_BUNDLE || APP_VARIANT === "expenses-manager") && { id: "books", label: t("nav.cashbooks"), icon: BookMarked },
+    { id: "help", label: t("nav.help"), icon: HelpCircle },
+    { id: "more", label: IS_BUNDLE ? t("nav.import") : t("nav.moreApps"), icon: LayoutGrid },
+    { id: "settings", label: t("nav.settings"), icon: SettingsIcon },
   ].filter(Boolean);
   return (
     <div className="border-t border-slate-200 bg-white flex">
@@ -642,6 +643,13 @@ export default function TallyBookApp() {
   const [session, setSession] = useState({ activeBusinessId: null, viewingAs: null });
   const [appSettings, setAppSettings] = useState({ categories: DEFAULT_CATEGORIES, paymentModes: DEFAULT_PAYMENT_MODES, currency: "$" });
   const [theme, setTheme] = useState("light");
+  const [language, setLanguage] = useState(DEFAULT_LANGUAGE);
+  // Whether the one-time language + theme picker (shown before Welcome, only on
+  // a device's very first launch) has already been completed. Starts null (not
+  // yet known) rather than false, so the loading spinner stays up instead of the
+  // picker flashing on for a returning user for one frame while storage loads.
+  const [firstRunDone, setFirstRunDone] = useState(null);
+  const t = useMemo(() => getTranslator(language), [language]);
   // The Expenses Manager standalone build has no Home screen — it lands directly on
   // the business selector (the Cashbooks/"books" tab, which shows the Select Business
   // picker itself when there's more than one to choose from) right after Welcome /
@@ -675,6 +683,10 @@ export default function TallyBookApp() {
       const settings = await storeGet("app-settings", { categories: DEFAULT_CATEGORIES, paymentModes: DEFAULT_PAYMENT_MODES, currency: "$" });
       const savedTheme = await storeGet("app-theme", "light");
       setTheme(savedTheme);
+      const savedLanguage = await storeGet("app-language", DEFAULT_LANGUAGE);
+      setLanguage(savedLanguage);
+      const savedFirstRunDone = await storeGet("first-run-done", false);
+      setFirstRunDone(savedFirstRunDone);
       const planned = await storeGet("planned-items", []);
       setAccount(acct);
       setBusinesses(biz);
@@ -735,6 +747,14 @@ export default function TallyBookApp() {
   const persistTheme = useCallback(async (next) => {
     setTheme(next);
     await storeSet("app-theme", next);
+  }, []);
+  const persistLanguage = useCallback(async (next) => {
+    setLanguage(next);
+    await storeSet("app-language", next);
+  }, []);
+  const completeFirstRun = useCallback(async () => {
+    setFirstRunDone(true);
+    await storeSet("first-run-done", true);
   }, []);
   // Mirror the theme onto <html> too, so backgrounds outside the app's root wrapper
   // (e.g. iOS overscroll/bounce edges) match instead of flashing white/black.
@@ -863,11 +883,27 @@ export default function TallyBookApp() {
     );
   }
 
+  // Shown exactly once, the very first time the app is opened after install —
+  // before the name/PIN Welcome screen, since language and theme are needed to
+  // render Welcome itself sensibly. Skipped entirely for a returning user;
+  // language/theme can still be changed later from Settings.
+  if (!firstRunDone) {
+    return (
+      <FirstRunScreen
+        theme={theme} persistTheme={persistTheme}
+        language={language} persistLanguage={persistLanguage}
+        t={t}
+        onDone={completeFirstRun}
+      />
+    );
+  }
+
   if (!account?.welcomed) {
     return (
       <WelcomeScreen
         theme={theme}
         persistTheme={persistTheme}
+        t={t}
         onDone={async (acct) => {
           await storeSet("account", acct);
           setAccount(acct);
@@ -882,6 +918,7 @@ export default function TallyBookApp() {
       <WelcomeBackScreen
         theme={theme}
         persistTheme={persistTheme}
+        t={t}
         account={account}
         onUnlock={() => setUnlocked(true)}
         onResetAccount={async () => {
@@ -901,6 +938,7 @@ export default function TallyBookApp() {
     push, pop, resetTo, stack, top,
     plannedItems, persistPlanned, notifPermission, requestNotifPermission,
     theme, persistTheme,
+    language, persistLanguage, t,
     setBackHandler: (fn) => { backHandlerRef.current = fn; },
   };
 
@@ -915,10 +953,65 @@ export default function TallyBookApp() {
           Home (or any other tab) from a nested screen short of tapping the header's back arrow
           all the way out one step at a time. Tapping a tab here always resets to that tab's
           top-level screen regardless of how deep the current stack is. */}
-      <BottomNav tab={tab} setTab={(t) => { setTab(t); resetTo(t); }} />
+      <BottomNav tab={tab} setTab={(nextTab) => { setTab(nextTab); resetTo(nextTab); }} t={t} />
       <PlannedFAB pendingCount={pendingPlannedCount} onClick={() => setPlannedSidebarOpen(true)} hidden={inputFocused} />
       <PlannedSidebar ctx={ctx} open={plannedSidebarOpen} onClose={() => setPlannedSidebarOpen(false)} />
       <ReminderAlarmModal alarm={activeAlarm} onDismiss={dismissAlarm} onMarkDone={markAlarmDone} onSnooze={snoozeAlarm} />
+    </div>
+  );
+}
+
+// ---------- First run: language + theme picker ----------
+// Shown once, before Welcome, only on a device's very first launch (see firstRunDone in
+// App). Both choices can be changed later from Settings — this just sets a sensible
+// starting point instead of forcing English/light on everyone by default.
+function FirstRunScreen({ theme, persistTheme, language, persistLanguage, t, onDone }) {
+  return (
+    <div data-theme={theme} className="w-full h-screen bg-white overflow-hidden flex flex-col">
+      <div className="flex-1 overflow-y-auto flex flex-col items-center px-6 pt-14">
+        <div className="w-20 h-20 rounded-2xl bg-teal-50 border border-teal-100 flex items-center justify-center mb-6">
+          <BookMarked size={36} className="text-teal-700" />
+        </div>
+        <h1 className="text-xl font-bold text-slate-900 text-center">{t("firstRun.title")}</h1>
+        <p className="text-sm text-slate-500 text-center mt-1 mb-8 max-w-[280px]">{t("firstRun.subtitle")}</p>
+
+        <div className="w-full mb-6">
+          <div className="text-xs font-medium text-slate-400 uppercase mb-2 px-1">{t("firstRun.languageLabel")}</div>
+          <div className="border border-slate-200 rounded-xl divide-y divide-slate-200 overflow-hidden">
+            {LANGUAGES.map((l) => {
+              const active = language === l.code;
+              return (
+                <button key={l.code} onClick={() => persistLanguage(l.code)}
+                  className="w-full flex items-center justify-between px-4 py-3.5 bg-white">
+                  <span className="font-medium text-slate-800">{l.nativeName}</span>
+                  {active ? <CheckCircle2 size={20} className="text-teal-700" /> : <Circle size={20} className="text-slate-200" />}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="w-full mb-6">
+          <div className="text-xs font-medium text-slate-400 uppercase mb-2 px-1">{t("firstRun.themeLabel")}</div>
+          <div className="grid grid-cols-2 gap-3">
+            <button onClick={() => persistTheme("light")}
+              className={`flex flex-col items-center gap-2 rounded-xl border p-4 ${theme === "light" ? "border-teal-600 ring-1 ring-teal-600" : "border-slate-200"}`}>
+              <Sun size={22} className="text-amber-500" />
+              <span className="text-sm font-medium text-slate-800">{t("firstRun.themeLight")}</span>
+            </button>
+            <button onClick={() => persistTheme("dark")}
+              className={`flex flex-col items-center gap-2 rounded-xl border p-4 ${theme === "dark" ? "border-teal-600 ring-1 ring-teal-600" : "border-slate-200"}`}>
+              <Moon size={22} className="text-indigo-500" />
+              <span className="text-sm font-medium text-slate-800">{t("firstRun.themeDark")}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div className="p-4">
+        <button onClick={onDone} className="w-full bg-teal-700 text-white py-3 rounded-xl font-semibold">
+          {t("firstRun.continueButton")}
+        </button>
+      </div>
     </div>
   );
 }
@@ -927,7 +1020,7 @@ export default function TallyBookApp() {
 // No backend here — this is a local-only name+PIN gate stored on-device (@capacitor/preferences),
 // not real authentication. It's meant to keep the app from opening straight to someone else's data
 // if they pick up the phone, not to protect against anything more serious than that.
-function WelcomeScreen({ onDone, theme, persistTheme }) {
+function WelcomeScreen({ onDone, theme, persistTheme, t }) {
   const [mode, setMode] = useState(null); // null | "create"
   const [name, setName] = useState("");
   const [pin, setPin] = useState("");
@@ -935,9 +1028,9 @@ function WelcomeScreen({ onDone, theme, persistTheme }) {
   const [error, setError] = useState("");
 
   const createAccount = () => {
-    if (!name.trim()) { setError("Enter a name."); return; }
-    if (!/^\d{4,6}$/.test(pin)) { setError("PIN must be 4–6 digits."); return; }
-    if (pin !== pin2) { setError("PINs don't match."); return; }
+    if (!name.trim()) { setError(t("welcome.errorNameRequired")); return; }
+    if (!/^\d{4,6}$/.test(pin)) { setError(t("welcome.errorPinInvalid")); return; }
+    if (pin !== pin2) { setError(t("welcome.errorPinMismatch")); return; }
     onDone({ welcomed: true, name: name.trim(), pin });
   };
 
@@ -954,32 +1047,30 @@ function WelcomeScreen({ onDone, theme, persistTheme }) {
         <div className="w-20 h-20 rounded-2xl bg-teal-50 border border-teal-100 flex items-center justify-center mb-8">
           <BookMarked size={36} className="text-teal-700" />
         </div>
-        <h1 className="text-xl font-bold text-slate-900 text-center">Welcome</h1>
+        <h1 className="text-xl font-bold text-slate-900 text-center">{t("welcome.title")}</h1>
         <p className="text-sm text-slate-500 text-center mt-1 mb-8 max-w-[280px]">
-          {mode === "create"
-            ? "Set a name and PIN to keep this device's data behind a quick lock screen."
-            : "Create a local account to lock the app with a PIN, or jump straight in."}
+          {mode === "create" ? t("welcome.subtitleCreate") : t("welcome.subtitleDefault")}
         </p>
 
         {mode === "create" ? (
           <div className="w-full space-y-3">
-            <input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name"
+            <input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder={t("welcome.namePlaceholder")}
               className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm" />
             <input value={pin} onChange={(e) => { setPin(e.target.value.replace(/\D/g, "").slice(0, 6)); setError(""); }}
-              type="password" inputMode="numeric" placeholder="Create a 4–6 digit PIN"
+              type="password" inputMode="numeric" placeholder={t("welcome.pinPlaceholder")}
               className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm" />
             <input value={pin2} onChange={(e) => { setPin2(e.target.value.replace(/\D/g, "").slice(0, 6)); setError(""); }}
-              type="password" inputMode="numeric" placeholder="Confirm PIN"
+              type="password" inputMode="numeric" placeholder={t("welcome.pinConfirmPlaceholder")}
               className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm" />
             {error && <div className="text-xs text-rose-600">{error}</div>}
-            <button onClick={createAccount} className="w-full bg-teal-700 text-white py-3 rounded-xl font-semibold">Create account</button>
-            <button onClick={() => { setMode(null); setError(""); }} className="w-full text-slate-500 text-sm py-2">Back</button>
+            <button onClick={createAccount} className="w-full bg-teal-700 text-white py-3 rounded-xl font-semibold">{t("welcome.createAccountButton")}</button>
+            <button onClick={() => { setMode(null); setError(""); }} className="w-full text-slate-500 text-sm py-2">{t("welcome.backButton")}</button>
           </div>
         ) : (
           <div className="w-full space-y-3">
-            <button onClick={() => setMode("create")} className="w-full bg-teal-700 text-white py-3 rounded-xl font-semibold">Create an account</button>
+            <button onClick={() => setMode("create")} className="w-full bg-teal-700 text-white py-3 rounded-xl font-semibold">{t("welcome.createAccountButton")}</button>
             <button onClick={() => onDone({ welcomed: true, name: "", pin: null })}
-              className="w-full border border-slate-300 text-slate-700 py-3 rounded-xl font-semibold">Use without an account</button>
+              className="w-full border border-slate-300 text-slate-700 py-3 rounded-xl font-semibold">{t("welcome.useWithoutAccountButton")}</button>
           </div>
         )}
       </div>
@@ -987,7 +1078,7 @@ function WelcomeScreen({ onDone, theme, persistTheme }) {
   );
 }
 
-function WelcomeBackScreen({ account, onUnlock, onResetAccount, theme, persistTheme }) {
+function WelcomeBackScreen({ account, onUnlock, onResetAccount, theme, persistTheme, t }) {
   const [pin, setPin] = useState("");
   const [error, setError] = useState("");
 
@@ -999,7 +1090,7 @@ function WelcomeBackScreen({ account, onUnlock, onResetAccount, theme, persistTh
 
   const tryUnlock = () => {
     if (pin === account.pin) onUnlock();
-    else setError("Incorrect PIN.");
+    else setError(t("welcomeBack.errorIncorrectPin"));
   };
 
   return (
@@ -1015,16 +1106,18 @@ function WelcomeBackScreen({ account, onUnlock, onResetAccount, theme, persistTh
         <div className="w-20 h-20 rounded-2xl bg-teal-50 border border-teal-100 flex items-center justify-center mb-8">
           <BookMarked size={36} className="text-teal-700" />
         </div>
-        <h1 className="text-xl font-bold text-slate-900 text-center">Welcome back{account.name ? `, ${account.name}` : ""}</h1>
-        <p className="text-sm text-slate-500 text-center mt-1 mb-8">Enter your PIN to continue.</p>
+        <h1 className="text-xl font-bold text-slate-900 text-center">
+          {account.name ? t("welcomeBack.titleWithName", { name: account.name }) : t("welcomeBack.title")}
+        </h1>
+        <p className="text-sm text-slate-500 text-center mt-1 mb-8">{t("welcomeBack.subtitle")}</p>
         <div className="w-full space-y-3">
           <input autoFocus value={pin} onChange={(e) => { setPin(e.target.value.replace(/\D/g, "").slice(0, 6)); setError(""); }}
             onKeyDown={(e) => { if (e.key === "Enter") tryUnlock(); }}
-            type="password" inputMode="numeric" placeholder="PIN"
+            type="password" inputMode="numeric" placeholder={t("welcomeBack.pinPlaceholder")}
             className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm text-center tracking-[0.3em]" />
           {error && <div className="text-xs text-rose-600 text-center">{error}</div>}
-          <button onClick={tryUnlock} className="w-full bg-teal-700 text-white py-3 rounded-xl font-semibold">Log in</button>
-          <button onClick={onResetAccount} className="w-full text-slate-400 text-xs py-2">Forgot PIN? Reset local account</button>
+          <button onClick={tryUnlock} className="w-full bg-teal-700 text-white py-3 rounded-xl font-semibold">{t("welcomeBack.loginButton")}</button>
+          <button onClick={onResetAccount} className="w-full text-slate-400 text-xs py-2">{t("welcomeBack.forgotPin")}</button>
         </div>
       </div>
     </div>
@@ -1033,12 +1126,12 @@ function WelcomeBackScreen({ account, onUnlock, onResetAccount, theme, persistTh
 
 // ---------- Choose business type (moved out of first launch — now shown inside Expenses
 // Manager the first time a business needs to be created, since it's specific to that tool) ----------
-function ChooseBusinessType({ onDone }) {
+function ChooseBusinessType({ onDone, t }) {
   const [choice, setChoice] = useState(null);
   const options = [
-    { id: "business", label: "Business cash flow", icon: Building2 },
-    { id: "personal", label: "Personal cash flow", icon: Wallet },
-    { id: "explore", label: "Just exploring", icon: Info },
+    { id: "business", label: t("chooseBusinessType.business"), icon: Building2 },
+    { id: "personal", label: t("chooseBusinessType.personal"), icon: Wallet },
+    { id: "explore", label: t("chooseBusinessType.explore"), icon: Info },
   ];
   return (
     <div className="w-full h-full bg-white overflow-hidden flex flex-col">
@@ -1046,8 +1139,8 @@ function ChooseBusinessType({ onDone }) {
         <div className="w-20 h-20 rounded-2xl bg-teal-50 border border-teal-100 flex items-center justify-center mb-8">
           <BookMarked size={36} className="text-teal-700" />
         </div>
-        <h1 className="text-xl font-bold text-slate-900 text-center">What will you manage?</h1>
-        <p className="text-sm text-slate-500 text-center mt-1 mb-8">We'll tune your experience around it.</p>
+        <h1 className="text-xl font-bold text-slate-900 text-center">{t("chooseBusinessType.title")}</h1>
+        <p className="text-sm text-slate-500 text-center mt-1 mb-8">{t("chooseBusinessType.subtitle")}</p>
         <div className="w-full border border-slate-200 rounded-xl divide-y divide-slate-200">
           {options.map((o) => (
             <button key={o.id} onClick={() => setChoice(o.id)} className="w-full flex items-center gap-3 px-4 py-4">
@@ -1063,7 +1156,7 @@ function ChooseBusinessType({ onDone }) {
       <div className="p-4">
         <button disabled={!choice} onClick={() => onDone(choice)}
           className={`w-full flex items-center justify-center gap-1 py-3 rounded-xl font-semibold ${choice ? "bg-teal-700 text-white" : "bg-slate-200 text-slate-400"}`}>
-          Next <ChevronRight size={18} />
+          {t("chooseBusinessType.next")} <ChevronRight size={18} />
         </button>
       </div>
     </div>
@@ -1506,6 +1599,7 @@ function Router({ ctx, tab, setTab }) {
     case "tripDetail": return <TripDetailScreen ctx={ctx} tripId={top.tripId} />;
     case "reminders": return <RemindersScreen ctx={ctx} />;
     case "theme": return <ThemeScreen ctx={ctx} />;
+    case "language": return <LanguageScreen ctx={ctx} />;
     case "quickAccess": return <QuickAccessScreen ctx={ctx} />;
     case "profile": return <ProfileScreen ctx={ctx} />;
     case "about": return <AboutScreen ctx={ctx} />;
@@ -1517,7 +1611,7 @@ function Router({ ctx, tab, setTab }) {
 
 // ---------- Books list ----------
 function BooksScreen({ ctx }) {
-  const { activeBusiness, push, canManage, getEntries, appSettings, businesses, persistBusinesses, createBusiness, sessionBusinessConfirmed, confirmBusinessSelection, theme, persistTheme } = ctx;
+  const { activeBusiness, push, canManage, getEntries, appSettings, businesses, persistBusinesses, createBusiness, sessionBusinessConfirmed, confirmBusinessSelection, theme, persistTheme, t } = ctx;
   const [showTemplates, setShowTemplates] = useState(false);
   const [newName, setNewName] = useState("");
   const [balances, setBalances] = useState({});
@@ -1554,7 +1648,7 @@ function BooksScreen({ ctx }) {
   // "what will you manage?" question belongs, not on the app's very first screen.
   if (businesses.length === 0) {
     return (
-      <ChooseBusinessType onDone={async (managing) => {
+      <ChooseBusinessType t={ctx.t} onDone={async (managing) => {
         await createBusiness(managing === "personal" ? "My Cashbook" : "My Business");
       }} />
     );
@@ -1574,8 +1668,8 @@ function BooksScreen({ ctx }) {
         <button onClick={() => push("switchBusiness")} className="flex items-center gap-2 min-w-0">
           <div className="w-9 h-9 rounded-lg bg-teal-50 flex items-center justify-center text-teal-700 shrink-0"><Building2 size={18} /></div>
           <div className="text-left min-w-0">
-            <div className="font-semibold text-slate-900 truncate max-w-[180px]">{activeBusiness?.name || "Select business"}</div>
-            <div className="text-xs text-slate-500">Tap to switch business</div>
+            <div className="font-semibold text-slate-900 truncate max-w-[180px]">{activeBusiness?.name || t("books.selectBusiness")}</div>
+            <div className="text-xs text-slate-500">{t("books.switchBusinessHint")}</div>
           </div>
           <ChevronDown size={16} className="text-slate-400 shrink-0" />
         </button>
@@ -1589,12 +1683,12 @@ function BooksScreen({ ctx }) {
 
       <div className="flex-1 overflow-y-auto p-4 pb-28 space-y-4">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-slate-500">Your Books</span>
+          <span className="text-sm font-medium text-slate-500">{t("books.yourBooks")}</span>
           <Search size={18} className="text-slate-400" />
         </div>
 
         {(!activeBusiness || activeBusiness.books.length === 0) && (
-          <EmptyState icon={BookMarked} title="No books yet" hint="Add your first book to start tracking cash in and out." />
+          <EmptyState icon={BookMarked} title={t("books.noBooksTitle")} hint={t("books.noBooksHint")} />
         )}
 
         <div className="divide-y divide-slate-200 bg-white rounded-xl border border-slate-200">
@@ -1607,7 +1701,7 @@ function BooksScreen({ ctx }) {
                   <div className="w-9 h-9 rounded-lg bg-teal-50 flex items-center justify-center text-teal-700 shrink-0"><BookMarked size={16} /></div>
                   <div className="flex-1 min-w-0">
                     <div className="font-medium text-slate-900 truncate">{bk.name}</div>
-                    <div className="text-xs text-slate-500">Created {fmtDate(bk.createdAt.slice(0,10))}</div>
+                    <div className="text-xs text-slate-500">{t("books.created", { date: fmtDate(bk.createdAt.slice(0,10)) })}</div>
                   </div>
                 </button>
                 <div className="flex items-center gap-2 shrink-0">
@@ -1616,7 +1710,7 @@ function BooksScreen({ ctx }) {
                       {net < 0 ? "-" : ""}{c}{Math.abs(net).toLocaleString()}
                     </span>
                   )}
-                  <button onClick={(e) => { e.stopPropagation(); toggleHidden(bk.id); }} className="p-1.5 text-slate-400 hover:text-slate-600" title={bk.hidden ? "Show balance" : "Hide balance"}>
+                  <button onClick={(e) => { e.stopPropagation(); toggleHidden(bk.id); }} className="p-1.5 text-slate-400 hover:text-slate-600" title={bk.hidden ? t("books.showBalance") : t("books.hideBalance")}>
                     {bk.hidden ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
@@ -1627,22 +1721,22 @@ function BooksScreen({ ctx }) {
 
         {canManage && (
           <div className="bg-white rounded-xl border border-slate-200 p-4">
-            <div className="font-medium text-slate-800 mb-1">Add New Book</div>
-            <div className="text-xs text-slate-500 mb-3">Click to quickly add books for</div>
+            <div className="font-medium text-slate-800 mb-1">{t("books.addNewBookTitle")}</div>
+            <div className="text-xs text-slate-500 mb-3">{t("books.addNewBookHint")}</div>
             <div className="flex flex-wrap gap-2 mb-3">
-              {BOOK_TEMPLATES.map((t) => (
-                <Chip key={t} onClick={() => addBook(t)}>{t}</Chip>
+              {BOOK_TEMPLATES.map((tpl) => (
+                <Chip key={tpl} onClick={() => addBook(tpl)}>{tpl}</Chip>
               ))}
             </div>
             {showTemplates ? (
               <div className="flex gap-2">
-                <input autoFocus value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Book name"
+                <input autoFocus value={newName} onChange={(e) => setNewName(e.target.value)} placeholder={t("books.bookNamePlaceholder")}
                   className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm" />
-                <button onClick={() => addBook(newName)} className="bg-teal-700 text-white px-3 rounded-lg text-sm font-medium">Add</button>
+                <button onClick={() => addBook(newName)} className="bg-teal-700 text-white px-3 rounded-lg text-sm font-medium">{t("common.add")}</button>
               </div>
             ) : (
               <button onClick={() => setShowTemplates(true)} className="w-full flex items-center justify-center gap-1 bg-teal-700 text-white py-2.5 rounded-xl font-medium">
-                <Plus size={18} /> Add new book
+                <Plus size={18} /> {t("books.addNewBookButton")}
               </button>
             )}
           </div>
@@ -1659,43 +1753,43 @@ function BooksScreen({ ctx }) {
 // `pop()` back to, so selecting/creating a business (or dismissing) calls
 // `onDone` instead, which just marks the session as confirmed.
 function SwitchBusinessScreen({ ctx, embedded, onDone }) {
-  const { businesses, session, persistSession, pop, createBusiness } = ctx;
+  const { businesses, session, persistSession, pop, createBusiness, t } = ctx;
   const [creating, setCreating] = useState(false);
   const [name, setName] = useState("");
   const finish = () => { if (embedded) onDone?.(); else pop(); };
   return (
     <div className="flex-1 flex flex-col">
-      <TopHeader ctx={ctx} title="Select Business" right={<button onClick={finish}><X size={20} className="text-slate-500" /></button>} />
+      <TopHeader ctx={ctx} title={t("switchBusiness.title")} right={<button onClick={finish}><X size={20} className="text-slate-500" /></button>} />
       <div className="p-4 space-y-2 flex-1 overflow-y-auto">
         {embedded && (
           <p className="text-xs text-slate-500 mb-1">
-            {businesses.length > 1
-              ? "Choose which business to open. You have more than one saved — pick one below or add another."
-              : "Choose which business to open, or add another."}
+            {businesses.length > 1 ? t("switchBusiness.hintMultiple") : t("switchBusiness.hintSingle")}
           </p>
         )}
-        <div className="text-xs font-medium text-slate-400 uppercase mb-1">Your businesses</div>
+        <div className="text-xs font-medium text-slate-400 uppercase mb-1">{t("switchBusiness.yourBusinesses")}</div>
         {businesses.map((b) => (
           <button key={b.id} onClick={async () => { await persistSession({ ...session, activeBusinessId: b.id, viewingAs: null }); finish(); }}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border ${session.activeBusinessId === b.id ? "border-teal-600 bg-teal-50" : "border-slate-200 bg-white"}`}>
             <div className="w-9 h-9 rounded-lg bg-teal-50 flex items-center justify-center text-teal-700"><Building2 size={16} /></div>
             <div className="flex-1 text-left">
               <div className="font-medium text-slate-900">{b.name}</div>
-              <div className="text-xs text-slate-500">{b.books.length} Book{b.books.length !== 1 ? "s" : ""}</div>
+              <div className="text-xs text-slate-500">
+                {b.books.length === 1 ? t("switchBusiness.bookCountOne", { count: b.books.length }) : t("switchBusiness.bookCountOther", { count: b.books.length })}
+              </div>
             </div>
             {session.activeBusinessId === b.id && <Check size={18} className="text-teal-700" />}
           </button>
         ))}
         {creating ? (
           <div className="flex gap-2 pt-2">
-            <input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder="Business name"
+            <input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder={t("switchBusiness.businessNamePlaceholder")}
               className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm" />
             <button onClick={async () => { if (name.trim()) { await createBusiness(name.trim()); finish(); } }}
-              className="bg-teal-700 text-white px-3 rounded-lg text-sm font-medium">Add</button>
+              className="bg-teal-700 text-white px-3 rounded-lg text-sm font-medium">{t("common.add")}</button>
           </div>
         ) : (
           <button onClick={() => setCreating(true)} className="w-full flex items-center justify-center gap-1 bg-teal-700 text-white py-3 rounded-xl font-semibold mt-2">
-            <Plus size={18} /> Add new Business
+            <Plus size={18} /> {t("switchBusiness.addNewBusiness")}
           </button>
         )}
       </div>
@@ -2976,26 +3070,26 @@ function getHolidaySuggestion(now = new Date()) {
 }
 
 function ThemeScreen({ ctx }) {
-  const { pop, theme, persistTheme } = ctx;
+  const { pop, theme, persistTheme, t } = ctx;
   return (
     <div className="flex-1 flex flex-col">
-      <TopHeader ctx={ctx} title="Appearance" subtitle="Pick a theme for the app" onBack={pop} />
+      <TopHeader ctx={ctx} title={t("theme.title")} subtitle={t("theme.subtitle")} onBack={pop} />
       <div className="flex-1 overflow-y-auto p-4 space-y-5">
         {THEME_GROUP_ORDER.map((group) => (
           <div key={group}>
             <div className="text-xs font-medium text-slate-400 uppercase mb-2 px-1">{group}</div>
             <div className="space-y-2.5">
-              {THEME_OPTIONS.filter((t) => t.group === group).map((t) => {
-                const active = theme === t.id;
+              {THEME_OPTIONS.filter((opt) => opt.group === group).map((opt) => {
+                const active = theme === opt.id;
                 return (
-                  <button key={t.id} onClick={() => persistTheme(t.id)}
+                  <button key={opt.id} onClick={() => persistTheme(opt.id)}
                     className={`w-full flex items-center gap-3 bg-white border rounded-xl p-4 text-left ${active ? "border-teal-600 ring-1 ring-teal-600" : "border-slate-200"}`}>
                     <div className="flex shrink-0 rounded-lg overflow-hidden border border-slate-200 w-10 h-10">
-                      {t.swatches.map((c, i) => <div key={i} className="flex-1 h-full" style={{ backgroundColor: c }} />)}
+                      {opt.swatches.map((c, i) => <div key={i} className="flex-1 h-full" style={{ backgroundColor: c }} />)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-slate-900 text-sm">{t.label}</div>
-                      <div className="text-xs text-slate-500">{t.sub}</div>
+                      <div className="font-medium text-slate-900 text-sm">{opt.label}</div>
+                      <div className="text-xs text-slate-500">{opt.sub}</div>
                     </div>
                     {active ? <CheckCircle2 size={20} className="text-teal-700 shrink-0" /> : <Circle size={20} className="text-slate-200 shrink-0" />}
                   </button>
@@ -3004,6 +3098,30 @@ function ThemeScreen({ ctx }) {
             </div>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+// ---------- Language ----------
+function LanguageScreen({ ctx }) {
+  const { pop, language, persistLanguage, t } = ctx;
+  return (
+    <div className="flex-1 flex flex-col">
+      <TopHeader ctx={ctx} title={t("language.title")} subtitle={t("language.subtitle")} onBack={pop} />
+      <div className="flex-1 overflow-y-auto p-4">
+        <div className="border border-slate-200 rounded-xl divide-y divide-slate-200 overflow-hidden bg-white">
+          {LANGUAGES.map((l) => {
+            const active = language === l.code;
+            return (
+              <button key={l.code} onClick={() => persistLanguage(l.code)}
+                className="w-full flex items-center justify-between px-4 py-3.5 text-left">
+                <span className="font-medium text-slate-800">{l.nativeName}</span>
+                {active ? <CheckCircle2 size={20} className="text-teal-700" /> : <Circle size={20} className="text-slate-200" />}
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
@@ -3131,7 +3249,7 @@ function QuickAccessScreen({ ctx }) {
 }
 
 function SettingsScreen({ ctx }) {
-  const { push } = ctx;
+  const { push, t } = ctx;
   const Item = ({ icon: Icon, title, sub, onClick }) => (
     <button onClick={onClick} className="w-full flex items-center gap-3 px-4 py-3.5 text-left">
       <div className="w-9 h-9 rounded-lg bg-teal-50 flex items-center justify-center text-teal-700 shrink-0"><Icon size={16} /></div>
@@ -3141,23 +3259,24 @@ function SettingsScreen({ ctx }) {
   );
   return (
     <div className="flex-1 flex flex-col">
-      <TopHeader ctx={ctx} title="Settings" />
+      <TopHeader ctx={ctx} title={t("settings.title")} />
       <div className="flex-1 overflow-y-auto">
         {(IS_BUNDLE || APP_VARIANT === "expenses-manager") && (
           <div className="divide-y divide-slate-100 bg-white">
-            <Item icon={Users} title="Business Team" sub="Add, remove or change role" onClick={() => push("businessTeam")} />
-            <Item icon={ArrowRightLeft} title="Move & Copy Book Requests" sub="Approve or deny requests" onClick={() => push("moveRequests")} />
-            <Item icon={Building2} title="Business Settings" sub="Settings specific to this business" onClick={() => push("businessSettings")} />
+            <Item icon={Users} title={t("settings.businessTeamTitle")} sub={t("settings.businessTeamSub")} onClick={() => push("businessTeam")} />
+            <Item icon={ArrowRightLeft} title={t("settings.moveRequestsTitle")} sub={t("settings.moveRequestsSub")} onClick={() => push("moveRequests")} />
+            <Item icon={Building2} title={t("settings.businessSettingsTitle")} sub={t("settings.businessSettingsSub")} onClick={() => push("businessSettings")} />
           </div>
         )}
-        <div className="px-4 py-2 text-xs font-medium text-slate-400 uppercase bg-slate-100">General Settings</div>
+        <div className="px-4 py-2 text-xs font-medium text-slate-400 uppercase bg-slate-100">{t("settings.generalSettings")}</div>
         <div className="divide-y divide-slate-100 bg-white">
-          <Item icon={SettingsIcon} title="App Settings" sub="Currency, categories, payment modes" onClick={() => push("appSettings")} />
-          <Item icon={Bell} title="Reminders" sub="Get notified about things to buy or pay for" onClick={() => push("reminders")} />
-          <Item icon={Palette} title="Appearance" sub="Theme & color" onClick={() => push("theme")} />
-          <Item icon={LayoutGrid} title="Quick Access" sub="Home screen widget or floating icon" onClick={() => push("quickAccess")} />
-          <Item icon={Eye} title="Your Profile" sub="Name, mobile number, email" onClick={() => push("profile")} />
-          <Item icon={Info} title="About በጅሮንድ" sub="Privacy policy, T&C, About us" onClick={() => push("about")} />
+          <Item icon={SettingsIcon} title={t("settings.appSettingsTitle")} sub={t("settings.appSettingsSub")} onClick={() => push("appSettings")} />
+          <Item icon={Bell} title={t("settings.remindersTitle")} sub={t("settings.remindersSub")} onClick={() => push("reminders")} />
+          <Item icon={Palette} title={t("settings.appearanceTitle")} sub={t("settings.appearanceSub")} onClick={() => push("theme")} />
+          <Item icon={Languages} title={t("settings.languageTitle")} sub={t("settings.languageSub")} onClick={() => push("language")} />
+          <Item icon={LayoutGrid} title={t("settings.quickAccessTitle")} sub={t("settings.quickAccessSub")} onClick={() => push("quickAccess")} />
+          <Item icon={Eye} title={t("settings.profileTitle")} sub={t("settings.profileSub")} onClick={() => push("profile")} />
+          <Item icon={Info} title={t("settings.aboutTitle")} sub={t("settings.aboutSub")} onClick={() => push("about")} />
         </div>
       </div>
     </div>

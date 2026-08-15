@@ -1,3 +1,4 @@
+@import "./theme.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,3 +8,4 @@ html, body, #root {
   margin: 0;
   -webkit-tap-highlight-color: transparent;
 }
+

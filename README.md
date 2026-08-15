@@ -1,28 +1,30 @@
-# TallyBook — Android App
+# በጅሮንድ (Bejirond) — Android App
 
-A cash-in/cash-out ledger app (books, multi-business, team roles, reports)
-that runs fully offline. All data is stored only on your phone using
-Capacitor's on-device Preferences storage — nothing is sent to any server.
+The standalone, single-tool Expenses Manager build of TallyBook — books,
+multi-business, team roles, reports — packaged separately from the full
+bundle app so both can be installed on the same phone without conflicting
+(this build uses its own Android application ID,
+`com.teredatrades.bejirond`, distinct from the bundle's
+`com.teredatrades.tallybook`). Runs fully offline; all data is stored only
+on your phone using Capacitor's on-device Preferences storage — nothing is
+sent to any server.
+
+This repo is a mirror of the `individual/expenses-manager` branch of the
+main [`tallybook-app`](https://github.com/TeredaTrades/tallybook-app)
+repo, kept separate so it can build and be distributed as its own APK.
 
 ## Get the APK onto your phone (no Android Studio needed)
 
-1. **Create a new GitHub repo** (github.com → New repository). Any name, e.g. `tallybook-app`.
-2. **Push this folder to it.** From inside this folder:
-   ```bash
-   git init
-   git add .
-   git commit -m "TallyBook Android app"
-   git branch -M main
-   git remote add origin https://github.com/<your-username>/tallybook-app.git
-   git push -u origin main
-   ```
-3. **Wait for the build.** Pushing triggers `.github/workflows/build-apk.yml`,
+Pushing to `main` here triggers `.github/workflows/build-apk.yml`,
    which installs everything and compiles the APK in GitHub's cloud
    (takes ~3-5 minutes). Watch it under the repo's **Actions** tab.
-4. **Download the APK.** When the run finishes (green check), open it,
-   scroll to **Artifacts**, and download `TallyBook-debug-apk` — it's a
-   zip containing `app-debug.apk`.
-5. **Install on your phone.** Transfer the `.apk` to your phone (email it
+1. **Wait for the build.** Watch it under the repo's **Actions** tab
+   (~3-5 minutes).
+2. **Download the APK.** When the run finishes (green check), either open
+   the run and download `Bejirond-debug-apk` from **Artifacts**, or check
+   the repo's **Releases** page — the workflow also publishes a release
+   with the APK attached.
+3. **Install on your phone.** Transfer the `.apk` to your phone (email it
    to yourself, use a cloud drive, or a USB cable) and open it. Android
    will ask you to allow installs from this source the first time —
    approve that, then install normally.

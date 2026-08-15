@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">በጅሮንድ</string>
+    <string name="title_activity_main">በጅሮንድ</string>
+    <string name="package_name">com.teredatrades.bejirond</string>
+    <string name="custom_url_scheme">com.teredatrades.bejirond</string>
+    <string name="widget_default_balance">Open TallyBook</string>
+    <string name="widget_description">Shows your net balance and opens TallyBook</string>
+</resources>

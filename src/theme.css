@@ -1,0 +1,477 @@
+/*
+ * Theme system.
+ *
+ * Rather than rewriting every hardcoded Tailwind color class across the app
+ * (bg-white, text-slate-800, bg-teal-700, etc. — thousands of occurrences),
+ * this file defines CSS variables per theme and then re-points the small set
+ * of color utility classes that account for the vast majority of the UI's
+ * surfaces/text/accents at the ones actually used. New screens should keep
+ * using the same slate/teal/amber/sky/rose Tailwind classes as everywhere
+ * else in the app — they'll automatically follow whichever theme is active.
+ *
+ * [data-theme] is set on the app's root wrapper div (and mirrored onto
+ * <html> so the areas outside it, like iOS overscroll edges, match too).
+ */
+
+[data-theme] {
+  background-color: var(--tb-app-bg);
+  color: var(--tb-text);
+}
+
+[data-theme="light"] {
+  --tb-app-bg: #f8fafc;
+  --tb-surface: #ffffff;
+  --tb-surface-alt: #f8fafc;
+  --tb-surface-alt2: #f1f5f9;
+  --tb-border: #e2e8f0;
+  --tb-text: #0f172a;
+  --tb-text-soft: #334155;
+  --tb-text-muted: #64748b;
+  --tb-text-faint: #94a3b8;
+  --tb-text-faint2: #cbd5e1;
+  --tb-primary: #0f766e;
+  --tb-primary-soft: #f0fdfa;
+  --tb-accent2: #b45309;
+  --tb-accent2-soft: #fffbeb;
+  --tb-accent3: #0369a1;
+  --tb-accent3-soft: #f0f9ff;
+  --tb-secondary: #1e293b;
+  --tb-danger: #be123c;
+  --tb-danger-soft: #fff1f2;
+}
+
+[data-theme="dark"] {
+  --tb-app-bg: #0f172a;
+  --tb-surface: #1e293b;
+  --tb-surface-alt: #0f172a;
+  --tb-surface-alt2: #334155;
+  --tb-border: #334155;
+  --tb-text: #f1f5f9;
+  --tb-text-soft: #cbd5e1;
+  --tb-text-muted: #94a3b8;
+  --tb-text-faint: #64748b;
+  --tb-text-faint2: #475569;
+  --tb-primary: #14b8a6;
+  --tb-primary-soft: #134e4a;
+  --tb-accent2: #f59e0b;
+  --tb-accent2-soft: #451a03;
+  --tb-accent3: #38bdf8;
+  --tb-accent3-soft: #0c4a6e;
+  --tb-secondary: #334155;
+  --tb-danger: #fb7185;
+  --tb-danger-soft: #4c0519;
+}
+
+[data-theme="brown-cream"] {
+  --tb-app-bg: #f5ede1;
+  --tb-surface: #fffaf3;
+  --tb-surface-alt: #f0e4d3;
+  --tb-surface-alt2: #e8d8c0;
+  --tb-border: #d8c3a5;
+  --tb-text: #3b2a1e;
+  --tb-text-soft: #5c4433;
+  --tb-text-muted: #8a705a;
+  --tb-text-faint: #b09a82;
+  --tb-text-faint2: #cbb89e;
+  --tb-primary: #7c4a25;
+  --tb-primary-soft: #efe0cb;
+  --tb-accent2: #a86b2d;
+  --tb-accent2-soft: #f3e3cb;
+  --tb-accent3: #6b4f3a;
+  --tb-accent3-soft: #eee0cd;
+  --tb-secondary: #4a3222;
+  --tb-danger: #a3402c;
+  --tb-danger-soft: #f6e3dd;
+}
+
+[data-theme="pink"] {
+  /* Softened to lighter pastel shades (was a much more saturated hot-pink
+     palette) — same structure, lighter/less intense hues throughout. */
+  --tb-app-bg: #fef7fa;
+  --tb-surface: #ffffff;
+  --tb-surface-alt: #fdedf3;
+  --tb-surface-alt2: #fce3ed;
+  --tb-border: #f6d3e2;
+  --tb-text: #5b2340;
+  --tb-text-soft: #86416a;
+  --tb-text-muted: #b06e94;
+  --tb-text-faint: #d6a4bf;
+  --tb-text-faint2: #ecd0de;
+  --tb-primary: #d6598e;
+  --tb-primary-soft: #fde7f0;
+  --tb-accent2: #e17ba6;
+  --tb-accent2-soft: #fdeef4;
+  --tb-accent3: #c14b7c;
+  --tb-accent3-soft: #fdeef4;
+  --tb-secondary: #9c4a70;
+  --tb-danger: #be123c;
+  --tb-danger-soft: #ffe4e6;
+}
+
+[data-theme="islamic"] {
+  --tb-app-bg: #f4f8f4;
+  --tb-surface: #ffffff;
+  --tb-surface-alt: #eaf3ea;
+  --tb-surface-alt2: #dcebdc;
+  --tb-border: #c9ddc9;
+  --tb-text: #1a2e1a;
+  --tb-text-soft: #2f4a2f;
+  --tb-text-muted: #5c7a5c;
+  --tb-text-faint: #8fab8f;
+  --tb-text-faint2: #bcd0bc;
+  --tb-primary: #0f6b3f;
+  --tb-primary-soft: #e3f3e9;
+  --tb-accent2: #b8860b;
+  --tb-accent2-soft: #faf1d9;
+  --tb-accent3: #0a5c33;
+  --tb-accent3-soft: #e3f3e9;
+  --tb-secondary: #14432a;
+  --tb-danger: #b3261e;
+  --tb-danger-soft: #fbe4e2;
+}
+
+[data-theme="minimalist"] {
+  --tb-app-bg: #fafafa;
+  --tb-surface: #ffffff;
+  --tb-surface-alt: #f4f4f5;
+  --tb-surface-alt2: #e4e4e7;
+  --tb-border: #e4e4e7;
+  --tb-text: #18181b;
+  --tb-text-soft: #3f3f46;
+  --tb-text-muted: #71717a;
+  --tb-text-faint: #a1a1aa;
+  --tb-text-faint2: #d4d4d8;
+  --tb-primary: #2563eb;
+  --tb-primary-soft: #eff6ff;
+  --tb-accent2: #4b5563;
+  --tb-accent2-soft: #f4f4f5;
+  --tb-accent3: #1d4ed8;
+  --tb-accent3-soft: #eff6ff;
+  --tb-secondary: #27272a;
+  --tb-danger: #dc2626;
+  --tb-danger-soft: #fef2f2;
+}
+
+/* ---- Pattern & shape themes ----
+ * Same variable structure as the solid themes above, plus a subtle
+ * background-image pattern. The pattern is painted on [data-theme]'s own
+ * background (a layer above --tb-app-bg, below everything else), and every
+ * card/input still sits on a fully solid --tb-surface background on top of
+ * it — so the pattern only ever shows in the gaps between content and never
+ * reduces text or form legibility.
+ */
+[data-theme="light-dots"] {
+  --tb-app-bg: #f8fafc;
+  --tb-surface: #ffffff;
+  --tb-surface-alt: #f8fafc;
+  --tb-surface-alt2: #f1f5f9;
+  --tb-border: #e2e8f0;
+  --tb-text: #0f172a;
+  --tb-text-soft: #334155;
+  --tb-text-muted: #64748b;
+  --tb-text-faint: #94a3b8;
+  --tb-text-faint2: #cbd5e1;
+  --tb-primary: #0f766e;
+  --tb-primary-soft: #f0fdfa;
+  --tb-accent2: #b45309;
+  --tb-accent2-soft: #fffbeb;
+  --tb-accent3: #0369a1;
+  --tb-accent3-soft: #f0f9ff;
+  --tb-secondary: #1e293b;
+  --tb-danger: #be123c;
+  --tb-danger-soft: #fff1f2;
+  background-image: radial-gradient(rgba(15, 118, 110, 0.14) 1.5px, transparent 1.5px);
+  background-size: 18px 18px;
+}
+
+[data-theme="dark-grid"] {
+  --tb-app-bg: #0f172a;
+  --tb-surface: #1e293b;
+  --tb-surface-alt: #0f172a;
+  --tb-surface-alt2: #334155;
+  --tb-border: #334155;
+  --tb-text: #f1f5f9;
+  --tb-text-soft: #cbd5e1;
+  --tb-text-muted: #94a3b8;
+  --tb-text-faint: #64748b;
+  --tb-text-faint2: #475569;
+  --tb-primary: #14b8a6;
+  --tb-primary-soft: #134e4a;
+  --tb-accent2: #f59e0b;
+  --tb-accent2-soft: #451a03;
+  --tb-accent3: #38bdf8;
+  --tb-accent3-soft: #0c4a6e;
+  --tb-secondary: #334155;
+  --tb-danger: #fb7185;
+  --tb-danger-soft: #4c0519;
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.12) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+[data-theme="terracotta-waves"] {
+  --tb-app-bg: #fdf6ee;
+  --tb-surface: #ffffff;
+  --tb-surface-alt: #f8ede0;
+  --tb-surface-alt2: #f1ddc7;
+  --tb-border: #e6cbaf;
+  --tb-text: #3a2416;
+  --tb-text-soft: #5c3d26;
+  --tb-text-muted: #8a6a4c;
+  --tb-text-faint: #b6947a;
+  --tb-text-faint2: #d9c1a8;
+  --tb-primary: #c2410c;
+  --tb-primary-soft: #ffedd5;
+  --tb-accent2: #b45309;
+  --tb-accent2-soft: #fffbeb;
+  --tb-accent3: #9a3412;
+  --tb-accent3-soft: #ffedd5;
+  --tb-secondary: #431407;
+  --tb-danger: #b91c1c;
+  --tb-danger-soft: #fee2e2;
+  background-image: repeating-linear-gradient(135deg, rgba(194, 65, 12, 0.09) 0px, rgba(194, 65, 12, 0.09) 2px, transparent 2px, transparent 14px);
+}
+
+/* ---- Holiday themes ----
+ * Same pattern-theme approach, tied to specific dates so Home can suggest
+ * them around the relevant holiday (see HOLIDAY_THEMES / holiday-suggestion
+ * logic in App.jsx). Selectable any time from Settings > Appearance too.
+ * Note: Eid al-Fitr / Eid al-Adha follow the lunar Hijri calendar, so their
+ * Gregorian dates shift each year and the suggestion dates in App.jsx will
+ * need periodic updates (same caveat as the ETB/AED/KES snapshot exchange
+ * rates elsewhere in this app).
+ */
+[data-theme="holiday-newyear"] {
+  --tb-app-bg: #0b1f3a;
+  --tb-surface: #ffffff;
+  --tb-surface-alt: #0f2a4d;
+  --tb-surface-alt2: #14355e;
+  --tb-border: #d4af37;
+  --tb-text: #0f172a;
+  --tb-text-soft: #334155;
+  --tb-text-muted: #64748b;
+  --tb-text-faint: #94a3b8;
+  --tb-text-faint2: #cbd5e1;
+  --tb-primary: #b8860b;
+  --tb-primary-soft: #fdf6e3;
+  --tb-accent2: #d4af37;
+  --tb-accent2-soft: #fdf6e3;
+  --tb-accent3: #14355e;
+  --tb-accent3-soft: #eaf0fa;
+  --tb-secondary: #0f2a4d;
+  --tb-danger: #be123c;
+  --tb-danger-soft: #fff1f2;
+  background-image: radial-gradient(rgba(212, 175, 55, 0.35) 1.5px, transparent 1.5px);
+  background-size: 20px 20px;
+}
+
+[data-theme="holiday-genna"] {
+  --tb-app-bg: #fdf6ec;
+  --tb-surface: #ffffff;
+  --tb-surface-alt: #f7ebd7;
+  --tb-surface-alt2: #f0dfc0;
+  --tb-border: #e3c68f;
+  --tb-text: #3a1414;
+  --tb-text-soft: #5c2323;
+  --tb-text-muted: #8a5252;
+  --tb-text-faint: #bf8f8f;
+  --tb-text-faint2: #ddbcbc;
+  --tb-primary: #7a1f2b;
+  --tb-primary-soft: #fbe7e9;
+  --tb-accent2: #b8860b;
+  --tb-accent2-soft: #fdf6e3;
+  --tb-accent3: #1a5c34;
+  --tb-accent3-soft: #e6f3ea;
+  --tb-secondary: #4a1420;
+  --tb-danger: #a3242f;
+  --tb-danger-soft: #fbe7e9;
+  background-image:
+    linear-gradient(45deg, rgba(184, 134, 11, 0.16) 1px, transparent 1px),
+    linear-gradient(-45deg, rgba(184, 134, 11, 0.16) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+[data-theme="holiday-timkat"] {
+  --tb-app-bg: #eef7fb;
+  --tb-surface: #ffffff;
+  --tb-surface-alt: #e0f0f7;
+  --tb-surface-alt2: #cde6f1;
+  --tb-border: #a9d4e6;
+  --tb-text: #0c2d3d;
+  --tb-text-soft: #1f4a5f;
+  --tb-text-muted: #4f7d90;
+  --tb-text-faint: #8fb8c8;
+  --tb-text-faint2: #c3dfe8;
+  --tb-primary: #0369a1;
+  --tb-primary-soft: #e0f2fe;
+  --tb-accent2: #b8860b;
+  --tb-accent2-soft: #fdf6e3;
+  --tb-accent3: #075985;
+  --tb-accent3-soft: #e0f2fe;
+  --tb-secondary: #0c4a6e;
+  --tb-danger: #be123c;
+  --tb-danger-soft: #fff1f2;
+  background-image: repeating-linear-gradient(90deg, rgba(3, 105, 161, 0.10) 0px, rgba(3, 105, 161, 0.10) 3px, transparent 3px, transparent 16px);
+}
+
+[data-theme="holiday-eid"] {
+  --tb-app-bg: #f3f9f4;
+  --tb-surface: #ffffff;
+  --tb-surface-alt: #e6f2e8;
+  --tb-surface-alt2: #d3e8d6;
+  --tb-border: #b9d9bd;
+  --tb-text: #12261a;
+  --tb-text-soft: #24422f;
+  --tb-text-muted: #567a5f;
+  --tb-text-faint: #94b39b;
+  --tb-text-faint2: #c6dbca;
+  --tb-primary: #0a5c33;
+  --tb-primary-soft: #e3f3e9;
+  --tb-accent2: #b8860b;
+  --tb-accent2-soft: #fdf6e3;
+  --tb-accent3: #14532d;
+  --tb-accent3-soft: #e3f3e9;
+  --tb-secondary: #0f3d22;
+  --tb-danger: #b3261e;
+  --tb-danger-soft: #fbe4e2;
+  background-image: radial-gradient(rgba(184, 134, 11, 0.22) 1.5px, transparent 1.5px);
+  background-size: 14px 14px;
+}
+
+[data-theme="holiday-enkutatash"] {
+  --tb-app-bg: #f6faf0;
+  --tb-surface: #ffffff;
+  --tb-surface-alt: #ecf5df;
+  --tb-surface-alt2: #dfedc8;
+  --tb-border: #c9e0a3;
+  --tb-text: #24310f;
+  --tb-text-soft: #3d4e1d;
+  --tb-text-muted: #6b7f45;
+  --tb-text-faint: #a3b581;
+  --tb-text-faint2: #d0dcb9;
+  --tb-primary: #4d7c0f;
+  --tb-primary-soft: #f1f8e6;
+  --tb-accent2: #ca8a04;
+  --tb-accent2-soft: #fef9e6;
+  --tb-accent3: #3f6212;
+  --tb-accent3-soft: #f1f8e6;
+  --tb-secondary: #365314;
+  --tb-danger: #be123c;
+  --tb-danger-soft: #fff1f2;
+  background-image: radial-gradient(rgba(202, 138, 4, 0.30) 2px, transparent 2px);
+  background-size: 22px 22px;
+}
+
+[data-theme="holiday-meskel"] {
+  --tb-app-bg: #f7f3fa;
+  --tb-surface: #ffffff;
+  --tb-surface-alt: #ede4f4;
+  --tb-surface-alt2: #ddccec;
+  --tb-border: #c9aee0;
+  --tb-text: #2c1a3d;
+  --tb-text-soft: #4a2e63;
+  --tb-text-muted: #7a5c94;
+  --tb-text-faint: #ad91c2;
+  --tb-text-faint2: #d6c5e3;
+  --tb-primary: #6b21a8;
+  --tb-primary-soft: #f3e8fd;
+  --tb-accent2: #ca8a04;
+  --tb-accent2-soft: #fef9e6;
+  --tb-accent3: #581c87;
+  --tb-accent3-soft: #f3e8fd;
+  --tb-secondary: #3b0764;
+  --tb-danger: #be123c;
+  --tb-danger-soft: #fff1f2;
+  background-image:
+    linear-gradient(45deg, rgba(107, 33, 168, 0.14) 1px, transparent 1px),
+    linear-gradient(-45deg, rgba(107, 33, 168, 0.14) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+[data-theme="holiday-christmas"] {
+  --tb-app-bg: #fdf5f5;
+  --tb-surface: #ffffff;
+  --tb-surface-alt: #fbe9e9;
+  --tb-surface-alt2: #f6d4d4;
+  --tb-border: #eab3b3;
+  --tb-text: #1f2e22;
+  --tb-text-soft: #33472f;
+  --tb-text-muted: #5f7359;
+  --tb-text-faint: #9bac93;
+  --tb-text-faint2: #ccd8c6;
+  --tb-primary: #b91c1c;
+  --tb-primary-soft: #fee2e2;
+  --tb-accent2: #15803d;
+  --tb-accent2-soft: #e6f4ea;
+  --tb-accent3: #166534;
+  --tb-accent3-soft: #e6f4ea;
+  --tb-secondary: #14532d;
+  --tb-danger: #991b1b;
+  --tb-danger-soft: #fee2e2;
+  background-image: radial-gradient(rgba(21, 128, 61, 0.18) 1.5px, transparent 1.5px);
+  background-size: 16px 16px;
+}
+
+/* ---- Surfaces ---- */
+[data-theme] .bg-white { background-color: var(--tb-surface) !important; }
+[data-theme] .bg-slate-50 { background-color: var(--tb-surface-alt) !important; }
+[data-theme] .bg-slate-100 { background-color: var(--tb-surface-alt2) !important; }
+
+/* ---- Borders / dividers ---- */
+[data-theme] .border-slate-200,
+[data-theme] .border-slate-300 { border-color: var(--tb-border) !important; }
+[data-theme] .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+[data-theme] .divide-slate-200 > :not([hidden]) ~ :not([hidden]) { border-color: var(--tb-border) !important; }
+
+/* ---- Text ---- */
+[data-theme] .text-slate-900,
+[data-theme] .text-slate-800 { color: var(--tb-text) !important; }
+[data-theme] .text-slate-700 { color: var(--tb-text-soft) !important; }
+[data-theme] .text-slate-500 { color: var(--tb-text-muted) !important; }
+[data-theme] .text-slate-400 { color: var(--tb-text-faint) !important; }
+[data-theme] .text-slate-300 { color: var(--tb-text-faint2) !important; }
+
+/* ---- Primary (teal) ---- */
+[data-theme] .bg-teal-700,
+[data-theme] .bg-teal-600 { background-color: var(--tb-primary) !important; }
+[data-theme] .bg-teal-50 { background-color: var(--tb-primary-soft) !important; }
+[data-theme] .text-teal-700 { color: var(--tb-primary) !important; }
+[data-theme] .border-teal-300 { border-color: var(--tb-primary) !important; }
+
+/* ---- Secondary accent (amber — Budget, warnings) ---- */
+[data-theme] .bg-amber-700 { background-color: var(--tb-accent2) !important; }
+[data-theme] .bg-amber-50 { background-color: var(--tb-accent2-soft) !important; }
+[data-theme] .text-amber-700,
+[data-theme] .text-amber-800 { color: var(--tb-accent2) !important; }
+
+/* ---- Tertiary accent (sky — Trip Organizer) ---- */
+[data-theme] .bg-sky-700 { background-color: var(--tb-accent3) !important; }
+[data-theme] .bg-sky-50 { background-color: var(--tb-accent3-soft) !important; }
+[data-theme] .text-sky-700 { color: var(--tb-accent3) !important; }
+
+/* ---- Dark neutral (Loan Calculator button, etc.) ---- */
+[data-theme] .bg-slate-800,
+[data-theme] .bg-slate-900 { background-color: var(--tb-secondary) !important; }
+
+/* ---- Danger (rose — delete, over-budget, errors) ---- */
+[data-theme] .bg-rose-700 { background-color: var(--tb-danger) !important; }
+[data-theme] .bg-rose-50 { background-color: var(--tb-danger-soft) !important; }
+[data-theme] .text-rose-500,
+[data-theme] .text-rose-600 { color: var(--tb-danger) !important; }
+
+/* ---- Form controls ----
+ * Many inputs/textareas/selects across the app rely on the browser's native
+ * white background rather than an explicit bg-white class. Without this,
+ * they'd stay white in dark mode (and other dark-ish themes), clashing with
+ * themed text colors. */
+[data-theme] input,
+[data-theme] textarea,
+[data-theme] select {
+  background-color: var(--tb-surface);
+  color: var(--tb-text);
+}
+[data-theme] input::placeholder,
+[data-theme] textarea::placeholder {
+  color: var(--tb-text-faint);
+}

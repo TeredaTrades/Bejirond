@@ -33,9 +33,53 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
+
+        <!-- Home screen widget (Settings > Quick Access) — shows a net-balance
+             summary pushed from the app and opens MainActivity when tapped. -->
+        <receiver
+            android:name=".ExpensesWidgetProvider"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/expenses_widget_info" />
+        </receiver>
+
+        <!-- Floating icon (Settings > Quick Access) — a draggable overlay bubble that
+             opens MainActivity on tap. Only ever started after the user grants the
+             "display over other apps" permission and enables it from Quick Access. -->
+        <service
+            android:name=".BubbleService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Floating shortcut icon to reopen the app, enabled by the user from Settings" />
+        </service>
     </application>
 
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Needed to show reminder notifications for the "to buy / to pay for" list -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- Needed for the optional floating icon in Settings > Quick Access. Not requested
+         at install time — the user opts in and is sent to system Settings to grant it. -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+
+    <!-- Needed on Android 11+ so the Share sheet can list apps to share CSV/PDF exports to -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.SEND" />
+            <data android:mimeType="*/*" />
+        </intent>
+    </queries>
 </manifest>

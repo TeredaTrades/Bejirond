@@ -1,0 +1,70 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main, master, 'individual/**' ]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build web assets
+        run: npm run build
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
+
+      - name: Build debug APK
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Bejirond-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+
+      # Actions artifacts (above) require being signed into GitHub to download.
+      # Also publish as a GitHub Release asset so the APK has a plain downloadable
+      # URL that works without extra auth.
+      - name: Rename APK for release
+        run: |
+          BRANCH_SLUG=$(echo "${{ github.ref_name }}" | tr '/' '-')
+          cp android/app/build/outputs/apk/debug/app-debug.apk "Bejirond-${BRANCH_SLUG}-${{ github.run_number }}.apk"
+
+      - name: Publish GitHub Release with APK
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH_SLUG=$(echo "${{ github.ref_name }}" | tr '/' '-')
+          TAG="build-${BRANCH_SLUG}-${{ github.run_number }}"
+          gh release create "$TAG" "Bejirond-${BRANCH_SLUG}-${{ github.run_number }}.apk" \
+            --title "Bejirond debug build — ${{ github.ref_name }} #${{ github.run_number }}" \
+            --notes "Automated debug APK build from ${{ github.ref_name }} at ${{ github.sha }}."

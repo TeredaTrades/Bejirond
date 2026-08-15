@@ -2075,23 +2075,22 @@ function AddEntryScreen({ ctx, bookId, type, editEntry }) {
           confirmLabel="Yes, Delete" cancelLabel="No"
           onCancel={() => setConfirmDelete(false)} onConfirm={deleteEntry} />
       )}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {isEdit && (
-          <div>
-            <div className="text-xs text-slate-500 mb-1.5">Entry Type</div>
-            <div className="flex gap-2">
-              <button onClick={() => setForm({ ...form, type: "in" })}
-                className={`flex-1 flex items-center justify-center gap-1 py-2 rounded-xl font-semibold border ${isIn ? "bg-emerald-700 text-white border-emerald-700" : "border-slate-300 text-slate-500"}`}>
-                <Plus size={16} /> Cash In
-              </button>
-              <button onClick={() => setForm({ ...form, type: "out" })}
-                className={`flex-1 flex items-center justify-center gap-1 py-2 rounded-xl font-semibold border ${!isIn ? "bg-rose-700 text-white border-rose-700" : "border-slate-300 text-slate-500"}`}>
-                <Minus size={16} /> Cash Out
-              </button>
-            </div>
+      {isEdit && (
+        <div className="px-4 pt-3 pb-2 bg-white border-b border-slate-100">
+          <div className="text-xs text-slate-500 mb-1.5">Entry Type</div>
+          <div className="flex gap-2">
+            <button onClick={() => setForm({ ...form, type: "in" })}
+              className={`flex-1 flex items-center justify-center gap-1 py-2 rounded-xl font-semibold border ${isIn ? "bg-emerald-700 text-white border-emerald-700" : "border-slate-300 text-slate-500"}`}>
+              <Plus size={16} /> Cash In
+            </button>
+            <button onClick={() => setForm({ ...form, type: "out" })}
+              className={`flex-1 flex items-center justify-center gap-1 py-2 rounded-xl font-semibold border ${!isIn ? "bg-rose-700 text-white border-rose-700" : "border-slate-300 text-slate-500"}`}>
+              <Minus size={16} /> Cash Out
+            </button>
           </div>
-        )}
-
+        </div>
+      )}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
         <div className="flex gap-3">
           <label className="flex-1">
             <div className="text-xs text-slate-500 mb-1 flex items-center gap-1"><Calendar size={12} /> Date</div>

@@ -2350,6 +2350,7 @@ function BookSettingsScreen({ ctx, bookId }) {
   const book = activeBusiness?.books.find((b) => b.id === bookId);
   const [renaming, setRenaming] = useState(false);
   const [name, setName] = useState(book?.name || "");
+  const [confirmDeleteBook, setConfirmDeleteBook] = useState(false);
 
   const doRename = async () => {
     const next = businesses.map((b) => b.id === activeBusiness.id ? { ...b, books: b.books.map(bk => bk.id === bookId ? { ...bk, name } : bk) } : b);
@@ -2436,11 +2437,20 @@ function BookSettingsScreen({ ctx, bookId }) {
         )}
 
         {canManage && (
-          <button onClick={deleteBook} className="w-full flex items-center justify-center gap-2 text-rose-700 border border-rose-200 rounded-xl py-3 font-medium">
+          <button onClick={() => setConfirmDeleteBook(true)} className="w-full flex items-center justify-center gap-2 text-rose-700 border border-rose-200 rounded-xl py-3 font-medium">
             <Trash2 size={16} /> Delete Book
           </button>
         )}
       </div>
+
+      {confirmDeleteBook && (
+        <ConfirmModal
+          title="Delete this book?"
+          message={`This will remove "${book?.name}" and all its entries for good — there's no getting it back after.`}
+          confirmLabel="Yes, Delete" cancelLabel="No"
+          onCancel={() => setConfirmDeleteBook(false)}
+          onConfirm={() => { setConfirmDeleteBook(false); deleteBook(); }} />
+      )}
     </div>
   );
 }
@@ -3331,38 +3341,44 @@ function BusinessSettingsScreen({ ctx }) {
           </div>
         </div>
 
-        {businesses.length > 1 && activeBusiness.books.length > 0 && (
-          <div className="bg-white border border-slate-200 rounded-xl p-4 space-y-3">
-            <div className="font-medium text-slate-800 flex items-center gap-2"><ArrowRightLeft size={16} className="text-teal-700" /> Move or copy a book to another business</div>
-            <div className="flex gap-2">
-              <button type="button" onClick={() => setMoveMode("move")}
-                className={`flex-1 py-2 rounded-lg text-sm font-medium border ${moveMode === "move" ? "bg-teal-700 text-white border-teal-700" : "bg-white text-slate-600 border-slate-300"}`}>
-                Move
+        <div className="bg-white border border-slate-200 rounded-xl p-4 space-y-3">
+          <div className="font-medium text-slate-800 flex items-center gap-2"><ArrowRightLeft size={16} className="text-teal-700" /> Move or copy a book to another business</div>
+          {businesses.length <= 1 ? (
+            <div className="text-xs text-slate-500">Add another business first — you'll need somewhere to move or copy a book into.</div>
+          ) : activeBusiness.books.length === 0 ? (
+            <div className="text-xs text-slate-500">This business has no books yet to move or copy.</div>
+          ) : (
+            <>
+              <div className="flex gap-2">
+                <button type="button" onClick={() => setMoveMode("move")}
+                  className={`flex-1 py-2 rounded-lg text-sm font-medium border ${moveMode === "move" ? "bg-teal-700 text-white border-teal-700" : "bg-white text-slate-600 border-slate-300"}`}>
+                  Move
+                </button>
+                <button type="button" onClick={() => setMoveMode("copy")}
+                  className={`flex-1 py-2 rounded-lg text-sm font-medium border ${moveMode === "copy" ? "bg-teal-700 text-white border-teal-700" : "bg-white text-slate-600 border-slate-300"}`}>
+                  Copy
+                </button>
+              </div>
+              <div className="text-xs text-slate-500">
+                {moveMode === "copy"
+                  ? "Copy: the book will exist in both businesses as two independent copies — one here, one there."
+                  : "Move: the book leaves this business and exists only in the target business once approved."}
+              </div>
+              <select value={moveBook} onChange={(e) => setMoveBook(e.target.value)} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white">
+                <option value="">Select book</option>
+                {activeBusiness.books.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+              </select>
+              <select value={moveTarget} onChange={(e) => setMoveTarget(e.target.value)} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white">
+                <option value="">Select target business</option>
+                {businesses.filter(b => b.id !== activeBusiness.id).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+              </select>
+              <button onClick={requestMove} disabled={!moveTarget || !moveBook}
+                className={`w-full py-2.5 rounded-xl font-semibold text-sm ${(!moveTarget || !moveBook) ? "bg-slate-200 text-slate-400" : "bg-teal-700 text-white"}`}>
+                Send {moveMode === "copy" ? "Copy" : "Move"} Request
               </button>
-              <button type="button" onClick={() => setMoveMode("copy")}
-                className={`flex-1 py-2 rounded-lg text-sm font-medium border ${moveMode === "copy" ? "bg-teal-700 text-white border-teal-700" : "bg-white text-slate-600 border-slate-300"}`}>
-                Copy
-              </button>
-            </div>
-            <div className="text-xs text-slate-500">
-              {moveMode === "copy"
-                ? "Copy: the book will exist in both businesses as two independent copies — one here, one there."
-                : "Move: the book leaves this business and exists only in the target business once approved."}
-            </div>
-            <select value={moveBook} onChange={(e) => setMoveBook(e.target.value)} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white">
-              <option value="">Select book</option>
-              {activeBusiness.books.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-            </select>
-            <select value={moveTarget} onChange={(e) => setMoveTarget(e.target.value)} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white">
-              <option value="">Select target business</option>
-              {businesses.filter(b => b.id !== activeBusiness.id).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-            </select>
-            <button onClick={requestMove} disabled={!moveTarget || !moveBook}
-              className={`w-full py-2.5 rounded-xl font-semibold text-sm ${(!moveTarget || !moveBook) ? "bg-slate-200 text-slate-400" : "bg-teal-700 text-white"}`}>
-              Send {moveMode === "copy" ? "Copy" : "Move"} Request
-            </button>
-          </div>
-        )}
+            </>
+          )}
+        </div>
 
         <button onClick={() => setConfirmDeleteBusiness(true)} className="w-full flex items-center justify-center gap-2 text-rose-700 border border-rose-200 rounded-xl py-3 font-medium">
           <Trash2 size={16} /> Delete Business

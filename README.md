@@ -15,9 +15,9 @@ repo, kept separate so it can build and be distributed as its own APK.
 
 ## Get the APK onto your phone (no Android Studio needed)
 
-Pushing to `main` here triggers `.github/workflows/build-apk.yml`,
-   which installs everything and compiles the APK in GitHub's cloud
-   (takes ~3-5 minutes). Watch it under the repo's **Actions** tab.
+Pushing to `main` here triggers `.github/workflows/build-apk.yml`, which
+installs everything and compiles the APK in GitHub's cloud.
+
 1. **Wait for the build.** Watch it under the repo's **Actions** tab
    (~3-5 minutes).
 2. **Download the APK.** When the run finishes (green check), either open
@@ -40,8 +40,8 @@ That's it — no dev machine, no Android Studio, no SDK setup on your end.
 - All your books, entries, and settings are stored locally via
   `@capacitor/preferences`. Uninstalling the app deletes that data, so
   back up anything important (e.g. export a report) before uninstalling.
-- To make changes later: edit files in `src/`, then repeat step 2's
-  `git add / commit / push` — the workflow rebuilds the APK automatically.
+- To make changes later: edit files in `src/`, commit, and push to
+  `main` — the workflow rebuilds the APK automatically.
 
 ## Local development (optional)
 

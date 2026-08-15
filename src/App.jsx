@@ -647,6 +647,10 @@ export default function TallyBookApp() {
   // yet known) rather than false, so the loading spinner stays up instead of the
   // picker flashing on for a returning user for one frame while storage loads.
   const [firstRunDone, setFirstRunDone] = useState(null);
+  // Transient — only meaningful while firstRunDone is still false, and never
+  // persisted, since it just sequences "picker" -> "about splash" within a
+  // single first-launch session.
+  const [showAboutSplash, setShowAboutSplash] = useState(false);
   const t = useMemo(() => getTranslator(language), [language]);
   // The Expenses Manager standalone build has no Home screen — it lands directly on
   // the business selector (the Cashbooks/"books" tab, which shows the Select Business
@@ -886,12 +890,15 @@ export default function TallyBookApp() {
   // render Welcome itself sensibly. Skipped entirely for a returning user;
   // language/theme can still be changed later from Settings.
   if (!firstRunDone) {
+    if (showAboutSplash) {
+      return <AboutSplashScreen theme={theme} t={t} onDone={completeFirstRun} />;
+    }
     return (
       <FirstRunScreen
         theme={theme} persistTheme={persistTheme}
         language={language} persistLanguage={persistLanguage}
         t={t}
-        onDone={completeFirstRun}
+        onDone={() => setShowAboutSplash(true)}
       />
     );
   }
@@ -960,6 +967,25 @@ export default function TallyBookApp() {
 }
 
 // ---------- First run: language + theme picker ----------
+// Shown once, for a few seconds, right after the language + theme picker —
+// still part of the very-first-launch flow (see firstRunDone/showAboutSplash
+// in App). Introduces what "Bejirond" means before the user gets into the
+// app itself. Auto-advances on a timer; deliberately has no button/skip
+// since it's short by design and the point is just a brief, unhurried
+// introduction, not a screen the user has to act on.
+function AboutSplashScreen({ theme, t, onDone }) {
+  useEffect(() => {
+    const timer = setTimeout(onDone, 3500);
+    return () => clearTimeout(timer);
+  }, [onDone]);
+  return (
+    <div data-theme={theme} className="w-full h-screen bg-white overflow-hidden flex flex-col items-center justify-center px-8 text-center">
+      <Loader2 size={28} className="animate-spin text-teal-700 mb-6" />
+      <p className="text-sm text-slate-600 leading-relaxed max-w-[300px]">{t("firstRun.aboutMessage")}</p>
+    </div>
+  );
+}
+
 // Shown once, before Welcome, only on a device's very first launch (see firstRunDone in
 // App). Both choices can be changed later from Settings — this just sets a sensible
 // starting point instead of forcing English/light on everyone by default.

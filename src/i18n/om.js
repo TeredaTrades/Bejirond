@@ -24,6 +24,7 @@ export default {
     themeLight: "Ifaa",
     themeDark: "Dukkanaa'aa",
     continueButton: "Itti fufi",
+    aboutMessage: "\"Bejirond\" jechuun maqaa aangoo tokko yoo ta'u, hiikni isaa qabataa maallaqaa/qabeenyaa, geggeessaa, fi to'ataa jechuudha.",
   },
   welcome: {
     title: "Baga nagaan dhuftan",

@@ -21,9 +21,10 @@ export default {
     subtitle: "ከመጀመርዎ በፊት ጥቂት ነገሮችን እናስተካክል።",
     languageLabel: "ቋንቋዎን ይምረጡ",
     themeLabel: "መልክዎን ይምረጡ",
-    themeLight: "ብሩህ",
-    themeDark: "ጨለማ",
+    themeLight: "ቀን",
+    themeDark: "ሌሊት",
     continueButton: "ቀጥል",
+    aboutMessage: "በጅሮንድ የሹመት ስም ሲሆን፣ ገንዘብ/ንብረት ያዥ፣ አንቀሳቃሽ፣ ተቆጣጣሪ እንደማለት ነው።",
   },
   welcome: {
     title: "እንኳን ደህና መጡ",

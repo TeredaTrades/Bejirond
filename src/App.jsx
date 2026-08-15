@@ -1164,7 +1164,8 @@ function ChooseBusinessType({ onDone, t }) {
           <BookMarked size={36} className="text-teal-700" />
         </div>
         <h1 className="text-xl font-bold text-slate-900 text-center">{t("chooseBusinessType.title")}</h1>
-        <p className="text-sm text-slate-500 text-center mt-1 mb-8">{t("chooseBusinessType.subtitle")}</p>
+        <p className="text-sm text-slate-500 text-center mt-1 mb-2">{t("chooseBusinessType.subtitle")}</p>
+        <p className="text-xs text-slate-400 text-center mb-8">{t("chooseBusinessType.note")}</p>
         <div className="w-full border border-slate-200 rounded-xl divide-y divide-slate-200">
           {options.map((o) => (
             <button key={o.id} onClick={() => setChoice(o.id)} className="w-full flex items-center gap-3 px-4 py-4">

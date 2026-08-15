@@ -45,26 +45,28 @@ jobs:
         working-directory: android
         run: ./gradlew assembleDebug --no-daemon
 
+      - name: Rename APK
+        run: |
+          BRANCH_SLUG=$(echo "${{ github.ref_name }}" | tr '/' '-')
+          mkdir -p dist-apk
+          cp android/app/build/outputs/apk/debug/app-debug.apk \
+             "dist-apk/Bejirond-${BRANCH_SLUG}-${{ github.run_number }}.apk"
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Bejirond-debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: Bejirond-${{ github.ref_name }}-debug-apk
+          path: dist-apk/Bejirond-*.apk
 
       # Actions artifacts (above) require being signed into GitHub to download.
       # Also publish as a GitHub Release asset so the APK has a plain downloadable
       # URL that works without extra auth.
-      - name: Rename APK for release
-        run: |
-          BRANCH_SLUG=$(echo "${{ github.ref_name }}" | tr '/' '-')
-          cp android/app/build/outputs/apk/debug/app-debug.apk "Bejirond-${BRANCH_SLUG}-${{ github.run_number }}.apk"
-
       - name: Publish GitHub Release with APK
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           BRANCH_SLUG=$(echo "${{ github.ref_name }}" | tr '/' '-')
           TAG="build-${BRANCH_SLUG}-${{ github.run_number }}"
-          gh release create "$TAG" "Bejirond-${BRANCH_SLUG}-${{ github.run_number }}.apk" \
+          gh release create "$TAG" "dist-apk/Bejirond-${BRANCH_SLUG}-${{ github.run_number }}.apk" \
             --title "Bejirond debug build — ${{ github.ref_name }} #${{ github.run_number }}" \
             --notes "Automated debug APK build from ${{ github.ref_name }} at ${{ github.sha }}."

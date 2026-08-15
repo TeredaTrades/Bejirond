@@ -780,8 +780,10 @@ export default function TallyBookApp() {
 
   // Hardware back button: close whatever's on top first (a screen's own overlay, then
   // the global planned-items sidebar / reminder popup), otherwise step back through the
-  // in-app navigation stack one screen at a time, then fall back to the Home tab, and
-  // only exit the app once there's truly nowhere left to go back to.
+  // in-app navigation stack one screen at a time, then fall back to this build's landing
+  // tab (Home for most variants, Cashbooks for the Expenses Manager standalone build,
+  // which has no Home screen — see landingTab above), and only exit the app once
+  // there's truly nowhere left to go back to.
   useEffect(() => {
     let handle;
     CapacitorApp.addListener("backButton", () => {
@@ -789,11 +791,11 @@ export default function TallyBookApp() {
       if (plannedSidebarOpen) { setPlannedSidebarOpen(false); return; }
       if (activeAlarm) { dismissAlarm(); return; }
       if (stack.length > 1) { pop(); return; }
-      if (tab !== "home") { setTab("home"); resetTo("home"); return; }
+      if (tab !== landingTab) { setTab(landingTab); resetTo(landingTab); return; }
       CapacitorApp.exitApp();
     }).then((h) => { handle = h; });
     return () => { if (handle) handle.remove(); };
-  }, [plannedSidebarOpen, activeAlarm, stack, tab, dismissAlarm]);
+  }, [plannedSidebarOpen, activeAlarm, stack, tab, dismissAlarm, landingTab]);
 
   const activeBusiness = businesses.find((b) => b.id === session.activeBusinessId) || null;
 
@@ -1250,13 +1252,10 @@ function HomeScreen({ ctx }) {
         )}
 
         <a href={MARKETPLACE_URL} target="_blank" rel="noopener noreferrer"
-          className="w-full flex items-center gap-3 bg-white border border-slate-200 rounded-xl p-4">
-          <div className="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-700 shrink-0"><ShoppingBag size={18} /></div>
-          <div className="flex-1 min-w-0">
-            <div className="font-medium text-slate-900 text-sm">Buy & Sell Marketplace</div>
-            <div className="text-xs text-slate-500">Browse listings or sell something online</div>
-          </div>
-          <ExternalLink size={15} className="text-slate-300 shrink-0" />
+          className="w-full bg-rose-700 text-white rounded-xl p-5 flex flex-col items-start gap-2 text-left active:scale-[0.98] transition-transform">
+          <ShoppingBag size={26} />
+          <div className="font-semibold text-base leading-tight">{productById("marketplace").name}</div>
+          <div className="text-xs text-rose-100">{productById("marketplace").tagline}</div>
         </a>
 
         <div className="bg-white border border-slate-200 rounded-xl p-4">

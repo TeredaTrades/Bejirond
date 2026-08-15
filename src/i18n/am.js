@@ -51,8 +51,7 @@ export default {
   },
   chooseBusinessType: {
     title: "ምን ይከታተላሉ?",
-    subtitle: "ይህ ምርጫ ገፅታዎችንና ምድቦችን ለእርስዎ ፍላጎት እናዘጋጃለን።",
-    note: "ማስታወሻ፦ ወደፊት ተጨማሪ ንግድ መጨመር ይችላሉ።",
+    note: "ወደፊት ተጨማሪ ንግድ መጨመር ይችላሉ።",
     business: "የንግድ እንቅስቃሴ",
     personal: "የግል ገንዘብ",
     explore: "እንዲሁ ለመቃኘት",

@@ -52,8 +52,7 @@ export default {
   },
   chooseBusinessType: {
     title: "What will you track?",
-    subtitle: "This helps us set up the right features and categories for you.",
-    note: "Note: you can always add more businesses later.",
+    note: "You can always add more businesses later.",
     business: "Business activity",
     personal: "Personal money",
     explore: "Just exploring",

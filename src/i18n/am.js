@@ -177,4 +177,14 @@ export default {
     showMore: "ተጨማሪ አሳይ",
     saveAndAddNew: "አስቀምጥና አዲስ ጨምር",
   },
+  bookSettings: {
+    importCsvTitle: "ግቤቶችን ከ CSV ያስመጡ",
+    importCsvHint: "ከዚህ ወይም ከሌላ የበጅሮንድ መተግበሪያ ከተላከ CSV ፋይል ግቤቶችን ያስመጡ (ሪፖርቶች ← CSV ላክ፣ የሪፖርት ዓይነት 'ሁሉም ግቤቶች' ተደርጎ)። ከነባሮቹ ግቤቶች ጋር ወደዚህ ደብተር ይታከላሉ።",
+    importCsvButton: "የCSV ፋይል ይምረጡ",
+    importCsvBusy: "በማስመጣት ላይ…",
+    importCsvSuccess: "{count} ግቤቶች ገብተዋል።",
+    importCsvErrorEmpty: "ያ ፋይል ባዶ ነው።",
+    importCsvErrorFormat: "ይህ የበጅሮንድ ግቤቶች CSV አይመስልም። ሪፖርቶች ← CSV ላክ በ'ሁሉም ግቤቶች' ተጠቀሙ።",
+    importCsvErrorNoRows: "በዚያ ፋይል ውስጥ ትክክለኛ ግቤቶች አልተገኙም።",
+  },
 };

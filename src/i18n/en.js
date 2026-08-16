@@ -178,4 +178,14 @@ export default {
     showMore: "Show more",
     saveAndAddNew: "Save & Add New",
   },
+  bookSettings: {
+    importCsvTitle: "Import Entries from CSV",
+    importCsvHint: "Bring in entries from a CSV file exported from this or another በጅሮንድ install (Reports → Export CSV, with report type set to \"All Entries\"). They'll be added to this book alongside what's already here.",
+    importCsvButton: "Choose CSV file",
+    importCsvBusy: "Importing…",
+    importCsvSuccess: "Imported {count} entries.",
+    importCsvErrorEmpty: "That file is empty.",
+    importCsvErrorFormat: "That doesn't look like a በጅሮንድ entries CSV export. Use Reports → Export CSV with report type \"All Entries\".",
+    importCsvErrorNoRows: "No valid entries found in that file.",
+  },
 };

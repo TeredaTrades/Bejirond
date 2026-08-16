@@ -182,6 +182,76 @@ function buildReportPdfBase64({ title, subtitle, totalIn, totalOut, cur, headers
   return doc.output("datauristring").split(",")[1];
 }
 
+// ---------- CSV import (entries) ----------
+// Parses CSV text into rows of string cells. Handles RFC4180-style quoting
+// (quoted fields, embedded commas, embedded newlines, "" as an escaped quote)
+// since that's exactly how downloadCsv above writes every field — every cell
+// is always wrapped in quotes, so this only needs to handle that one style
+// reliably rather than every CSV dialect in the wild.
+function parseCsv(text) {
+  const rows = [];
+  let row = [];
+  let cell = "";
+  let inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (text[i + 1] === '"') { cell += '"'; i++; }
+        else inQuotes = false;
+      } else {
+        cell += c;
+      }
+    } else if (c === '"') {
+      inQuotes = true;
+    } else if (c === ",") {
+      row.push(cell); cell = "";
+    } else if (c === "\n" || c === "\r") {
+      if (c === "\r" && text[i + 1] === "\n") i++;
+      row.push(cell); cell = "";
+      if (row.length > 1 || row[0] !== "") rows.push(row);
+      row = [];
+    } else {
+      cell += c;
+    }
+  }
+  if (cell !== "" || row.length) { row.push(cell); rows.push(row); }
+  return rows;
+}
+
+// Expects exactly the header written by downloadCsv's "all entries" export:
+// Date, Time, Type, Amount, Contact, Category, Payment Mode, Remark, Added By.
+// Only that format is supported — the Category/Payment Mode summary exports
+// are aggregate totals, not individual entries, so there's nothing to
+// reconstruct from those. Returns { entries, error }; error is a translated
+// message if the file doesn't match, entries is [] in that case.
+const ENTRIES_CSV_HEADER = ["Date", "Time", "Type", "Amount", "Contact", "Category", "Payment Mode", "Remark", "Added By"];
+function parseEntriesCsv(text, t) {
+  const rows = parseCsv(text.replace(/^\uFEFF/, ""));
+  if (rows.length === 0) return { entries: [], error: t("bookSettings.importCsvErrorEmpty") };
+  const header = rows[0].map((h) => h.trim());
+  const headerOk = ENTRIES_CSV_HEADER.every((h, i) => (header[i] || "").toLowerCase() === h.toLowerCase());
+  if (!headerOk) return { entries: [], error: t("bookSettings.importCsvErrorFormat") };
+  const entries = [];
+  for (const r of rows.slice(1)) {
+    if (r.every((c) => c === "")) continue;
+    const [date, time, typeLabel, amountStr, contact, category, paymentMode, remark, addedBy] = r;
+    const amount = Number(String(amountStr).replace(/,/g, ""));
+    if (!date || !Number.isFinite(amount)) continue;
+    entries.push({
+      id: uid(),
+      type: /out/i.test(typeLabel) ? "out" : "in",
+      date, time: time || "",
+      amount,
+      contact: contact || "", category: category || "", paymentMode: paymentMode || "Cash",
+      remark: remark || "", receipt: null,
+      addedBy: addedBy || undefined,
+      createdAt: new Date().toISOString(),
+    });
+  }
+  return { entries, error: entries.length === 0 ? t("bookSettings.importCsvErrorNoRows") : null };
+}
+
 // On-device storage only — Capacitor Preferences persists to the phone's
 // local app storage. Nothing is sent over a network; the app works fully offline.
 async function storeGet(key, fallback) {
@@ -2246,11 +2316,39 @@ function AddEntryScreen({ ctx, bookId, type, editEntry }) {
 
 // ---------- Book settings ----------
 function BookSettingsScreen({ ctx, bookId }) {
-  const { activeBusiness, pop, push, persistBusinesses, businesses, canManage, session, persistSession, appSettings } = ctx;
+  const { activeBusiness, pop, push, persistBusinesses, businesses, canManage, canAddEntries, session, persistSession, appSettings, getEntries, saveEntries, logActivity, viewer, t } = ctx;
   const book = activeBusiness?.books.find((b) => b.id === bookId);
   const [renaming, setRenaming] = useState(false);
   const [name, setName] = useState(book?.name || "");
   const [confirmDeleteBook, setConfirmDeleteBook] = useState(false);
+  const [csvBusy, setCsvBusy] = useState(false);
+  const [csvMsg, setCsvMsg] = useState(null);
+  const csvInputRef = useRef(null);
+
+  const onImportCsv = async (e) => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (!file) return;
+    setCsvBusy(true);
+    setCsvMsg(null);
+    try {
+      const text = await file.text();
+      const { entries: parsed, error } = parseEntriesCsv(text, t);
+      if (error) {
+        setCsvMsg({ ok: false, text: error });
+        return;
+      }
+      const existing = await getEntries(bookId);
+      await saveEntries(bookId, [...existing, ...parsed]);
+      await logActivity(bookId, `${viewer.name} imported ${parsed.length} ${parsed.length === 1 ? "entry" : "entries"} from a CSV file`);
+      setCsvMsg({ ok: true, text: t("bookSettings.importCsvSuccess", { count: parsed.length }) });
+    } catch (err) {
+      console.error("CSV import failed", err);
+      setCsvMsg({ ok: false, text: t("bookSettings.importCsvErrorFormat") });
+    } finally {
+      setCsvBusy(false);
+    }
+  };
 
   const doRename = async () => {
     const next = businesses.map((b) => b.id === activeBusiness.id ? { ...b, books: b.books.map(bk => bk.id === bookId ? { ...bk, name } : bk) } : b);
@@ -2299,6 +2397,19 @@ function BookSettingsScreen({ ctx, bookId }) {
           </div>
           <div className="text-xs text-slate-400 mt-2">This book's amounts display in this currency, independent of other books.</div>
         </div>
+
+        {canAddEntries && (
+          <div className="bg-white border border-slate-200 rounded-xl p-4">
+            <div className="text-xs text-slate-500 mb-2">{t("bookSettings.importCsvTitle")}</div>
+            <div className="text-xs text-slate-400 mb-3">{t("bookSettings.importCsvHint")}</div>
+            <button onClick={() => csvInputRef.current && csvInputRef.current.click()} disabled={csvBusy}
+              className="flex items-center justify-center gap-2 border border-teal-700 text-teal-700 rounded-lg px-4 py-2.5 text-sm font-medium disabled:opacity-50">
+              <Upload size={16} /> {csvBusy ? t("bookSettings.importCsvBusy") : t("bookSettings.importCsvButton")}
+            </button>
+            <input ref={csvInputRef} type="file" accept=".csv,text/csv" className="hidden" onChange={onImportCsv} />
+            {csvMsg && <div className={`text-xs mt-2 ${csvMsg.ok ? "text-teal-700" : "text-rose-600"}`}>{csvMsg.text}</div>}
+          </div>
+        )}
 
         <div className="bg-white border border-slate-200 rounded-xl divide-y divide-slate-100">
           <div className="px-4 py-2 text-xs font-medium text-slate-400 uppercase">General Book Settings</div>

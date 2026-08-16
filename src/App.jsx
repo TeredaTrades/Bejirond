@@ -1147,6 +1147,8 @@ function FirstRunScreen({ theme, persistTheme, language, persistLanguage, appSet
             ))}
           </div>
         </div>
+
+        <p className="text-xs text-slate-400 text-center mb-2">{t("firstRun.changeLaterNote")}</p>
       </div>
       <div className="p-4">
         <button onClick={onDone} className="w-full bg-teal-700 text-white py-3 rounded-xl font-semibold">

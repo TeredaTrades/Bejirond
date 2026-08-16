@@ -25,6 +25,7 @@ export default {
     themeLight: "فاتح",
     themeDark: "داكن",
     currencyLabel: "اختر عملتك",
+    changeLaterNote: "يمكنك تغيير أي من هذه الخيارات لاحقًا من الإعدادات.",
     continueButton: "متابعة",
     aboutMessage: "بيجروند لقب تقليدي يعني حافظ ومدير ومشرف على المال والممتلكات — أي أمين الصندوق.",
   },

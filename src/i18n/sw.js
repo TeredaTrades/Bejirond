@@ -24,6 +24,7 @@ export default {
     themeLight: "Mwanga",
     themeDark: "Giza",
     currencyLabel: "Chagua sarafu yako",
+    changeLaterNote: "Unaweza kubadilisha chaguo hizi baadaye kutoka kwenye Mipangilio.",
     continueButton: "Endelea",
     aboutMessage: "Bejirond ni jina la kimila linalomaanisha mtunza, msimamizi na mlinzi wa fedha na mali — kwa kifupi, mweka hazina.",
   },

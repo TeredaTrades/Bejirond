@@ -25,6 +25,7 @@ export default {
     themeLight: "ነጣ ያለ",
     themeDark: "ጠቆር ያለ",
     currencyLabel: "ገንዘብ ዓይነትዎን ይምረጡ",
+    changeLaterNote: "እነዚህን ምርጫዎች በኋላ ከቅንብሮች ውስጥ መቀየር ይችላሉ።",
     continueButton: "ቀጥል",
     aboutMessage: "በጅሮንድ የሹመት ስም ሲሆን፣ ገንዘብ/ንብረት ያዥ፣ አንቀሳቃሽ፣ ተቆጣጣሪ እንደማለት ነው።",
   },

@@ -24,6 +24,7 @@ export default {
     themeLight: "Ifaa",
     themeDark: "Dukkanaa'aa",
     currencyLabel: "Faranjii filadhu",
+    changeLaterNote: "Filannoo kana booda Qindaayinaa (Settings) irraa jijjiiruu ni dandeessu.",
     continueButton: "Itti fufi",
     aboutMessage: "\"Bejirond\" jechuun maqaa aangoo tokko yoo ta'u, hiikni isaa qabataa maallaqaa/qabeenyaa, geggeessaa, fi to'ataa jechuudha.",
   },

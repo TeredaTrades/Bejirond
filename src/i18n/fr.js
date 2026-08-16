@@ -24,6 +24,7 @@ export default {
     themeLight: "Clair",
     themeDark: "Sombre",
     currencyLabel: "Choisissez votre devise",
+    changeLaterNote: "Vous pourrez modifier ces choix plus tard depuis les Paramètres.",
     continueButton: "Continuer",
     aboutMessage: "Bejirond est un titre traditionnel désignant un gardien, gestionnaire et surveillant de l'argent et des biens — en somme, un trésorier.",
   },

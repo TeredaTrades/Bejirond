@@ -24,6 +24,7 @@ export default {
     themeLight: "ብሩህ",
     themeDark: "ጸልማት",
     currencyLabel: "ባጤራኹም ምረጹ",
+    changeLaterNote: "እዞም ምርጫታት እዚኣቶም ጸኒሕኩም ካብ ቅንብራት (Settings) ክትቅይሩ ትኽእሉ ኢኹም።",
     continueButton: "ቀጽል",
     aboutMessage: "በጅሮንድ ልማዳዊ መጸውዒ ስም ኮይኑ፡ ሓላዊ፡ ኣመሓዳሪ፡ ተቖጻጻሪ ገንዘብን ንብረትን ማለት እዩ።",
   },

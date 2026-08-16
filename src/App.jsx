@@ -951,7 +951,7 @@ export default function TallyBookApp() {
 
   return (
     <div data-theme={theme} className="w-full h-screen bg-slate-50 overflow-hidden flex flex-col relative">
-      <div className="flex-1 overflow-y-auto flex flex-col">
+      <div className="flex-1 overflow-hidden flex flex-col">
         <Router ctx={ctx} tab={tab} setTab={setTab} />
       </div>
       {/* Always visible, not just at the top of the stack — otherwise there was no way back to
@@ -970,18 +970,50 @@ export default function TallyBookApp() {
 // Shown once, for a few seconds, right after the language + theme picker —
 // still part of the very-first-launch flow (see firstRunDone/showAboutSplash
 // in App). Introduces what "Bejirond" means before the user gets into the
-// app itself. Auto-advances on a timer; deliberately has no button/skip
-// since it's short by design and the point is just a brief, unhurried
-// introduction, not a screen the user has to act on.
+// app itself. Fades in, types the message out, holds briefly, then fades
+// out right before advancing. Auto-advances on a timer; deliberately has no
+// button/skip since it's short by design and the point is just a brief,
+// unhurried introduction, not a screen the user has to act on.
 function AboutSplashScreen({ theme, t, onDone }) {
+  const [visible, setVisible] = useState(false);
+  const [typedLen, setTypedLen] = useState(0);
+  const message = t("firstRun.aboutMessage");
+
   useEffect(() => {
-    const timer = setTimeout(onDone, 3500);
-    return () => clearTimeout(timer);
+    const fadeInTimer = setTimeout(() => setVisible(true), 30);
+    const fadeOutTimer = setTimeout(() => setVisible(false), 4000);
+    const doneTimer = setTimeout(onDone, 4500);
+    return () => { clearTimeout(fadeInTimer); clearTimeout(fadeOutTimer); clearTimeout(doneTimer); };
   }, [onDone]);
+
+  useEffect(() => {
+    if (typedLen >= message.length) return;
+    const timer = setTimeout(() => setTypedLen((n) => n + 1), 20);
+    return () => clearTimeout(timer);
+  }, [typedLen, message]);
+
   return (
     <div data-theme={theme} className="w-full h-screen bg-white overflow-hidden flex flex-col items-center justify-center px-8 text-center">
-      <Loader2 size={28} className="animate-spin text-teal-700 mb-6" />
-      <p className="text-sm text-slate-600 leading-relaxed max-w-[300px]">{t("firstRun.aboutMessage")}</p>
+      <style>{`
+        @keyframes bejirondDotBounce { 0%, 80%, 100% { transform: translateY(0); opacity: 0.4; } 40% { transform: translateY(-7px); opacity: 1; } }
+        @keyframes bejirondCursorBlink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
+      `}</style>
+      <div style={{ opacity: visible ? 1 : 0, transition: "opacity 450ms ease" }} className="flex flex-col items-center">
+        <div className="w-16 h-16 rounded-2xl bg-teal-50 border border-teal-100 flex items-center justify-center mb-3">
+          <BookMarked size={30} className="text-teal-700" />
+        </div>
+        <div className="flex items-center gap-1.5 mb-7">
+          {[0, 1, 2].map((i) => (
+            <span key={i} className="w-2 h-2 rounded-full bg-teal-700"
+              style={{ animation: "bejirondDotBounce 1.1s ease-in-out infinite", animationDelay: `${i * 0.15}s` }} />
+          ))}
+        </div>
+        <p className="text-lg font-bold text-slate-800 leading-relaxed max-w-[300px]">
+          {message.slice(0, typedLen)}
+          <span className="inline-block w-[2px] h-[1.1em] bg-teal-700 ml-0.5 align-middle"
+            style={{ animation: "bejirondCursorBlink 0.9s steps(1) infinite" }} />
+        </p>
+      </div>
     </div>
   );
 }

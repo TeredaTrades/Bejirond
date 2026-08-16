@@ -34,7 +34,7 @@ const DEFAULT_CATEGORIES = ["Home", "Electronics", "Food", "Salary", "Rent", "Tr
 const DEFAULT_PAYMENT_MODES = ["Cash", "Online", "Card", "Cheque"];
 const CURRENCIES = { "$": "USD", "Br": "ETB", "₹": "INR", "€": "EUR", "£": "GBP" };
 const ROLES = ["Book Admin", "Data Operator", "Viewer"];
-const BOOK_TEMPLATES = ["Sales Ledger", "Bank Reconciliation", "Shared Cashbook", "Payroll & Staff Expenses"];
+const BOOK_TEMPLATE_KEYS = ["salesLedger", "bankReconciliation", "sharedCashbook", "payrollStaffExpenses"];
 
 const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
 const todayStr = () => new Date().toISOString().slice(0, 10);
@@ -1065,7 +1065,7 @@ function AboutSplashScreen({ theme, t, onDone }) {
 
   useEffect(() => {
     if (typedLen >= message.length) return;
-    const charDelay = Math.max(20, Math.min(45, 3000 / message.length));
+    const charDelay = Math.max(28, Math.min(60, 3800 / message.length));
     const timer = setTimeout(() => setTypedLen((n) => n + 1), charDelay);
     return () => clearTimeout(timer);
   }, [typedLen, message]);
@@ -1075,9 +1075,11 @@ function AboutSplashScreen({ theme, t, onDone }) {
       <style>{`
         @keyframes bejirondDotBounce { 0%, 80%, 100% { transform: translateY(0); opacity: 0.4; } 40% { transform: translateY(-7px); opacity: 1; } }
         @keyframes bejirondCursorBlink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
+        @keyframes bejirondIconPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
       `}</style>
       <div style={{ opacity: visible ? 1 : 0, transition: "opacity 450ms ease" }} className="flex flex-col items-center">
-        <div className="w-16 h-16 rounded-2xl bg-teal-50 border border-teal-100 flex items-center justify-center mb-3">
+        <div className="w-16 h-16 rounded-2xl bg-teal-50 border border-teal-100 flex items-center justify-center mb-3"
+          style={{ animation: "bejirondIconPulse 2.2s ease-in-out infinite" }}>
           <BookMarked size={30} className="text-teal-700" />
         </div>
         <div className="flex items-center gap-1.5 mb-7">
@@ -1554,7 +1556,6 @@ function BooksScreen({ ctx }) {
           <div className="w-9 h-9 rounded-lg bg-teal-50 flex items-center justify-center text-teal-700 shrink-0"><Building2 size={18} /></div>
           <div className="text-left min-w-0">
             <div className="font-semibold text-slate-900 truncate max-w-[180px]">{activeBusiness?.name || t("books.selectBusiness")}</div>
-            <div className="text-xs text-slate-500">{t("books.switchBusinessHint")}</div>
             {activeBusiness?.name === t("books.defaultBusinessName") && (
               <div className="text-[11px] text-slate-400">{t("books.renameHint")}</div>
             )}
@@ -1612,8 +1613,10 @@ function BooksScreen({ ctx }) {
             <div className="font-medium text-slate-800 mb-1">{t("books.addNewBookTitle")}</div>
             <div className="text-xs text-slate-500 mb-3">{t("books.addNewBookHint")}</div>
             <div className="flex flex-wrap gap-2 mb-3">
-              {BOOK_TEMPLATES.map((tpl) => (
-                <Chip key={tpl} onClick={() => addBook(tpl)}>{tpl}</Chip>
+              {BOOK_TEMPLATE_KEYS.map((key) => (
+                <Chip key={key} onClick={() => addBook(t(`books.template${key[0].toUpperCase()}${key.slice(1)}`))}>
+                  {t(`books.template${key[0].toUpperCase()}${key.slice(1)}`)}
+                </Chip>
               ))}
             </div>
             {showTemplates ? (
@@ -3600,6 +3603,7 @@ function HelpScreen({ ctx }) {
           ["Where's the expense breakdown chart?", "Open a book → the pie chart icon in the header — switch between by category and by month."],
           ["Can each book use a different currency?", "Yes — open a book → the menu icon → Book Settings, and pick a currency just for that book."],
           ["Can I hide a book's balance?", "On the books list, tap the eye icon next to any book to hide or show its balance."],
+          ["How do I switch business?", "Tap the business name at the top of the books list to open the business switcher."],
         ].map(([q, a]) => (
           <div key={q} className="bg-white border border-slate-200 rounded-xl p-4">
             <div className="font-medium text-slate-900 text-sm mb-1">{q}</div>

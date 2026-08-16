@@ -29,6 +29,13 @@ _(add notes here as you think of them)_
   translation" form.
 - Home dashboard: this month's income/expenses, top 3 categories,
   progress bars.
+- iOS support — add the Capacitor iOS platform so the app runs natively
+  on iPhone/iPad, same codebase as Android. Needs a Mac with Xcode to
+  build/sign, and an Apple Developer Program membership ($99/yr) for
+  device testing/App Store distribution. Alternative/complement: ship it
+  as an installable PWA (add a manifest + service worker, host the built
+  web assets somewhere) so iOS users can "Add to Home Screen" from Safari
+  without needing the App Store at all — worth weighing both.
 
 ## To add
 - Scan receipt — camera/OCR capture that reads a receipt and pre-fills an

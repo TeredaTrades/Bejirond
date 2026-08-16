@@ -994,7 +994,8 @@ function AboutSplashScreen({ theme, t, onDone }) {
 
   useEffect(() => {
     if (typedLen >= message.length) return;
-    const timer = setTimeout(() => setTypedLen((n) => n + 1), 20);
+    const charDelay = Math.max(20, Math.min(45, 3000 / message.length));
+    const timer = setTimeout(() => setTypedLen((n) => n + 1), charDelay);
     return () => clearTimeout(timer);
   }, [typedLen, message]);
 
@@ -1039,17 +1040,14 @@ function FirstRunScreen({ theme, persistTheme, language, persistLanguage, appSet
 
         <div className="w-full mb-6">
           <div className="text-xs font-medium text-slate-400 uppercase mb-2 px-1">{t("firstRun.languageLabel")}</div>
-          <div className="border border-slate-200 rounded-xl divide-y divide-slate-200 overflow-hidden">
-            {LANGUAGES.map((l) => {
-              const active = language === l.code;
-              return (
-                <button key={l.code} onClick={() => persistLanguage(l.code)}
-                  className="w-full flex items-center justify-between px-4 py-3.5 bg-white">
-                  <span className="font-medium text-slate-800">{l.nativeName}</span>
-                  {active ? <CheckCircle2 size={20} className="text-teal-700" /> : <Circle size={20} className="text-slate-200" />}
-                </button>
-              );
-            })}
+          <div className="relative">
+            <select value={language} onChange={(e) => persistLanguage(e.target.value)}
+              className="w-full appearance-none border border-slate-200 rounded-xl px-4 py-3.5 bg-white font-medium text-slate-800">
+              {LANGUAGES.map((l) => (
+                <option key={l.code} value={l.code}>{l.nativeName}</option>
+              ))}
+            </select>
+            <ChevronDown size={18} className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" />
           </div>
         </div>
 

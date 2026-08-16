@@ -1046,10 +1046,12 @@ export default function TallyBookApp() {
 // Shown once, for a few seconds, right after the language + theme picker —
 // still part of the very-first-launch flow (see firstRunDone/showAboutSplash
 // in App). Introduces what "Bejirond" means before the user gets into the
-// app itself. Fades in, types the message out, holds briefly, then fades
-// out right before advancing. Auto-advances on a timer; deliberately has no
-// button/skip since it's short by design and the point is just a brief,
-// unhurried introduction, not a screen the user has to act on.
+// app itself. Fades in, types the message out, holds, then advances — the
+// Welcome screen right after this fades itself in, so the handoff between
+// screens is a single consistent fade-in rather than a fade-out/fade-in pair.
+// Auto-advances on a timer; deliberately has no button/skip since it's short
+// by design and the point is just a brief, unhurried introduction, not a
+// screen the user has to act on.
 function AboutSplashScreen({ theme, t, onDone }) {
   const [visible, setVisible] = useState(false);
   const [typedLen, setTypedLen] = useState(0);
@@ -1057,9 +1059,8 @@ function AboutSplashScreen({ theme, t, onDone }) {
 
   useEffect(() => {
     const fadeInTimer = setTimeout(() => setVisible(true), 30);
-    const fadeOutTimer = setTimeout(() => setVisible(false), 4000);
-    const doneTimer = setTimeout(onDone, 4500);
-    return () => { clearTimeout(fadeInTimer); clearTimeout(fadeOutTimer); clearTimeout(doneTimer); };
+    const doneTimer = setTimeout(onDone, 9000);
+    return () => { clearTimeout(fadeInTimer); clearTimeout(doneTimer); };
   }, [onDone]);
 
   useEffect(() => {
@@ -1169,6 +1170,12 @@ function WelcomeScreen({ onDone, theme, persistTheme, t }) {
   const [pin, setPin] = useState("");
   const [pin2, setPin2] = useState("");
   const [error, setError] = useState("");
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const fadeInTimer = setTimeout(() => setVisible(true), 30);
+    return () => clearTimeout(fadeInTimer);
+  }, []);
 
   const createAccount = () => {
     if (!name.trim()) { setError(t("welcome.errorNameRequired")); return; }
@@ -1178,7 +1185,8 @@ function WelcomeScreen({ onDone, theme, persistTheme, t }) {
   };
 
   return (
-    <div data-theme={theme} className="relative w-full h-screen bg-white overflow-hidden flex flex-col">
+    <div data-theme={theme} style={{ opacity: visible ? 1 : 0, transition: "opacity 450ms ease" }}
+      className="relative w-full h-screen bg-white overflow-hidden flex flex-col">
       {persistTheme && (
         <button onClick={() => persistTheme(theme === "dark" ? "light" : "dark")}
           className="absolute top-4 right-4 z-10 shrink-0 w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 active:scale-95 transition-transform"

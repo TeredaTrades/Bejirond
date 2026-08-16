@@ -1071,7 +1071,6 @@ function WelcomeScreen({ onDone, theme, persistTheme, t }) {
         <div className="w-20 h-20 rounded-2xl bg-teal-50 border border-teal-100 flex items-center justify-center mb-8">
           <BookMarked size={36} className="text-teal-700" />
         </div>
-        <h1 className="text-xl font-bold text-slate-900 text-center">{t("welcome.title")}</h1>
         <p className="text-sm text-slate-500 text-center mt-1 mb-8 max-w-[280px]">
           {mode === "create" ? t("welcome.subtitleCreate") : t("welcome.subtitleDefault")}
         </p>
@@ -1407,8 +1406,8 @@ function BooksScreen({ ctx }) {
   // "what will you manage?" question belongs, not on the app's very first screen.
   if (businesses.length === 0) {
     return (
-      <ChooseBusinessType t={ctx.t} onDone={async (managing) => {
-        await createBusiness(managing === "personal" ? "My Cashbook" : "My Business");
+      <ChooseBusinessType t={ctx.t} onDone={async () => {
+        await createBusiness(ctx.t("books.defaultBusinessName"));
       }} />
     );
   }
@@ -1429,6 +1428,9 @@ function BooksScreen({ ctx }) {
           <div className="text-left min-w-0">
             <div className="font-semibold text-slate-900 truncate max-w-[180px]">{activeBusiness?.name || t("books.selectBusiness")}</div>
             <div className="text-xs text-slate-500">{t("books.switchBusinessHint")}</div>
+            {activeBusiness?.name === t("books.defaultBusinessName") && (
+              <div className="text-[11px] text-slate-400">{t("books.renameHint")}</div>
+            )}
           </div>
           <ChevronDown size={16} className="text-slate-400 shrink-0" />
         </button>
@@ -1562,7 +1564,7 @@ function BookScreen({ ctx, bookId }) {
   const book = activeBusiness?.books.find((b) => b.id === bookId);
   const [entries, setEntries] = useState(null);
   const [search, setSearch] = useState("");
-  const [typeFilter, setTypeFilter] = useState("All");
+  const [typeFilter, setTypeFilter] = useState("all");
   const [moveCopyEntries, setMoveCopyEntries] = useState(null); // array of entries, or null
   const [deleteConfirmEntries, setDeleteConfirmEntries] = useState(null); // array of entries, or null
   const [selectMode, setSelectMode] = useState(false);
@@ -1669,8 +1671,8 @@ function BookScreen({ ctx, bookId }) {
 
   const visible = chronological
     .filter((e) => {
-      if (typeFilter === "Cash In" && e.type !== "in") return false;
-      if (typeFilter === "Cash Out" && e.type !== "out") return false;
+      if (typeFilter === "in" && e.type !== "in") return false;
+      if (typeFilter === "out" && e.type !== "out") return false;
       if (search.trim()) {
         const q = search.trim().toLowerCase();
         if (![e.contact, e.remark, e.category].some((v) => (v || "").toLowerCase().includes(q))) return false;
@@ -1684,11 +1686,11 @@ function BookScreen({ ctx, bookId }) {
     <div className="flex-1 flex flex-col">
       <TopHeader ctx={ctx}
         title={book.name}
-        subtitle="Add Member, Book Activity etc"
+        subtitle={ctx.t("entries.subtitle")}
         onBack={selectMode ? exitSelectMode : pop}
         right={
           selectMode ? (
-            <button onClick={exitSelectMode} className="text-sm font-medium text-teal-700 px-2">Cancel</button>
+            <button onClick={exitSelectMode} className="text-sm font-medium text-teal-700 px-2">{ctx.t("common.cancel")}</button>
           ) : (
             <div className="flex items-center gap-1">
               <button onClick={() => enterSelectMode()} className="p-2 text-teal-700"><CheckSquare size={18} /></button>
@@ -1709,36 +1711,36 @@ function BookScreen({ ctx, bookId }) {
           }} className="flex items-center gap-2 text-sm font-medium text-teal-700">
             {visible.length > 0 && visible.every((e) => selectedIds.has(e.id))
               ? <CheckCircle2 size={18} /> : <Circle size={18} />}
-            Select All
+            {ctx.t("entries.selectAll")}
           </button>
-          <span className="text-sm text-slate-600">{selectedIds.size} selected</span>
+          <span className="text-sm text-slate-600">{ctx.t("entries.selectedCount", { count: selectedIds.size })}</span>
         </div>
       )}
 
       <div className="bg-white border-b border-slate-200 px-4 py-3 space-y-2">
         <div className="relative">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search contact, remark, category…"
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={ctx.t("entries.searchPlaceholder")}
             className="w-full border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-sm" />
         </div>
         <div className="flex gap-2">
-          {["All", "Cash In", "Cash Out"].map((t) => (
-            <Chip key={t} active={typeFilter === t} onClick={() => setTypeFilter(t)}>{t}</Chip>
+          {[["all", ctx.t("entries.all")], ["in", ctx.t("entries.cashIn")], ["out", ctx.t("entries.cashOut")]].map(([key, label]) => (
+            <Chip key={key} active={typeFilter === key} onClick={() => setTypeFilter(key)}>{label}</Chip>
           ))}
         </div>
       </div>
 
       <div className="bg-white border-b border-slate-200 px-4 py-3">
         <div className="flex items-center justify-between">
-          <span className="text-sm text-slate-500">Net Balance</span>
+          <span className="text-sm text-slate-500">{ctx.t("entries.netBalance")}</span>
           <span className={`font-bold text-lg ${net >= 0 ? "text-emerald-700" : "text-rose-700"}`}>{cur}{Math.abs(net).toLocaleString()}</span>
         </div>
         <div className="flex items-center justify-between mt-1">
-          <span className="text-sm text-slate-500">Total In (+)</span>
+          <span className="text-sm text-slate-500">{ctx.t("entries.totalIn")}</span>
           <span className="text-emerald-700 font-medium">{cur}{totalIn.toLocaleString()}</span>
         </div>
         <div className="flex items-center justify-between mt-1">
-          <span className="text-sm text-slate-500">Total Out (-)</span>
+          <span className="text-sm text-slate-500">{ctx.t("entries.totalOut")}</span>
           <span className="text-rose-700 font-medium">{cur}{totalOut.toLocaleString()}</span>
         </div>
       </div>
@@ -1747,13 +1749,13 @@ function BookScreen({ ctx, bookId }) {
         {entries === null ? (
           <div className="flex justify-center py-10"><Loader2 className="animate-spin text-teal-700" size={24} /></div>
         ) : entries.length === 0 ? (
-          <EmptyState icon={Wallet} title="No entries yet" hint="Add your first cash in or cash out entry below." />
+          <EmptyState icon={Wallet} title={ctx.t("entries.noEntriesTitle")} hint={ctx.t("entries.noEntriesHint")} />
         ) : visible.length === 0 ? (
-          <EmptyState icon={Search} title="No entries match" hint="Try a different search or filter." />
+          <EmptyState icon={Search} title={ctx.t("entries.noMatchTitle")} hint={ctx.t("entries.noMatchHint")} />
         ) : (
           <div className="divide-y divide-slate-100">
             {visible.map((e) => (
-              <EntryRow key={e.id} e={e} cur={cur} balanceText={balanceAfter[e.id].toLocaleString()}
+              <EntryRow key={e.id} e={e} cur={cur} balanceText={balanceAfter[e.id].toLocaleString()} t={ctx.t}
                 selectMode={selectMode}
                 selected={selectedIds.has(e.id)}
                 onTap={() => selectMode ? toggleSelect(e.id) : push("entryDetail", { bookId, entryId: e.id })}
@@ -1767,7 +1769,7 @@ function BookScreen({ ctx, bookId }) {
         <div className="p-3 border-t border-slate-200 bg-white flex gap-2">
           <button onClick={exitSelectMode}
             className="px-4 py-2.5 rounded-xl font-semibold border border-slate-300 text-slate-600">
-            Cancel
+            {ctx.t("common.cancel")}
           </button>
           <button
             disabled={selectedIds.size === 0}
@@ -1779,18 +1781,18 @@ function BookScreen({ ctx, bookId }) {
             disabled={selectedIds.size === 0}
             onClick={() => setMoveCopyEntries((entries || []).filter((e) => selectedIds.has(e.id)))}
             className="flex-1 flex items-center justify-center gap-1 bg-teal-700 text-white py-2.5 rounded-xl font-semibold disabled:opacity-40">
-            <ArrowRightLeft size={18} /> Move / Copy {selectedIds.size > 0 ? `(${selectedIds.size})` : ""}
+            <ArrowRightLeft size={18} /> {ctx.t("entries.moveOrCopy")} {selectedIds.size > 0 ? `(${selectedIds.size})` : ""}
           </button>
         </div>
       ) : canAddEntries && (
         <div className="p-3 border-t border-slate-200 bg-white flex gap-2">
           <button onClick={() => push("addEntry", { bookId, type: "in" })}
             className="flex-1 flex items-center justify-center gap-1 bg-emerald-700 text-white py-2.5 rounded-xl font-semibold">
-            <Plus size={18} /> Cash In
+            <Plus size={18} /> {ctx.t("entries.cashIn")}
           </button>
           <button onClick={() => push("addEntry", { bookId, type: "out" })}
             className="flex-1 flex items-center justify-center gap-1 bg-rose-700 text-white py-2.5 rounded-xl font-semibold">
-            <Minus size={18} /> Cash Out
+            <Minus size={18} /> {ctx.t("entries.cashOut")}
           </button>
         </div>
       )}
@@ -1802,16 +1804,16 @@ function BookScreen({ ctx, bookId }) {
 
       {deleteConfirmEntries && (
         <ConfirmModal
-          title={deleteConfirmEntries.length === 1 ? "Delete this entry?" : `Delete ${deleteConfirmEntries.length} entries?`}
-          message="You won't be able to get this back once it's gone."
-          confirmLabel="Yes, Delete" cancelLabel="No"
+          title={deleteConfirmEntries.length === 1 ? ctx.t("entries.deleteConfirmTitleOne") : ctx.t("entries.deleteConfirmTitleOther", { count: deleteConfirmEntries.length })}
+          message={ctx.t("entries.deleteConfirmMessage")}
+          confirmLabel={ctx.t("entries.deleteYes")} cancelLabel={ctx.t("common.no")}
           onCancel={() => setDeleteConfirmEntries(null)} onConfirm={doDeleteSelected} />
       )}
     </div>
   );
 }
 
-function EntryRow({ e, cur, balanceText, selectMode, selected, onTap, onLongPress }) {
+function EntryRow({ e, cur, balanceText, t, selectMode, selected, onTap, onLongPress }) {
   const timerRef = useRef(null);
   const longPressed = useRef(false);
 
@@ -1839,16 +1841,16 @@ function EntryRow({ e, cur, balanceText, selectMode, selected, onTap, onLongPres
       </div>
       <div className="flex-1 min-w-0">
         <div className="font-medium text-slate-900 truncate flex items-center gap-1.5">
-          {e.remark || e.contact || e.category || (e.type === "in" ? "Cash In" : "Cash Out")}
+          {e.remark || e.contact || e.category || (e.type === "in" ? t("entries.cashIn") : t("entries.cashOut"))}
           {e.receipt && <Paperclip size={12} className="text-slate-400 shrink-0" />}
         </div>
-        <div className="text-xs text-slate-500 truncate">{fmtDate(e.date)} · {fmtTime12(e.time)} · {e.paymentMode}{e.addedBy && e.addedBy !== "You" ? ` · by ${e.addedBy}` : ""}</div>
+        <div className="text-xs text-slate-500 truncate">{fmtDate(e.date)} · {fmtTime12(e.time)} · {e.paymentMode}{e.addedBy && e.addedBy !== "You" ? ` · ${t("entries.byPrefix", { name: e.addedBy })}` : ""}</div>
       </div>
       <div className="text-right shrink-0">
         <div className={`font-semibold ${e.type === "in" ? "text-emerald-700" : "text-rose-700"}`}>
           {e.type === "in" ? "+" : "-"}{cur}{e.amount.toLocaleString()}
         </div>
-        <div className="text-[11px] text-slate-400 mt-0.5">Bal {cur}{balanceText}</div>
+        <div className="text-[11px] text-slate-400 mt-0.5">{t("entries.balancePrefix")} {cur}{balanceText}</div>
       </div>
     </button>
   );
@@ -1959,10 +1961,10 @@ function EntryDetailScreen({ ctx, bookId, entryId }) {
 
   return (
     <div className="flex-1 flex flex-col">
-      <TopHeader ctx={ctx} title="Entry Details" onBack={pop} />
+      <TopHeader ctx={ctx} title={ctx.t("entryDetail.title")} onBack={pop} />
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         <div className={`rounded-xl p-4 text-center ${isIn ? "bg-emerald-50" : "bg-rose-50"}`}>
-          <div className={`text-xs font-medium ${isIn ? "text-emerald-800" : "text-rose-800"}`}>{isIn ? "Cash In" : "Cash Out"}</div>
+          <div className={`text-xs font-medium ${isIn ? "text-emerald-800" : "text-rose-800"}`}>{isIn ? ctx.t("entries.cashIn") : ctx.t("entries.cashOut")}</div>
           <div className={`text-2xl font-bold ${isIn ? "text-emerald-800" : "text-rose-800"}`}>{cur}{entry.amount.toLocaleString()}</div>
           <div className="text-xs text-slate-500 mt-1">{methodKind} · {entry.paymentMode}</div>
         </div>
@@ -1974,24 +1976,24 @@ function EntryDetailScreen({ ctx, bookId, entryId }) {
         <div className="bg-white border border-slate-200 rounded-xl divide-y divide-slate-100">
           {entry.contact && (
             <div className="px-4 py-3 flex items-center justify-between">
-              <span className="text-sm text-slate-500">{isIn ? "Received From" : "Paid To"}</span>
+              <span className="text-sm text-slate-500">{isIn ? ctx.t("entryDetail.receivedFrom") : ctx.t("entryDetail.paidTo")}</span>
               <span className="text-sm font-medium text-slate-800">{entry.contact}</span>
             </div>
           )}
           {entry.category && (
             <div className="px-4 py-3 flex items-center justify-between">
-              <span className="text-sm text-slate-500">Category</span>
+              <span className="text-sm text-slate-500">{ctx.t("entryDetail.category")}</span>
               <span className="text-sm font-medium text-slate-800">{entry.category}</span>
             </div>
           )}
           {entry.remark && (
             <div className="px-4 py-3 flex items-center justify-between">
-              <span className="text-sm text-slate-500">Remark</span>
+              <span className="text-sm text-slate-500">{ctx.t("entryDetail.remark")}</span>
               <span className="text-sm font-medium text-slate-800">{entry.remark}</span>
             </div>
           )}
           <div className="px-4 py-3 flex items-center justify-between">
-            <span className="text-sm text-slate-500">Date</span>
+            <span className="text-sm text-slate-500">{ctx.t("entryDetail.date")}</span>
             <span className="text-sm font-medium text-slate-800">{fmtDate(entry.date)} · {fmtTime12(entry.time)}</span>
           </div>
         </div>
@@ -1999,24 +2001,24 @@ function EntryDetailScreen({ ctx, bookId, entryId }) {
         {canAddEntries && (
           <button onClick={() => push("addEntry", { bookId, editEntry: entry })}
             className="w-full bg-teal-700 text-white py-2.5 rounded-xl font-semibold">
-            Edit Entry
+            {ctx.t("entryDetail.editEntry")}
           </button>
         )}
 
         <div className="bg-white border border-slate-200 rounded-xl divide-y divide-slate-100">
           <div className="px-4 py-3">
-            <div className="text-xs text-slate-500 mb-0.5">Created by</div>
+            <div className="text-xs text-slate-500 mb-0.5">{ctx.t("entryDetail.createdBy")}</div>
             <div className="text-sm font-medium text-slate-800">{entry.addedBy || "You"}{entry.createdAt ? ` · ${fmtDateTime(entry.createdAt)}` : ""}</div>
           </div>
           <div className="px-4 py-3">
-            <div className="text-xs text-slate-500 mb-0.5">Last edited by</div>
+            <div className="text-xs text-slate-500 mb-0.5">{ctx.t("entryDetail.lastEditedBy")}</div>
             <div className="text-sm font-medium text-slate-800">
-              {entry.editedBy ? `${entry.editedBy} · ${fmtDateTime(entry.editedAt)}` : "Never edited"}
+              {entry.editedBy ? `${entry.editedBy} · ${fmtDateTime(entry.editedAt)}` : ctx.t("entryDetail.neverEdited")}
             </div>
           </div>
           {entry.transferredFrom && (
             <div className="px-4 py-3">
-              <div className="text-xs text-slate-500 mb-0.5">Last transferred from</div>
+              <div className="text-xs text-slate-500 mb-0.5">{ctx.t("entryDetail.lastTransferredFrom")}</div>
               <div className="text-sm font-medium text-slate-800">{entry.transferredFrom} · {fmtDateTime(entry.transferredAt)}</div>
             </div>
           )}
@@ -2028,7 +2030,7 @@ function EntryDetailScreen({ ctx, bookId, entryId }) {
 
 // ---------- Add / Edit entry ----------
 function AddEntryScreen({ ctx, bookId, type, editEntry }) {
-  const { pop, getEntries, saveEntries, appSettings, logActivity, viewer, activeBusiness, setBackHandler } = ctx;
+  const { pop, getEntries, saveEntries, appSettings, logActivity, viewer, activeBusiness, setBackHandler, t } = ctx;
   const isEdit = !!editEntry;
   const book = activeBusiness?.books.find((b) => b.id === bookId);
   const bookCur = bookCurrency(book, appSettings);
@@ -2094,24 +2096,24 @@ function AddEntryScreen({ ctx, bookId, type, editEntry }) {
 
   return (
     <div className="flex-1 flex flex-col">
-      <TopHeader ctx={ctx} title={isEdit ? "Edit Entry" : `Add ${isIn ? "Cash In" : "Cash Out"} Entry`} onBack={pop}
+      <TopHeader ctx={ctx} title={isEdit ? t("addEntry.titleEdit") : (isIn ? t("addEntry.titleAddIn") : t("addEntry.titleAddOut"))} onBack={pop}
         right={isEdit ? <button onClick={() => setConfirmDelete(true)} className="p-2 text-rose-700"><Trash2 size={18} /></button> : null} />
       {confirmDelete && (
-        <ConfirmModal title="Delete this entry?" message="You won't be able to get this back once it's gone."
-          confirmLabel="Yes, Delete" cancelLabel="No"
+        <ConfirmModal title={t("entries.deleteConfirmTitleOne")} message={t("entries.deleteConfirmMessage")}
+          confirmLabel={t("entries.deleteYes")} cancelLabel={t("common.no")}
           onCancel={() => setConfirmDelete(false)} onConfirm={deleteEntry} />
       )}
       {isEdit && (
         <div className="px-4 pt-3 pb-2 bg-white border-b border-slate-100">
-          <div className="text-xs text-slate-500 mb-1.5">Entry Type</div>
+          <div className="text-xs text-slate-500 mb-1.5">{t("addEntry.entryType")}</div>
           <div className="flex gap-2">
             <button onClick={() => setForm({ ...form, type: "in" })}
               className={`flex-1 flex items-center justify-center gap-1 py-2 rounded-xl font-semibold border ${isIn ? "bg-emerald-700 text-white border-emerald-700" : "border-slate-300 text-slate-500"}`}>
-              <Plus size={16} /> Cash In
+              <Plus size={16} /> {t("entries.cashIn")}
             </button>
             <button onClick={() => setForm({ ...form, type: "out" })}
               className={`flex-1 flex items-center justify-center gap-1 py-2 rounded-xl font-semibold border ${!isIn ? "bg-rose-700 text-white border-rose-700" : "border-slate-300 text-slate-500"}`}>
-              <Minus size={16} /> Cash Out
+              <Minus size={16} /> {t("entries.cashOut")}
             </button>
           </div>
         </div>
@@ -2119,46 +2121,46 @@ function AddEntryScreen({ ctx, bookId, type, editEntry }) {
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         <div className="flex gap-3">
           <label className="flex-1">
-            <div className="text-xs text-slate-500 mb-1 flex items-center gap-1"><Calendar size={12} /> Date</div>
+            <div className="text-xs text-slate-500 mb-1 flex items-center gap-1"><Calendar size={12} /> {t("addEntry.date")}</div>
             <input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })}
               className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
           </label>
           <label className="flex-1">
-            <div className="text-xs text-slate-500 mb-1 flex items-center gap-1"><Clock size={12} /> Time</div>
+            <div className="text-xs text-slate-500 mb-1 flex items-center gap-1"><Clock size={12} /> {t("addEntry.time")}</div>
             <input type="time" value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })}
               className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
           </label>
         </div>
 
         <label className="block">
-          <div className="text-xs text-teal-700 mb-1 font-medium">Amount *</div>
+          <div className="text-xs text-teal-700 mb-1 font-medium">{t("addEntry.amount")}</div>
           <AmountInput autoFocus value={form.amount} onChange={(v) => setForm({ ...form, amount: v })} currencySymbol={bookCur} />
         </label>
 
         <label className="block relative">
-          <div className="text-xs text-slate-500 mb-1">{isIn ? "Received From" : "Paid To"}</div>
+          <div className="text-xs text-slate-500 mb-1">{isIn ? t("entryDetail.receivedFrom") : t("entryDetail.paidTo")}</div>
           <input list="contacts-list" value={form.contact} onChange={(e) => setForm({ ...form, contact: e.target.value })}
-            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" placeholder="Add name" />
+            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" placeholder={t("addEntry.addNamePlaceholder")} />
           <datalist id="contacts-list">{contacts.map((c) => <option key={c} value={c} />)}</datalist>
         </label>
 
         <label className="block">
-          <div className="text-xs text-slate-500 mb-1">Remark (Item, Quantity..)</div>
+          <div className="text-xs text-slate-500 mb-1">{t("addEntry.remarkLabel")}</div>
           <input value={form.remark} onChange={(e) => setForm({ ...form, remark: e.target.value })}
             className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
         </label>
 
         <label className="block">
-          <div className="text-xs text-slate-500 mb-1">Category</div>
+          <div className="text-xs text-slate-500 mb-1">{t("entryDetail.category")}</div>
           <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}
             className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white">
-            <option value="">Select category</option>
+            <option value="">{t("addEntry.selectCategory")}</option>
             {appSettings.categories.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
         </label>
 
         <div>
-          <div className="text-xs text-slate-500 mb-1.5">Receipt / Photo</div>
+          <div className="text-xs text-slate-500 mb-1.5">{t("addEntry.receiptLabel")}</div>
           {form.receipt ? (
             <div className="relative inline-block">
               <img src={form.receipt} alt="Receipt" className="h-24 w-24 object-cover rounded-lg border border-slate-200" />
@@ -2167,29 +2169,29 @@ function AddEntryScreen({ ctx, bookId, type, editEntry }) {
             </div>
           ) : (
             <label className="flex items-center justify-center gap-2 border border-dashed border-slate-300 rounded-lg py-3 text-sm text-slate-500 cursor-pointer">
-              <Camera size={16} /> Add a screenshot or photo of receipt
+              <Camera size={16} /> {t("addEntry.addReceiptHint")}
               <input type="file" accept="image/*" capture="environment" className="hidden" onChange={onReceiptChange} />
             </label>
           )}
         </div>
 
         <div>
-          <div className="text-xs text-slate-500 mb-1.5">Payment Mode</div>
+          <div className="text-xs text-slate-500 mb-1.5">{t("addEntry.paymentModeLabel")}</div>
           <div className="flex items-center gap-2 flex-wrap">
             {visibleModes.map((m) => (
               <Chip key={m} tone={isIn ? "emerald" : "rose"} active={form.paymentMode === m} onClick={() => setForm({ ...form, paymentMode: m })}>{m}</Chip>
             ))}
             {!showMoreModes && modes.length > 2 && (
-              <button onClick={() => setShowMoreModes(true)} className="text-teal-700 text-sm font-medium flex items-center gap-0.5">Show more <ChevronDown size={14} /></button>
+              <button onClick={() => setShowMoreModes(true)} className="text-teal-700 text-sm font-medium flex items-center gap-0.5">{t("addEntry.showMore")} <ChevronDown size={14} /></button>
             )}
           </div>
         </div>
       </div>
       <div className="p-3 border-t border-slate-200 bg-white flex gap-2">
         {!isEdit && (
-          <button onClick={() => save(true)} className="flex-1 border border-teal-700 text-teal-700 py-2.5 rounded-xl font-semibold">Save & Add New</button>
+          <button onClick={() => save(true)} className="flex-1 border border-teal-700 text-teal-700 py-2.5 rounded-xl font-semibold">{t("addEntry.saveAndAddNew")}</button>
         )}
-        <button onClick={() => save(false)} className={`flex-1 text-white py-2.5 rounded-xl font-semibold ${isIn ? "bg-emerald-700" : "bg-rose-700"}`}>Save</button>
+        <button onClick={() => save(false)} className={`flex-1 text-white py-2.5 rounded-xl font-semibold ${isIn ? "bg-emerald-700" : "bg-rose-700"}`}>{t("common.save")}</button>
       </div>
     </div>
   );

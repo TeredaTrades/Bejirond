@@ -11,7 +11,24 @@ them when we sit down to make changes.
 ## Inbox
 _(add notes here as you think of them)_
 
--
+- Ethiopian/Gregorian calendar switching, dashboards, and category
+  analysis; works offline.
+- Default currency must be birr.
+- SMS parsing for auto-tracking of transactions — scope still undecided,
+  brainstorm needed. SMS from Telebirr, CBE, Coopbank, Dashen, Awash, Bank
+  of Abyssinia, etc. Figure out if it's possible to extract: amount,
+  time/date, to/from whom, current balance, reference, sender/receiver,
+  and any related fees.
+- Add "Telebirr", "CBE Birr", "Coopay", etc. to the payment methods list.
+- Give shops/businesses a "ዱቤ" (credit) tracking option — track who owes
+  you / whom you owe, with due dates and reminders.
+- If targeting SMEs, also consider: customer/supplier database, simple
+  invoicing & receipts (in their preferred language), basic inventory &
+  sales tracking.
+- Crowdsourcing translations — a simple in-app "suggest a better
+  translation" form.
+- Home dashboard: this month's income/expenses, top 3 categories,
+  progress bars.
 
 ## To add
 - Scan receipt — camera/OCR capture that reads a receipt and pre-fills an

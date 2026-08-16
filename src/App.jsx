@@ -33,6 +33,11 @@ const TallyWidget = registerPlugin("TallyWidget");
 const DEFAULT_CATEGORIES = ["Home", "Electronics", "Food", "Salary", "Rent", "Transport", "Utilities", "Other"];
 const DEFAULT_PAYMENT_MODES = ["Cash", "Online", "Card", "Cheque"];
 const CURRENCIES = { "$": "USD", "Br": "ETB", "₹": "INR", "€": "EUR", "£": "GBP" };
+// calendarType: "gregorian" | "ethiopian" — which calendar dates are *displayed*
+// in (all dates are still stored internally as plain Gregorian ISO strings, so
+// switching this never touches saved data, only how it's shown).
+// timeFormat: "12h" | "24h" — whether times are shown with AM/PM or 24-hour.
+const DEFAULT_APP_SETTINGS = { categories: DEFAULT_CATEGORIES, paymentModes: DEFAULT_PAYMENT_MODES, currency: "$", calendarType: "gregorian", timeFormat: "12h" };
 const ROLES = ["Book Admin", "Data Operator", "Viewer"];
 const BOOK_TEMPLATE_KEYS = ["salesLedger", "bankReconciliation", "sharedCashbook", "payrollStaffExpenses"];
 
@@ -59,22 +64,37 @@ const to24h = (t) => {
   }
   return nowTimeStr24();
 };
-// Formats a stored time value (either format) as "h:mm AM/PM" for display.
-const fmtTime12 = (t) => {
-  const raw = (t || "").trim();
-  if (!raw) return "";
-  const m24 = /^(\d{1,2}):(\d{2})$/.exec(raw);
-  if (m24) {
-    let h = parseInt(m24[1], 10);
-    const ampm = h >= 12 ? "PM" : "AM";
-    h = h % 12 || 12;
-    return `${h}:${m24[2]} ${ampm}`;
-  }
-  return raw; // already "h:mm AM/PM"
+// BCP-47 locale tag for each app language, used for Intl date/time formatting
+// so day/month names (and, for Ethiopic dates, the Amharic/Oromo/Tigrinya
+// month names) show in the app's current language instead of always English.
+const INTL_LOCALE = { en: "en", am: "am", om: "om", ti: "ti", fr: "fr", ar: "ar", sw: "sw" };
+// Builds the Intl locale string for a language + calendar preference. The
+// "-u-ca-ethiopic" extension makes Intl compute the date in the Ethiopian
+// calendar (13 months, ~7-8 years behind Gregorian) while everything else
+// about the app (storage, sorting, the native date input) stays Gregorian —
+// only the *display* changes.
+const intlLocale = (language, calendarType) => {
+  const base = INTL_LOCALE[language] || "en";
+  return calendarType === "ethiopian" ? `${base}-u-ca-ethiopic` : base;
 };
-const fmtDate = (iso) => {
+// Formats a stored time value (24h "HH:MM" from the native time picker, or a
+// legacy free-typed "9:00 PM" string) for display, honoring the 12h/24h
+// preference and using the app language's own AM/PM-equivalent wording.
+const fmtTime = (time, pref = {}) => {
+  const { language = "en", timeFormat = "12h" } = pref;
+  const t24 = to24h(time);
+  const [hh, mm] = t24.split(":").map((n) => parseInt(n, 10));
+  if (Number.isNaN(hh) || Number.isNaN(mm)) return "";
+  const d = new Date(); d.setHours(hh, mm, 0, 0);
+  return d.toLocaleTimeString(INTL_LOCALE[language] || "en", {
+    hour: timeFormat === "24h" ? "2-digit" : "numeric", minute: "2-digit",
+    hourCycle: timeFormat === "24h" ? "h23" : "h12",
+  });
+};
+const fmtDate = (iso, pref = {}) => {
+  const { language = "en", calendarType = "gregorian" } = pref;
   const d = new Date(iso + "T00:00:00");
-  return d.toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric" });
+  return d.toLocaleDateString(intlLocale(language, calendarType), { day: "2-digit", month: "short", year: "numeric" });
 };
 // Turns an entry's date + "9:00 PM"-style time into a real, sortable Date.
 const entryDateTime = (e) => {
@@ -92,11 +112,16 @@ const entryDateTime = (e) => {
   return d;
 };
 const bookCurrency = (book, appSettings) => (book && book.currency) || appSettings.currency;
-const fmtDateTime = (iso) => {
+const fmtDateTime = (iso, pref = {}) => {
   if (!iso) return "";
+  const { language = "en", calendarType = "gregorian", timeFormat = "12h" } = pref;
   const d = new Date(iso);
-  return d.toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric" }) +
-    " · " + d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+  const dateStr = d.toLocaleDateString(intlLocale(language, calendarType), { day: "2-digit", month: "short", year: "numeric" });
+  const timeStr = d.toLocaleTimeString(INTL_LOCALE[language] || "en", {
+    hour: timeFormat === "24h" ? "2-digit" : "numeric", minute: "2-digit",
+    hourCycle: timeFormat === "24h" ? "h23" : "h12",
+  });
+  return `${dateStr} · ${timeStr}`;
 };
 const CHART_COLORS = ["#0f766e", "#0891b2", "#059669", "#d97706", "#dc2626", "#7c3aed", "#db2777", "#65a30d", "#0284c7", "#ea580c"];
 
@@ -507,12 +532,12 @@ function BottomNav({ tab, setTab, t }) {
 // A floating shortcut that's available on every screen — it never blocks the
 // app underneath (it's a slide-over, not a full-screen modal) and isn't
 // buried inside Settings.
-function PlannedFAB({ pendingCount, onClick, hidden }) {
+function PlannedFAB({ pendingCount, onClick, hidden, t }) {
   return (
     <button
       onClick={onClick}
-      className={`fixed right-4 bottom-24 z-30 w-14 h-14 rounded-full bg-teal-700 text-white shadow-lg shadow-teal-900/20 flex items-center justify-center active:scale-95 transition-opacity duration-150 ${hidden ? "opacity-0 pointer-events-none" : "opacity-100"}`}
-      title="Things to buy / pay for"
+      className={`fixed right-4 bottom-36 z-30 w-14 h-14 rounded-full bg-teal-700 text-white shadow-lg shadow-teal-900/20 flex items-center justify-center active:scale-95 transition-opacity duration-150 ${hidden ? "opacity-0 pointer-events-none" : "opacity-100"}`}
+      title={t("planned.fabTitle")}
     >
       <ClipboardList size={20} />
       {pendingCount > 0 && (
@@ -525,7 +550,7 @@ function PlannedFAB({ pendingCount, onClick, hidden }) {
 }
 
 function PlannedSidebar({ ctx, open, onClose }) {
-  const { plannedItems, persistPlanned, appSettings, push } = ctx;
+  const { plannedItems, persistPlanned, appSettings, push, t } = ctx;
   const [desc, setDesc] = useState("");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState(appSettings.categories[0] || "Other");
@@ -573,8 +598,8 @@ function PlannedSidebar({ ctx, open, onClose }) {
         <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-200 shrink-0">
           <div className="w-9 h-9 rounded-lg bg-teal-50 flex items-center justify-center text-teal-700 shrink-0"><ClipboardList size={18} /></div>
           <div className="flex-1 min-w-0">
-            <div className="font-semibold text-slate-900 truncate">To buy / to pay for</div>
-            <div className="text-xs text-slate-500 truncate">A running wishlist, separate from your books</div>
+            <div className="font-semibold text-slate-900 truncate">{t("planned.title")}</div>
+            <div className="text-xs text-slate-500 truncate">{t("planned.subtitle")}</div>
           </div>
           <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-600 shrink-0"><X size={18} /></button>
         </div>
@@ -583,35 +608,35 @@ function PlannedSidebar({ ctx, open, onClose }) {
           <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2">
             {editingId && (
               <div className="flex items-center justify-between text-xs bg-teal-50 text-teal-700 rounded-lg px-2.5 py-1.5">
-                Editing item <button onClick={cancelEdit} className="underline font-medium">Cancel</button>
+                {t("planned.editingItem")} <button onClick={cancelEdit} className="underline font-medium">{t("planned.cancel")}</button>
               </div>
             )}
-            <input value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="e.g. Rent, groceries, new shoes"
+            <input value={desc} onChange={(e) => setDesc(e.target.value)} placeholder={t("planned.descPlaceholder")}
               className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white" />
             <div className="flex gap-2">
-              <input value={amount} onChange={(e) => setAmount(e.target.value)} type="number" step="0.01" placeholder="Anticipated amount"
+              <input value={amount} onChange={(e) => setAmount(e.target.value)} type="number" step="0.01" placeholder={t("planned.amountPlaceholder")}
                 className="flex-1 min-w-0 border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white" />
               <select value={category} onChange={(e) => setCategory(e.target.value)} className="border border-slate-300 rounded-lg px-2 py-2 text-sm bg-white">
                 {appSettings.categories.map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <button onClick={save} className="w-full bg-teal-700 text-white py-2 rounded-lg text-sm font-medium">
-              {editingId ? "Update item" : "Add to list"}
+              {editingId ? t("planned.updateItem") : t("planned.addToList")}
             </button>
           </div>
 
           <div className="flex items-center justify-between bg-teal-50 border border-teal-100 rounded-xl px-3 py-2.5">
-            <span className="text-xs font-medium text-teal-800">Pending total ({pending.length})</span>
+            <span className="text-xs font-medium text-teal-800">{t("planned.pendingTotal", { count: pending.length })}</span>
             <span className="text-sm font-semibold text-teal-800">{appSettings.currency}{pendingTotal.toLocaleString()}</span>
           </div>
 
           {plannedItems.length === 0 ? (
-            <EmptyState icon={ClipboardList} title="Nothing on your list" hint="Add things you plan to buy or bills you need to pay." />
+            <EmptyState icon={ClipboardList} title={t("planned.emptyTitle")} hint={t("planned.emptyHint")} />
           ) : (
             <div className="divide-y divide-slate-100 bg-white border border-slate-200 rounded-xl overflow-hidden">
               {[...pending, ...done].map((p) => (
                 <div key={p.id} className={`flex items-center gap-2 px-3 py-2.5 ${p.done ? "opacity-50" : ""}`}>
-                  <button onClick={() => toggleDone(p)} className="text-teal-700 shrink-0" title={p.done ? "Mark as pending" : "Mark as bought/paid"}>
+                  <button onClick={() => toggleDone(p)} className="text-teal-700 shrink-0" title={p.done ? t("planned.markPending") : t("planned.markDone")}>
                     {p.done ? <CheckCircle2 size={18} /> : <Circle size={18} className="text-slate-300" />}
                   </button>
                   <button onClick={() => !p.done && startEdit(p)} className="flex-1 min-w-0 text-left">
@@ -619,7 +644,7 @@ function PlannedSidebar({ ctx, open, onClose }) {
                     <div className="text-xs text-slate-500 flex items-center gap-1 truncate">
                       <span>{p.category}</span>
                       {p.reminderAt && (
-                        <span className="flex items-center gap-0.5 text-teal-700"><Bell size={10} /> {fmtDateTime(p.reminderAt)}</span>
+                        <span className="flex items-center gap-0.5 text-teal-700"><Bell size={10} /> {ctx.fmtDateTime(p.reminderAt)}</span>
                       )}
                     </div>
                   </button>
@@ -632,7 +657,7 @@ function PlannedSidebar({ ctx, open, onClose }) {
 
           <button onClick={() => { onClose(); push("reminders"); }}
             className="w-full flex items-center justify-center gap-2 text-teal-700 border border-teal-200 rounded-xl py-2.5 text-sm font-medium">
-            <Bell size={15} /> Manage reminders in Settings
+            <Bell size={15} /> {t("planned.manageReminders")}
           </button>
         </div>
       </div>
@@ -709,7 +734,7 @@ export default function TallyBookApp() {
   const [sessionBusinessConfirmed, setSessionBusinessConfirmed] = useState(false);
   const [businesses, setBusinesses] = useState([]);
   const [session, setSession] = useState({ activeBusinessId: null, viewingAs: null });
-  const [appSettings, setAppSettings] = useState({ categories: DEFAULT_CATEGORIES, paymentModes: DEFAULT_PAYMENT_MODES, currency: "$" });
+  const [appSettings, setAppSettings] = useState(DEFAULT_APP_SETTINGS);
   const [theme, setTheme] = useState("light");
   const [language, setLanguage] = useState(DEFAULT_LANGUAGE);
   // Whether the one-time language + theme picker (shown before Welcome, only on
@@ -752,7 +777,7 @@ export default function TallyBookApp() {
       const acct = await storeGet("account", null);
       const biz = await storeGet("businesses", []);
       const sess = await storeGet("session", { activeBusinessId: null, viewingAs: null });
-      const settings = await storeGet("app-settings", { categories: DEFAULT_CATEGORIES, paymentModes: DEFAULT_PAYMENT_MODES, currency: "$" });
+      const settings = { ...DEFAULT_APP_SETTINGS, ...(await storeGet("app-settings", DEFAULT_APP_SETTINGS)) };
       const savedTheme = await storeGet("app-theme", "light");
       setTheme(savedTheme);
       const savedLanguage = await storeGet("app-language", DEFAULT_LANGUAGE);
@@ -787,7 +812,7 @@ export default function TallyBookApp() {
       // Re-read from storage rather than trusting React state — a tap from a
       // fully-closed app fires this before the rest of the app has loaded.
       const planned = await storeGet("planned-items", []);
-      const settings = await storeGet("app-settings", { categories: DEFAULT_CATEGORIES, paymentModes: DEFAULT_PAYMENT_MODES, currency: "$" });
+      const settings = { ...DEFAULT_APP_SETTINGS, ...(await storeGet("app-settings", DEFAULT_APP_SETTINGS)) };
       const item = planned.find((p) => p.id === plannedItemId);
       if (!item) return;
       setActiveAlarm({ ...item, currency: settings.currency });
@@ -1010,6 +1035,10 @@ export default function TallyBookApp() {
     );
   }
 
+  // Bundles the current language + calendar/time display preferences so date/time
+  // helpers can be called as ctx.fmtDate(iso) etc. without every call site having
+  // to assemble { language, calendarType, timeFormat } itself.
+  const dtPref = { language, calendarType: appSettings.calendarType || "gregorian", timeFormat: appSettings.timeFormat || "12h" };
   const ctx = {
     businesses, activeBusiness, session, appSettings, viewer, canManage, canAddEntries,
     persistBusinesses, persistSession, persistSettings,
@@ -1020,6 +1049,10 @@ export default function TallyBookApp() {
     plannedItems, persistPlanned, notifPermission, requestNotifPermission,
     theme, persistTheme,
     language, persistLanguage, t,
+    dtPref,
+    fmtDate: (iso) => fmtDate(iso, dtPref),
+    fmtDateTime: (iso) => fmtDateTime(iso, dtPref),
+    fmtTime: (time) => fmtTime(time, dtPref),
     setBackHandler: (fn) => { backHandlerRef.current = fn; },
   };
 
@@ -1035,7 +1068,7 @@ export default function TallyBookApp() {
           all the way out one step at a time. Tapping a tab here always resets to that tab's
           top-level screen regardless of how deep the current stack is. */}
       <BottomNav tab={tab} setTab={(nextTab) => { setTab(nextTab); resetTo(nextTab); }} t={t} />
-      <PlannedFAB pendingCount={pendingPlannedCount} onClick={() => setPlannedSidebarOpen(true)} hidden={inputFocused} />
+      <PlannedFAB pendingCount={pendingPlannedCount} onClick={() => setPlannedSidebarOpen(true)} hidden={inputFocused} t={t} />
       <PlannedSidebar ctx={ctx} open={plannedSidebarOpen} onClose={() => setPlannedSidebarOpen(false)} />
       <ReminderAlarmModal alarm={activeAlarm} onDismiss={dismissAlarm} onMarkDone={markAlarmDone} onSnooze={snoozeAlarm} />
     </div>
@@ -1414,7 +1447,7 @@ function MoreAppsScreen({ ctx }) {
     return (
       <div className="flex-1 flex flex-col">
         <TopHeader ctx={ctx} title="Import data" subtitle="Bring data in from a standalone በጅሮንድ app" onBack={pop} />
-        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+        <div className="flex-1 overflow-y-auto p-4 space-y-3 pb-28">
           <div className="text-xs text-slate-500 px-1">
             If you used one of the single-tool በጅሮንድ apps before switching to the full bundle, export your data from
             that app's Settings, then import the file here.
@@ -1431,7 +1464,7 @@ function MoreAppsScreen({ ctx }) {
   return (
     <div className="flex-1 flex flex-col">
       <TopHeader ctx={ctx} title="More በጅሮንድ Apps" subtitle="Other በጅሮንድ tools" onBack={pop} />
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 pb-28">
         <ProductRow product={BUNDLE_PRODUCT} isBundleCard />
         <div className="text-xs font-medium text-slate-400 uppercase px-1 pt-2">Also available separately</div>
         {others.map((p) => <ProductRow key={p.id} product={p} />)}
@@ -1590,7 +1623,7 @@ function BooksScreen({ ctx }) {
                   <div className="w-9 h-9 rounded-lg bg-teal-50 flex items-center justify-center text-teal-700 shrink-0"><BookMarked size={16} /></div>
                   <div className="flex-1 min-w-0">
                     <div className="font-medium text-slate-900 truncate">{bk.name}</div>
-                    <div className="text-xs text-slate-500">{t("books.created", { date: fmtDate(bk.createdAt.slice(0,10)) })}</div>
+                    <div className="text-xs text-slate-500">{t("books.created", { date: ctx.fmtDate(bk.createdAt.slice(0,10)) })}</div>
                   </div>
                 </button>
                 <div className="flex items-center gap-2 shrink-0">
@@ -1885,7 +1918,7 @@ function BookScreen({ ctx, bookId }) {
         ) : (
           <div className="divide-y divide-slate-100">
             {visible.map((e) => (
-              <EntryRow key={e.id} e={e} cur={cur} balanceText={balanceAfter[e.id].toLocaleString()} t={ctx.t}
+              <EntryRow key={e.id} e={e} cur={cur} balanceText={balanceAfter[e.id].toLocaleString()} t={ctx.t} fmtDate={ctx.fmtDate} fmtTime={ctx.fmtTime}
                 selectMode={selectMode}
                 selected={selectedIds.has(e.id)}
                 onTap={() => selectMode ? toggleSelect(e.id) : push("entryDetail", { bookId, entryId: e.id })}
@@ -1943,7 +1976,7 @@ function BookScreen({ ctx, bookId }) {
   );
 }
 
-function EntryRow({ e, cur, balanceText, t, selectMode, selected, onTap, onLongPress }) {
+function EntryRow({ e, cur, balanceText, t, fmtDate, fmtTime, selectMode, selected, onTap, onLongPress }) {
   const timerRef = useRef(null);
   const longPressed = useRef(false);
 
@@ -1974,7 +2007,7 @@ function EntryRow({ e, cur, balanceText, t, selectMode, selected, onTap, onLongP
           {e.remark || e.contact || e.category || (e.type === "in" ? t("entries.cashIn") : t("entries.cashOut"))}
           {e.receipt && <Paperclip size={12} className="text-slate-400 shrink-0" />}
         </div>
-        <div className="text-xs text-slate-500 truncate">{fmtDate(e.date)} · {fmtTime12(e.time)} · {e.paymentMode}{e.addedBy && e.addedBy !== "You" ? ` · ${t("entries.byPrefix", { name: e.addedBy })}` : ""}</div>
+        <div className="text-xs text-slate-500 truncate">{fmtDate(e.date)} · {fmtTime(e.time)} · {e.paymentMode}{e.addedBy && e.addedBy !== "You" ? ` · ${t("entries.byPrefix", { name: e.addedBy })}` : ""}</div>
       </div>
       <div className="text-right shrink-0">
         <div className={`font-semibold ${e.type === "in" ? "text-emerald-700" : "text-rose-700"}`}>
@@ -2124,7 +2157,7 @@ function EntryDetailScreen({ ctx, bookId, entryId }) {
           )}
           <div className="px-4 py-3 flex items-center justify-between">
             <span className="text-sm text-slate-500">{ctx.t("entryDetail.date")}</span>
-            <span className="text-sm font-medium text-slate-800">{fmtDate(entry.date)} · {fmtTime12(entry.time)}</span>
+            <span className="text-sm font-medium text-slate-800">{ctx.fmtDate(entry.date)} · {ctx.fmtTime(entry.time)}</span>
           </div>
         </div>
 
@@ -2138,18 +2171,18 @@ function EntryDetailScreen({ ctx, bookId, entryId }) {
         <div className="bg-white border border-slate-200 rounded-xl divide-y divide-slate-100">
           <div className="px-4 py-3">
             <div className="text-xs text-slate-500 mb-0.5">{ctx.t("entryDetail.createdBy")}</div>
-            <div className="text-sm font-medium text-slate-800">{entry.addedBy || "You"}{entry.createdAt ? ` · ${fmtDateTime(entry.createdAt)}` : ""}</div>
+            <div className="text-sm font-medium text-slate-800">{entry.addedBy || "You"}{entry.createdAt ? ` · ${ctx.fmtDateTime(entry.createdAt)}` : ""}</div>
           </div>
           <div className="px-4 py-3">
             <div className="text-xs text-slate-500 mb-0.5">{ctx.t("entryDetail.lastEditedBy")}</div>
             <div className="text-sm font-medium text-slate-800">
-              {entry.editedBy ? `${entry.editedBy} · ${fmtDateTime(entry.editedAt)}` : ctx.t("entryDetail.neverEdited")}
+              {entry.editedBy ? `${entry.editedBy} · ${ctx.fmtDateTime(entry.editedAt)}` : ctx.t("entryDetail.neverEdited")}
             </div>
           </div>
           {entry.transferredFrom && (
             <div className="px-4 py-3">
               <div className="text-xs text-slate-500 mb-0.5">{ctx.t("entryDetail.lastTransferredFrom")}</div>
-              <div className="text-sm font-medium text-slate-800">{entry.transferredFrom} · {fmtDateTime(entry.transferredAt)}</div>
+              <div className="text-sm font-medium text-slate-800">{entry.transferredFrom} · {ctx.fmtDateTime(entry.transferredAt)}</div>
             </div>
           )}
         </div>
@@ -2170,6 +2203,7 @@ function AddEntryScreen({ ctx, bookId, type, editEntry }) {
   const [showMoreModes, setShowMoreModes] = useState(false);
   const [contacts, setContacts] = useState([]);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [savedFlash, setSavedFlash] = useState(false);
 
   useEffect(() => {
     setBackHandler?.(() => {
@@ -2208,6 +2242,8 @@ function AddEntryScreen({ ctx, bookId, type, editEntry }) {
     await saveEntries(bookId, next);
     if (addAnother) {
       setForm({ type: form.type, date: form.date, time: nowTimeStr24(), amount: "", contact: "", remark: "", category: "", paymentMode: form.paymentMode, receipt: null });
+      setSavedFlash(true);
+      setTimeout(() => setSavedFlash(false), 1800);
     } else {
       pop();
     }
@@ -2261,6 +2297,11 @@ function AddEntryScreen({ ctx, bookId, type, editEntry }) {
               className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
           </label>
         </div>
+        {appSettings.calendarType === "ethiopian" && form.date && (
+          <div className="-mt-2 text-xs text-teal-700 flex items-center gap-1">
+            <Calendar size={11} /> {ctx.fmtDate(form.date)} · {ctx.fmtTime(form.time)}
+          </div>
+        )}
 
         <label className="block">
           <div className="text-xs text-teal-700 mb-1 font-medium">{t("addEntry.amount")}</div>
@@ -2317,6 +2358,11 @@ function AddEntryScreen({ ctx, bookId, type, editEntry }) {
           </div>
         </div>
       </div>
+      {savedFlash && (
+        <div className="px-4 py-2 bg-emerald-50 border-t border-emerald-100 flex items-center gap-2 text-emerald-800 text-sm font-medium">
+          <CheckCircle2 size={16} /> {t("addEntry.savedFlash")}
+        </div>
+      )}
       <div className="p-3 border-t border-slate-200 bg-white flex gap-2">
         {!isEdit && (
           <button onClick={() => save(true)} className="flex-1 border border-teal-700 text-teal-700 py-2.5 rounded-xl font-semibold">{t("addEntry.saveAndAddNew")}</button>
@@ -2496,7 +2542,7 @@ function ActivityScreen({ ctx, bookId }) {
             {activity.map((a) => (
               <div key={a.id} className="bg-white border border-slate-200 rounded-lg px-3 py-2.5">
                 <div className="text-sm text-slate-800">{a.text}</div>
-                <div className="text-xs text-slate-400 mt-0.5">{new Date(a.at).toLocaleString()}</div>
+                <div className="text-xs text-slate-400 mt-0.5">{ctx.fmtDateTime(a.at)}</div>
               </div>
             ))}
           </div>
@@ -2729,7 +2775,7 @@ function ReportViewScreen({ ctx, bookId, filters }) {
     if (filters.reportType === "all") {
       return {
         headers: ["Date", "Type", "Amount", "Contact/Category"],
-        rows: filtered.map(e => [fmtDate(e.date), e.type === "in" ? "Cash In" : "Cash Out", `${cur}${e.amount.toLocaleString()}`, e.contact || e.category || "-"]),
+        rows: filtered.map(e => [ctx.fmtDate(e.date), e.type === "in" ? "Cash In" : "Cash Out", `${cur}${e.amount.toLocaleString()}`, e.contact || e.category || "-"]),
       };
     } else if (filters.reportType === "category") {
       return {
@@ -2747,7 +2793,10 @@ function ReportViewScreen({ ctx, bookId, filters }) {
     let rows = [];
     if (filters.reportType === "all") {
       rows.push(["Date", "Time", "Type", "Amount", "Contact", "Category", "Payment Mode", "Remark", "Added By"]);
-      filtered.forEach(e => rows.push([e.date, fmtTime12(e.time), e.type === "in" ? "Cash In" : "Cash Out", e.amount, e.contact, e.category, e.paymentMode, e.remark, e.addedBy || "You"]));
+      // CSV Time column stays in plain English AM/PM (or 24h) regardless of app
+      // language, so re-importing a CSV later (see parseEntriesCsv) always parses —
+      // only the 12h/24h choice from Settings applies here, not the language.
+      filtered.forEach(e => rows.push([e.date, fmtTime(e.time, { language: "en", timeFormat: ctx.dtPref.timeFormat }), e.type === "in" ? "Cash In" : "Cash Out", e.amount, e.contact, e.category, e.paymentMode, e.remark, e.addedBy || "You"]));
     } else if (filters.reportType === "category") {
       rows.push(["Category", "Total In", "Total Out"]);
       Object.entries(categorySummary).forEach(([k, v]) => rows.push([k, v.in || 0, v.out || 0]));
@@ -2815,7 +2864,7 @@ function ReportViewScreen({ ctx, bookId, filters }) {
               <div key={e.id} className="flex items-center justify-between px-3 py-2.5 text-sm">
                 <div>
                   <div className="font-medium text-slate-800">{e.contact || e.category || "Entry"}</div>
-                  <div className="text-xs text-slate-400">{fmtDate(e.date)} · {e.category || "-"} · {e.paymentMode}</div>
+                  <div className="text-xs text-slate-400">{ctx.fmtDate(e.date)} · {e.category || "-"} · {e.paymentMode}</div>
                 </div>
                 <div className={e.type === "in" ? "text-emerald-700 font-semibold" : "text-rose-700 font-semibold"}>
                   {e.type === "in" ? "+" : "-"}{cur}{e.amount.toLocaleString()}
@@ -2886,7 +2935,7 @@ function ChartsScreen({ ctx, bookId }) {
     expenseEntries.forEach((e) => {
       const key = groupBy === "category"
         ? (e.category || "Uncategorized")
-        : new Date(e.date + "T00:00:00").toLocaleDateString(undefined, { month: "short", year: "numeric" });
+        : new Date(e.date + "T00:00:00").toLocaleDateString(intlLocale(ctx.dtPref.language, ctx.dtPref.calendarType), { month: "short", year: "numeric" });
       map[key] = (map[key] || 0) + e.amount;
     });
     return Object.entries(map)
@@ -3158,7 +3207,7 @@ function SettingsScreen({ ctx }) {
   return (
     <div className="flex-1 flex flex-col">
       <TopHeader ctx={ctx} title={t("settings.title")} />
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto pb-28">
         {(IS_BUNDLE || APP_VARIANT === "expenses-manager") && (
           <div className="divide-y divide-slate-100 bg-white">
             <Item icon={Users} title={t("settings.businessTeamTitle")} sub={t("settings.businessTeamSub")} onClick={() => push("businessTeam")} />
@@ -3435,6 +3484,23 @@ function AppSettingsScreen({ ctx }) {
     <div className="flex-1 flex flex-col">
       <TopHeader ctx={ctx} title="App Settings" onBack={pop} />
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className="bg-white border border-slate-200 rounded-xl p-4">
+          <div className="font-medium text-slate-800 mb-2">Calendar</div>
+          <div className="text-xs text-slate-500 mb-3">Choose how dates are shown throughout the app. Entries are always stored the same way — this only changes the display.</div>
+          <div className="flex gap-2 flex-wrap">
+            <Chip active={(appSettings.calendarType || "gregorian") === "gregorian"} onClick={() => persistSettings({ ...appSettings, calendarType: "gregorian" })}>Gregorian</Chip>
+            <Chip active={appSettings.calendarType === "ethiopian"} onClick={() => persistSettings({ ...appSettings, calendarType: "ethiopian" })}>Ethiopian</Chip>
+          </div>
+        </div>
+
+        <div className="bg-white border border-slate-200 rounded-xl p-4">
+          <div className="font-medium text-slate-800 mb-2">Time format</div>
+          <div className="flex gap-2 flex-wrap">
+            <Chip active={(appSettings.timeFormat || "12h") === "12h"} onClick={() => persistSettings({ ...appSettings, timeFormat: "12h" })}>12-hour (AM/PM)</Chip>
+            <Chip active={appSettings.timeFormat === "24h"} onClick={() => persistSettings({ ...appSettings, timeFormat: "24h" })}>24-hour</Chip>
+          </div>
+        </div>
+
         <div className="bg-white border border-slate-200 rounded-xl p-4">
           <div className="font-medium text-slate-800 mb-2">Currency</div>
           <div className="flex gap-2 flex-wrap">

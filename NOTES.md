@@ -32,10 +32,8 @@ _(add notes here as you think of them)_
 - iOS support — add the Capacitor iOS platform so the app runs natively
   on iPhone/iPad, same codebase as Android. Needs a Mac with Xcode to
   build/sign, and an Apple Developer Program membership ($99/yr) for
-  device testing/App Store distribution. Alternative/complement: ship it
-  as an installable PWA (add a manifest + service worker, host the built
-  web assets somewhere) so iOS users can "Add to Home Screen" from Safari
-  without needing the App Store at all — worth weighing both.
+  device testing/App Store distribution. Still open — native iOS not
+  started; PWA path (below) is done for the parts that don't need a Mac.
 
 ## To add
 - Scan receipt — camera/OCR capture that reads a receipt and pre-fills an
@@ -91,10 +89,26 @@ via a normal merge from `individual-base`.
 - Fasika (Orthodox Easter) isn't in the holiday-theme rotation yet — its
   date moves every year and needs a reliable lookup before adding it the
   same way as the other holidays.
+- PWA is built but not deployed — needs a host with a real URL (Vercel,
+  Netlify, GitHub Pages, etc.) before "Add to Home Screen" actually works
+  for anyone; nothing published yet.
 
 ## Done
 _(move items here once handled, with the date)_
 
+- PWA support added to the web build: manifest.json (name/icons/standalone
+  display/theme color), a service worker (public/sw.js — precaches the app
+  shell, network-first for the page itself so updates land, stale-while-
+  revalidate for JS/CSS/assets so repeat loads are instant and it still
+  works offline), and iOS-specific meta tags (apple-mobile-web-app-capable,
+  status bar style, apple-touch-icon) since Safari ignores manifest.json
+  for those. Icons generated from the existing Android launcher icon
+  (192px source, upscaled to 512px — a bit soft at large sizes, a proper
+  512px source would sharpen it later). Confirmed the existing Capacitor
+  code already had web/browser fallbacks in place (Capacitor.isNativePlatform()
+  checks for filesystem/share/notifications), so no native-only code path
+  breaks when run as a plain website. Not yet deployed anywhere — see Open
+  decisions (2026-08-16)
 - Fixed entries not re-sorting after a date edit (Time field's free-text format
   could silently break the sort — now a native time picker), added a delete
   option with Yes/No confirm next to Move/Copy (and to the existing edit-screen

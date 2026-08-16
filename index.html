@@ -21,7 +21,12 @@
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
     <script>
-      if ("serviceWorker" in navigator) {
+      // Only register the service worker for real web visitors — inside the
+      // native Android/iOS shell, Capacitor already serves the bundled
+      // assets directly, so a caching layer on top is unnecessary and
+      // avoids any chance of it interfering with how native app updates land.
+      var isNativeShell = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+      if ("serviceWorker" in navigator && !isNativeShell) {
         window.addEventListener("load", () => {
           navigator.serviceWorker.register("/sw.js").catch(() => {});
         });

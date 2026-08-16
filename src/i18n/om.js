@@ -23,6 +23,7 @@ export default {
     themeLabel: "Bifa kee filadhu",
     themeLight: "Ifaa",
     themeDark: "Dukkanaa'aa",
+    currencyLabel: "Faranjii filadhu",
     continueButton: "Itti fufi",
     aboutMessage: "\"Bejirond\" jechuun maqaa aangoo tokko yoo ta'u, hiikni isaa qabataa maallaqaa/qabeenyaa, geggeessaa, fi to'ataa jechuudha.",
   },

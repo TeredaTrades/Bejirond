@@ -763,6 +763,11 @@ export default function TallyBookApp() {
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
   }, [theme]);
+  // Arabic reads right-to-left — flip the document direction so text alignment,
+  // icon placement, etc. follow suit. Every other supported language is LTR.
+  useEffect(() => {
+    document.documentElement.setAttribute("dir", language === "ar" ? "rtl" : "ltr");
+  }, [language]);
   const persistSession = useCallback(async (next) => {
     setSession(next);
     await storeSet("session", next);
@@ -897,6 +902,7 @@ export default function TallyBookApp() {
       <FirstRunScreen
         theme={theme} persistTheme={persistTheme}
         language={language} persistLanguage={persistLanguage}
+        appSettings={appSettings} persistSettings={persistSettings}
         t={t}
         onDone={() => setShowAboutSplash(true)}
       />
@@ -1021,7 +1027,7 @@ function AboutSplashScreen({ theme, t, onDone }) {
 // Shown once, before Welcome, only on a device's very first launch (see firstRunDone in
 // App). Both choices can be changed later from Settings — this just sets a sensible
 // starting point instead of forcing English/light on everyone by default.
-function FirstRunScreen({ theme, persistTheme, language, persistLanguage, t, onDone }) {
+function FirstRunScreen({ theme, persistTheme, language, persistLanguage, appSettings, persistSettings, t, onDone }) {
   return (
     <div data-theme={theme} className="w-full h-screen bg-white overflow-hidden flex flex-col">
       <div className="flex-1 overflow-y-auto flex flex-col items-center px-6 pt-14">
@@ -1060,6 +1066,17 @@ function FirstRunScreen({ theme, persistTheme, language, persistLanguage, t, onD
               <Moon size={22} className="text-indigo-500" />
               <span className="text-sm font-medium text-slate-800">{t("firstRun.themeDark")}</span>
             </button>
+          </div>
+        </div>
+
+        <div className="w-full mb-6">
+          <div className="text-xs font-medium text-slate-400 uppercase mb-2 px-1">{t("firstRun.currencyLabel")}</div>
+          <div className="flex items-center gap-2 flex-wrap">
+            {Object.keys(CURRENCIES).map((c) => (
+              <Chip key={c} active={appSettings.currency === c} onClick={() => persistSettings({ ...appSettings, currency: c })}>
+                {c} {CURRENCIES[c]}
+              </Chip>
+            ))}
           </div>
         </div>
       </div>

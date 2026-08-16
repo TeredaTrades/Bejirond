@@ -16,7 +16,30 @@ android {
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        // Fixed, project-owned debug keystore (checked into the repo as
+        // app/debug.keystore) so every CI build — and every developer's
+        // local build — signs debug APKs with the SAME key. Without this,
+        // Gradle falls back to ~/.android/debug.keystore, which on a fresh
+        // GitHub Actions runner gets auto-generated fresh on every single
+        // run. That meant every CI-built APK had a different signature,
+        // so installing a new build over an existing one failed with
+        // "App not installed as package conflicts with an existing
+        // package" — Android refuses to update an app with a mismatched
+        // signing key. These are Android's own standard, non-secret debug
+        // keystore credentials (alias/passwords are always "androiddebugkey"/
+        // "android" for debug builds) — nothing sensitive is being committed.
+        debug {
+            storeFile file('debug.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+    }
     buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'

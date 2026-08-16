@@ -1,11 +1,15 @@
 import en from "./en";
 import am from "./am";
 import om from "./om";
+import fr from "./fr";
+import ar from "./ar";
+import sw from "./sw";
+import ti from "./ti";
 
 // To add a new language: drop in a new file (e.g. fr.js) shaped like en.js —
 // only the keys you have translations for; anything missing falls back to
 // English automatically — then add one line each here and to LANGUAGES below.
-export const TRANSLATIONS = { en, am, om };
+export const TRANSLATIONS = { en, am, om, fr, ar, sw, ti };
 
 // nativeName is what's shown in the language picker itself (each language's
 // own name, in its own script), so a user can find their language even if
@@ -14,10 +18,10 @@ export const LANGUAGES = [
   { code: "en", nativeName: "English" },
   { code: "am", nativeName: "አማርኛ" },
   { code: "om", nativeName: "Afaan Oromoo" },
-  // Not yet translated — add a matching entry here once fr.js/ar.js/sw.js exist:
-  // { code: "fr", nativeName: "Français" },
-  // { code: "ar", nativeName: "العربية" },
-  // { code: "sw", nativeName: "Kiswahili" },
+  { code: "ti", nativeName: "ትግርኛ" },
+  { code: "fr", nativeName: "Français" },
+  { code: "ar", nativeName: "العربية" },
+  { code: "sw", nativeName: "Kiswahili" },
 ];
 
 export const DEFAULT_LANGUAGE = "en";

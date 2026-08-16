@@ -24,6 +24,7 @@ export default {
     themeLabel: "ገፅታ ይምረጡ",
     themeLight: "ነጣ ያለ",
     themeDark: "ጠቆር ያለ",
+    currencyLabel: "ገንዘብ ዓይነትዎን ይምረጡ",
     continueButton: "ቀጥል",
     aboutMessage: "በጅሮንድ የሹመት ስም ሲሆን፣ ገንዘብ/ንብረት ያዥ፣ አንቀሳቃሽ፣ ተቆጣጣሪ እንደማለት ነው።",
   },

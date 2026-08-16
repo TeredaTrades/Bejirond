@@ -1445,7 +1445,7 @@ function MoreAppsScreen({ ctx }) {
 
   if (IS_BUNDLE) {
     return (
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-h-0">
         <TopHeader ctx={ctx} title="Import data" subtitle="Bring data in from a standalone በጅሮንድ app" onBack={pop} />
         <div className="flex-1 overflow-y-auto p-4 space-y-3 pb-28">
           <div className="text-xs text-slate-500 px-1">
@@ -1462,7 +1462,7 @@ function MoreAppsScreen({ ctx }) {
   const others = PRODUCTS.filter((p) => p.id !== APP_VARIANT);
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col min-h-0">
       <TopHeader ctx={ctx} title="More በጅሮንድ Apps" subtitle="Other በጅሮንድ tools" onBack={pop} />
       <div className="flex-1 overflow-y-auto p-4 space-y-3 pb-28">
         <ProductRow product={BUNDLE_PRODUCT} isBundleCard />
@@ -1583,7 +1583,7 @@ function BooksScreen({ ctx }) {
   }
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col min-h-0">
       <div className="px-4 py-3 flex items-center justify-between border-b border-slate-200 bg-white">
         <button onClick={() => push("switchBusiness")} className="flex items-center gap-2 min-w-0">
           <div className="w-9 h-9 rounded-lg bg-teal-50 flex items-center justify-center text-teal-700 shrink-0"><Building2 size={18} /></div>
@@ -1682,7 +1682,7 @@ function SwitchBusinessScreen({ ctx, embedded, onDone }) {
   const [name, setName] = useState("");
   const finish = () => { if (embedded) onDone?.(); else pop(); };
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col min-h-0">
       <TopHeader ctx={ctx} title={t("switchBusiness.title")} right={<button onClick={finish}><X size={20} className="text-slate-500" /></button>} />
       <div className="p-4 space-y-2 flex-1 overflow-y-auto">
         {embedded && (
@@ -1846,7 +1846,7 @@ function BookScreen({ ctx, bookId }) {
     .reverse(); // newest first for display
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col min-h-0">
       <TopHeader ctx={ctx}
         title={book.name}
         subtitle={ctx.t("entries.subtitle")}
@@ -2112,7 +2112,7 @@ function EntryDetailScreen({ ctx, bookId, entryId }) {
 
   if (!entry) {
     return (
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-h-0">
         <TopHeader ctx={ctx} title="Entry" onBack={pop} />
         <div className="flex justify-center py-10"><Loader2 className="animate-spin text-teal-700" size={24} /></div>
       </div>
@@ -2123,7 +2123,7 @@ function EntryDetailScreen({ ctx, bookId, entryId }) {
   const methodKind = entry.paymentMode === "Cash" ? "Cash" : "Electronic";
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col min-h-0">
       <TopHeader ctx={ctx} title={ctx.t("entryDetail.title")} onBack={pop} />
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         <div className={`rounded-xl p-4 text-center ${isIn ? "bg-emerald-50" : "bg-rose-50"}`}>
@@ -2261,7 +2261,7 @@ function AddEntryScreen({ ctx, bookId, type, editEntry }) {
   const visibleModes = showMoreModes ? modes : modes.slice(0, 2);
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col min-h-0">
       <TopHeader ctx={ctx} title={isEdit ? t("addEntry.titleEdit") : (isIn ? t("addEntry.titleAddIn") : t("addEntry.titleAddOut"))} onBack={pop}
         right={isEdit ? <button onClick={() => setConfirmDelete(true)} className="p-2 text-rose-700"><Trash2 size={18} /></button> : null} />
       {confirmDelete && (
@@ -2429,7 +2429,7 @@ function BookSettingsScreen({ ctx, bookId }) {
   const members = activeBusiness?.members || [];
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col min-h-0">
       <TopHeader ctx={ctx} title="Book Settings" onBack={pop} />
       <div className="flex-1 overflow-y-auto p-4 pb-28 space-y-4">
         <div className="bg-white border border-slate-200 rounded-xl p-4">
@@ -2530,7 +2530,7 @@ function ActivityScreen({ ctx, bookId }) {
   const [activity, setActivity] = useState(null);
   useEffect(() => { getActivity(bookId).then(setActivity); }, [bookId]);
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col min-h-0">
       <TopHeader ctx={ctx} title="Book Activity" onBack={pop} />
       <div className="flex-1 overflow-y-auto p-4">
         {activity === null ? (
@@ -2581,7 +2581,7 @@ function AddMemberScreen({ ctx, bookId }) {
   };
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col min-h-0">
       <TopHeader ctx={ctx} title="Manage Members" onBack={pop} />
       <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-28">
         <div className="text-xs font-medium text-slate-400 uppercase">Members</div>
@@ -2636,7 +2636,7 @@ function ReportsScreen({ ctx, bookId }) {
   const filters = { duration, entryType, member, cats, paymentMode: mode, reportType, bookName: book?.name };
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col min-h-0">
       <TopHeader ctx={ctx} title="Generate Report" onBack={pop} />
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         <div className="text-sm font-medium text-slate-700">Report will be generated for</div>
@@ -2835,7 +2835,7 @@ function ReportViewScreen({ ctx, bookId, filters }) {
   };
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col min-h-0">
       <TopHeader ctx={ctx} title="Report" onBack={pop}
         right={<button onClick={downloadPdf} disabled={exporting} className="p-2 text-teal-700 disabled:opacity-40"><Printer size={18} /></button>} />
       <div className="flex-1 overflow-y-auto p-4 space-y-4" id="report-printable">
@@ -2944,7 +2944,7 @@ function ChartsScreen({ ctx, bookId }) {
   }, [entries, groupBy]);
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col min-h-0">
       <TopHeader ctx={ctx} title="Expense Breakdown" subtitle={book?.name} onBack={pop} />
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         <div className="flex gap-2">
@@ -3019,7 +3019,7 @@ const THEME_GROUP_ORDER = ["Solid", "Pattern", "Holiday"];
 function ThemeScreen({ ctx }) {
   const { pop, theme, persistTheme, t } = ctx;
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col min-h-0">
       <TopHeader ctx={ctx} title={t("theme.title")} subtitle={t("theme.subtitle")} onBack={pop} />
       <div className="flex-1 overflow-y-auto p-4 space-y-5">
         {THEME_GROUP_ORDER.map((group) => (
@@ -3054,7 +3054,7 @@ function ThemeScreen({ ctx }) {
 function LanguageScreen({ ctx }) {
   const { pop, language, persistLanguage, t } = ctx;
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col min-h-0">
       <TopHeader ctx={ctx} title={t("language.title")} subtitle={t("language.subtitle")} onBack={pop} />
       <div className="flex-1 overflow-y-auto p-4">
         <div className="border border-slate-200 rounded-xl divide-y divide-slate-200 overflow-hidden bg-white">
@@ -3135,7 +3135,7 @@ function QuickAccessScreen({ ctx }) {
   };
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col min-h-0">
       <TopHeader ctx={ctx} title="Quick Access" subtitle="Reach Expenses Manager without opening the app first" onBack={pop} />
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {!native && (
@@ -3205,7 +3205,7 @@ function SettingsScreen({ ctx }) {
     </button>
   );
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col min-h-0">
       <TopHeader ctx={ctx} title={t("settings.title")} />
       <div className="flex-1 overflow-y-auto pb-28">
         {(IS_BUNDLE || APP_VARIANT === "expenses-manager") && (
@@ -3252,7 +3252,7 @@ function BusinessTeamScreen({ ctx }) {
   };
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col min-h-0">
       <TopHeader ctx={ctx} title="Business Team" onBack={pop}
         right={<button onClick={() => setAdding((v) => !v)} className="p-2 text-teal-700"><UserPlus size={18} /></button>} />
       <div className="flex-1 overflow-y-auto p-4 space-y-2 pb-28">
@@ -3334,7 +3334,7 @@ function MoveRequestsScreen({ ctx }) {
   };
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col min-h-0">
       <TopHeader ctx={ctx} title="Move & Copy Book Requests" onBack={pop} />
       <div className="flex-1 overflow-y-auto p-4 space-y-2">
         {requests.length === 0 ? (
@@ -3395,7 +3395,7 @@ function BusinessSettingsScreen({ ctx }) {
     : `This will remove "${activeBusiness?.name}" for good — there's no getting it back after.`;
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col min-h-0">
       <TopHeader ctx={ctx} title="Business Settings" onBack={pop} />
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         <div className="bg-white border border-slate-200 rounded-xl p-4">
@@ -3481,7 +3481,7 @@ function AppSettingsScreen({ ctx }) {
   const removeMode = async (m) => persistSettings({ ...appSettings, paymentModes: appSettings.paymentModes.filter(x => x !== m) });
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col min-h-0">
       <TopHeader ctx={ctx} title="App Settings" onBack={pop} />
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         <div className="bg-white border border-slate-200 rounded-xl p-4">
@@ -3565,7 +3565,7 @@ function RemindersScreen({ ctx }) {
   };
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col min-h-0">
       <TopHeader ctx={ctx} title="Reminders" onBack={pop} />
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         <div className="bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-3">
@@ -3621,7 +3621,7 @@ function ProfileScreen({ ctx }) {
   useEffect(() => { storeGet("profile", { name: "", mobile: "", email: "" }).then(setProfile); }, []);
   const save = async (next) => { setProfile(next); await storeSet("profile", next); };
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col min-h-0">
       <TopHeader ctx={ctx} title="Your Profile" onBack={pop} />
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         <label className="block">
@@ -3644,7 +3644,7 @@ function ProfileScreen({ ctx }) {
 function AboutScreen({ ctx }) {
   const { pop } = ctx;
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col min-h-0">
       <TopHeader ctx={ctx} title="About በጅሮንድ" onBack={pop} />
       <div className="flex-1 overflow-y-auto p-4 space-y-3 text-sm text-slate-600">
         <p>በጅሮንድ is a simple ledger for tracking cash in and cash out across businesses and books, with lightweight team roles and exportable reports.</p>
@@ -3657,7 +3657,7 @@ function AboutScreen({ ctx }) {
 
 function HelpScreen({ ctx }) {
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col min-h-0">
       <TopHeader ctx={ctx} title="Help" />
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {[

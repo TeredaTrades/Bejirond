@@ -7,7 +7,7 @@ import {
   Loader2, Inbox, ChevronLeft, PieChart as PieChartIcon, SlidersHorizontal, Camera, Paperclip,
   CheckSquare, CheckCircle2, Circle, ClipboardList, Bell, BellOff, BellRing, Calculator,
   VolumeX, Palette, Sun, Moon, LayoutGrid,
-  Upload, Sparkles, Move, Languages
+  Upload, Sparkles, Move, Languages, MessageSquarePlus,
 } from "lucide-react";
 import { Preferences } from "@capacitor/preferences";
 import { Capacitor, registerPlugin } from "@capacitor/core";
@@ -19,6 +19,7 @@ import jsPDF from "jspdf";
 import { APP_VARIANT, IS_BUNDLE, PRODUCTS, BUNDLE_PRODUCT, productById } from "./appConfig";
 import { LANGUAGES, DEFAULT_LANGUAGE, getTranslator } from "./i18n";
 import { exportProductData, readExportFile, importProductData, hasExistingData, PRODUCT_DATA_SCOPES } from "./dataPortability";
+import { getSuggestions, addSuggestion, removeSuggestion, shareSuggestions } from "./translationSuggestions";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 // Native-only local plugin (no JS package — implemented directly in the Android project,
@@ -1520,6 +1521,7 @@ function Router({ ctx, tab, setTab }) {
     case "reminders": return <RemindersScreen ctx={ctx} />;
     case "theme": return <ThemeScreen ctx={ctx} />;
     case "language": return <LanguageScreen ctx={ctx} />;
+    case "suggestTranslation": return <SuggestTranslationScreen ctx={ctx} />;
     case "quickAccess": return <QuickAccessScreen ctx={ctx} />;
     case "profile": return <ProfileScreen ctx={ctx} />;
     case "about": return <AboutScreen ctx={ctx} />;
@@ -3052,7 +3054,7 @@ function ThemeScreen({ ctx }) {
 
 // ---------- Language ----------
 function LanguageScreen({ ctx }) {
-  const { pop, language, persistLanguage, t } = ctx;
+  const { pop, push, language, persistLanguage, t } = ctx;
   return (
     <div className="flex-1 flex flex-col min-h-0">
       <TopHeader ctx={ctx} title={t("language.title")} subtitle={t("language.subtitle")} onBack={pop} />
@@ -3069,7 +3071,117 @@ function LanguageScreen({ ctx }) {
             );
           })}
         </div>
+        <button onClick={() => push("suggestTranslation")}
+          className="w-full mt-3 flex items-center justify-center gap-2 text-teal-700 text-sm font-medium py-2.5">
+          <MessageSquarePlus size={16} /> {t("suggestTranslation.linkLabel")}
+        </button>
       </div>
+    </div>
+  );
+}
+
+// ---------- Suggest a translation (crowdsourced translation feedback) ----------
+// Fully offline like the rest of the app — suggestions sit in local storage
+// until the person explicitly taps Share, which hands them to the OS share
+// sheet. Nothing is ever sent automatically or over a network.
+function SuggestTranslationScreen({ ctx }) {
+  const { pop, language, t } = ctx;
+  const [list, setList] = useState([]);
+  const [loaded, setLoaded] = useState(false);
+  const [text, setText] = useState("");
+  const [suggestion, setSuggestion] = useState("");
+  const [note, setNote] = useState("");
+  const [addedFlash, setAddedFlash] = useState(false);
+
+  useEffect(() => { getSuggestions().then((s) => { setList(s); setLoaded(true); }); }, []);
+
+  const languageName = LANGUAGES.find((l) => l.code === language)?.nativeName || language;
+
+  const submit = async () => {
+    if (!text.trim() || !suggestion.trim()) return;
+    const next = await addSuggestion({ language, languageName, text, suggestion, note });
+    setList(next);
+    setText(""); setSuggestion(""); setNote("");
+    setAddedFlash(true);
+    setTimeout(() => setAddedFlash(false), 1800);
+  };
+
+  const remove = async (id) => {
+    if (!confirm(t("suggestTranslation.deleteConfirmTitle"))) return;
+    setList(await removeSuggestion(id));
+  };
+
+  const share = async () => {
+    try { await shareSuggestions(list); } catch (e) { console.error("share failed", e); }
+  };
+
+  return (
+    <div className="flex-1 flex flex-col min-h-0">
+      <TopHeader ctx={ctx} title={t("suggestTranslation.title")}
+        subtitle={t("suggestTranslation.subtitle", { language: languageName })} onBack={pop} />
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-28">
+        <div className="bg-white border border-slate-200 rounded-xl p-4 space-y-3">
+          <label className="block">
+            <div className="text-xs text-slate-500 mb-1">{t("suggestTranslation.textLabel")}</div>
+            <input value={text} onChange={(e) => setText(e.target.value)}
+              placeholder={t("suggestTranslation.textPlaceholder")}
+              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
+          </label>
+          <label className="block">
+            <div className="text-xs text-slate-500 mb-1">{t("suggestTranslation.suggestionLabel")}</div>
+            <input value={suggestion} onChange={(e) => setSuggestion(e.target.value)}
+              placeholder={t("suggestTranslation.suggestionPlaceholder")}
+              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
+          </label>
+          <label className="block">
+            <div className="text-xs text-slate-500 mb-1">{t("suggestTranslation.noteLabel")}</div>
+            <input value={note} onChange={(e) => setNote(e.target.value)}
+              placeholder={t("suggestTranslation.notePlaceholder")}
+              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
+          </label>
+          <button onClick={submit} disabled={!text.trim() || !suggestion.trim()}
+            className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-semibold ${text.trim() && suggestion.trim() ? "bg-teal-700 text-white" : "bg-slate-200 text-slate-400"}`}>
+            <MessageSquarePlus size={16} /> {t("suggestTranslation.addButton")}
+          </button>
+          {addedFlash && (
+            <div className="flex items-center gap-2 text-emerald-800 text-sm font-medium">
+              <CheckCircle2 size={16} /> {t("suggestTranslation.addedFlash")}
+            </div>
+          )}
+        </div>
+
+        {loaded && list.length > 0 && (
+          <>
+            <div className="text-xs font-medium text-slate-400 uppercase">
+              {t("suggestTranslation.listTitle", { count: list.length })}
+            </div>
+            <div className="space-y-2">
+              {list.map((s) => (
+                <div key={s.id} className="bg-white border border-slate-200 rounded-xl p-3.5">
+                  <div className="text-xs text-slate-400 mb-1">{s.languageName || s.language}</div>
+                  <div className="text-sm text-slate-500 line-through decoration-slate-300">{s.text}</div>
+                  <div className="text-sm font-medium text-slate-900 mt-0.5">{s.suggestion}</div>
+                  {s.note && <div className="text-xs text-slate-500 mt-1">{s.note}</div>}
+                  <button onClick={() => remove(s.id)} className="text-rose-600 text-xs mt-2 flex items-center gap-1">
+                    <Trash2 size={12} /> {t("common.delete")}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {loaded && list.length === 0 && (
+          <EmptyState icon={MessageSquarePlus} title={t("suggestTranslation.emptyTitle")} hint={t("suggestTranslation.emptyHint")} />
+        )}
+      </div>
+      {list.length > 0 && (
+        <div className="p-3 border-t border-slate-200 bg-white">
+          <button onClick={share} className="w-full flex items-center justify-center gap-2 bg-teal-700 text-white py-2.5 rounded-xl font-semibold">
+            <Share2 size={16} /> {t("suggestTranslation.shareButton")}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

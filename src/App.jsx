@@ -1358,7 +1358,7 @@ function ChooseBusinessType({ onDone, t }) {
 //    በጅሮንድ apps, plus an upsell card for the full ad-free bundle.
 // Android sandboxes each app's storage, so this is file-based (export to a
 // shared file, import that file elsewhere) rather than automatic detection.
-function ImportRow({ product, onDone }) {
+function ImportRow({ product, onDone, t }) {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState(null);
   const inputRef = useRef(null);
@@ -1374,22 +1374,22 @@ function ImportRow({ product, onDone }) {
     try {
       const exportBundle = await readExportFile(file);
       if (exportBundle.product !== product.id) {
-        setMsg({ ok: false, text: `That file is a ${exportBundle.product} export, not ${product.name}.` });
+        setMsg({ ok: false, text: t("moreApps.wrongFileError", { product: exportBundle.product, name: product.name }) });
         return;
       }
       const already = await hasExistingData(product.id);
-      if (already && !confirm(`This will replace your existing ${product.name} data in this app. Continue?`)) {
+      if (already && !confirm(t("moreApps.replaceConfirm", { name: product.name }))) {
         return;
       }
       const result = await importProductData(exportBundle);
-      setMsg({ ok: true, text: `Imported ${product.name} data.` });
+      setMsg({ ok: true, text: t("moreApps.importedData", { name: product.name }) });
       onDone && onDone(result);
     } catch (err) {
-      setMsg({ ok: false, text: err.message || "Import failed." });
+      setMsg({ ok: false, text: err.message || t("moreApps.importFailed") });
     } finally {
       setBusy(false);
     }
-  }, [product, onDone]);
+  }, [product, onDone, t]);
 
   if (!hasScope) return null;
 
@@ -1403,7 +1403,7 @@ function ImportRow({ product, onDone }) {
         </div>
         <button onClick={() => inputRef.current && inputRef.current.click()} disabled={busy}
           className="shrink-0 text-xs font-medium bg-teal-700 text-white rounded-lg px-3 py-2 disabled:opacity-50">
-          {busy ? "Importing…" : "Import file"}
+          {busy ? t("moreApps.importingButton") : t("moreApps.importFileButton")}
         </button>
         <input ref={inputRef} type="file" accept=".json,application/json" className="hidden" onChange={onFile} />
       </div>
@@ -1412,7 +1412,7 @@ function ImportRow({ product, onDone }) {
   );
 }
 
-function ProductRow({ product, isBundleCard }) {
+function ProductRow({ product, isBundleCard, t }) {
   return (
     <div className={`w-full flex items-center gap-3 border rounded-xl p-4 ${isBundleCard ? "bg-teal-700 border-teal-700" : "bg-white border-slate-200"}`}>
       <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${isBundleCard ? "bg-teal-600 text-white" : "bg-slate-50 text-slate-700"}`}>
@@ -1425,7 +1425,7 @@ function ProductRow({ product, isBundleCard }) {
       {product.playStoreUrl ? (
         <a href={product.playStoreUrl} target="_blank" rel="noopener noreferrer"
           className={`shrink-0 text-xs font-medium rounded-lg px-3 py-2 ${isBundleCard ? "bg-white text-teal-700" : "bg-slate-800 text-white"}`}>
-          Get
+          {t("moreApps.getButton")}
         </a>
       ) : (
         // No playStoreUrl yet (see NOTES.md — package IDs not set up yet), so this
@@ -1433,7 +1433,7 @@ function ProductRow({ product, isBundleCard }) {
         // rather than a grayed-out "Coming soon" pill.
         <button type="button"
           className={`shrink-0 text-xs font-medium rounded-lg px-3 py-2 ${isBundleCard ? "bg-white text-teal-700" : "bg-slate-800 text-white"}`}>
-          Get
+          {t("moreApps.getButton")}
         </button>
       )}
     </div>
@@ -1441,19 +1441,18 @@ function ProductRow({ product, isBundleCard }) {
 }
 
 function MoreAppsScreen({ ctx }) {
-  const { pop } = ctx;
+  const { pop, t } = ctx;
   const [importedTick, setImportedTick] = useState(0);
 
   if (IS_BUNDLE) {
     return (
       <div className="flex-1 flex flex-col min-h-0">
-        <TopHeader ctx={ctx} title="Import data" subtitle="Bring data in from a standalone በጅሮንድ app" onBack={pop} />
+        <TopHeader ctx={ctx} title={t("moreApps.importTitle")} subtitle={t("moreApps.importSubtitle")} onBack={pop} />
         <div className="flex-1 overflow-y-auto p-4 space-y-3 pb-28">
           <div className="text-xs text-slate-500 px-1">
-            If you used one of the single-tool በጅሮንድ apps before switching to the full bundle, export your data from
-            that app's Settings, then import the file here.
+            {t("moreApps.importHint")}
           </div>
-          {PRODUCTS.map((p) => <ImportRow key={p.id} product={p} onDone={() => setImportedTick((t) => t + 1)} />)}
+          {PRODUCTS.map((p) => <ImportRow key={p.id} product={p} onDone={() => setImportedTick((n) => n + 1)} t={t} />)}
         </div>
       </div>
     );
@@ -1464,18 +1463,18 @@ function MoreAppsScreen({ ctx }) {
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
-      <TopHeader ctx={ctx} title="More በጅሮንድ Apps" subtitle="Other በጅሮንድ tools" onBack={pop} />
+      <TopHeader ctx={ctx} title={t("moreApps.title")} subtitle={t("moreApps.subtitle")} onBack={pop} />
       <div className="flex-1 overflow-y-auto p-4 space-y-3 pb-28">
-        <ProductRow product={BUNDLE_PRODUCT} isBundleCard />
-        <div className="text-xs font-medium text-slate-400 uppercase px-1 pt-2">Also available separately</div>
-        {others.map((p) => <ProductRow key={p.id} product={p} />)}
+        <ProductRow product={BUNDLE_PRODUCT} isBundleCard t={t} />
+        <div className="text-xs font-medium text-slate-400 uppercase px-1 pt-2">{t("moreApps.alsoAvailable")}</div>
+        {others.map((p) => <ProductRow key={p.id} product={p} t={t} />)}
         {/* Not linked yet — waiting on the TeredaTrades URL/Telegram channel to point this at.
             Also shown here (not just Home) since the Expenses Manager standalone build has no
             Home screen, so this is its only route to it. */}
         <button className="w-full flex items-center gap-3 bg-white border border-slate-200 rounded-xl p-4 text-left">
           <div className="w-10 h-10 rounded-lg bg-teal-50 flex items-center justify-center text-teal-700 shrink-0"><TrendingUp size={18} /></div>
           <div className="flex-1 min-w-0">
-            <div className="font-medium text-slate-900 text-sm">Want to learn about trading?</div>
+            <div className="font-medium text-slate-900 text-sm">{t("moreApps.tradingCta")}</div>
           </div>
         </button>
         {self && (
@@ -1483,12 +1482,12 @@ function MoreAppsScreen({ ctx }) {
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-teal-50 flex items-center justify-center text-teal-700 shrink-0"><Download size={18} /></div>
               <div className="flex-1 min-w-0">
-                <div className="font-medium text-slate-900 text-sm">Export your {self.name} data</div>
-                <div className="text-xs text-slate-500">Save a file you can import into the full bundle later</div>
+                <div className="font-medium text-slate-900 text-sm">{t("moreApps.exportDataTitle", { name: self.name })}</div>
+                <div className="text-xs text-slate-500">{t("moreApps.exportDataHint")}</div>
               </div>
               <button onClick={() => exportProductData(APP_VARIANT).catch((e) => alert(e.message))}
                 className="shrink-0 text-xs font-medium bg-teal-700 text-white rounded-lg px-3 py-2">
-                Export
+                {t("moreApps.exportButton")}
               </button>
             </div>
           </div>
@@ -3728,24 +3727,24 @@ function RemindersScreen({ ctx }) {
 }
 
 function ProfileScreen({ ctx }) {
-  const { pop } = ctx;
+  const { pop, t } = ctx;
   const [profile, setProfile] = useState({ name: "", mobile: "", email: "" });
   useEffect(() => { storeGet("profile", { name: "", mobile: "", email: "" }).then(setProfile); }, []);
   const save = async (next) => { setProfile(next); await storeSet("profile", next); };
   return (
     <div className="flex-1 flex flex-col min-h-0">
-      <TopHeader ctx={ctx} title="Your Profile" onBack={pop} />
+      <TopHeader ctx={ctx} title={t("profile.title")} onBack={pop} />
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         <label className="block">
-          <div className="text-xs text-slate-500 mb-1">Name</div>
+          <div className="text-xs text-slate-500 mb-1">{t("profile.nameLabel")}</div>
           <input value={profile.name} onChange={(e) => save({ ...profile, name: e.target.value })} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
         </label>
         <label className="block">
-          <div className="text-xs text-slate-500 mb-1">Mobile Number</div>
+          <div className="text-xs text-slate-500 mb-1">{t("profile.mobileLabel")}</div>
           <input value={profile.mobile} onChange={(e) => save({ ...profile, mobile: e.target.value })} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
         </label>
         <label className="block">
-          <div className="text-xs text-slate-500 mb-1">Email</div>
+          <div className="text-xs text-slate-500 mb-1">{t("profile.emailLabel")}</div>
           <input value={profile.email} onChange={(e) => save({ ...profile, email: e.target.value })} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
         </label>
       </div>
@@ -3754,14 +3753,14 @@ function ProfileScreen({ ctx }) {
 }
 
 function AboutScreen({ ctx }) {
-  const { pop } = ctx;
+  const { pop, t } = ctx;
   return (
     <div className="flex-1 flex flex-col min-h-0">
-      <TopHeader ctx={ctx} title="About በጅሮንድ" onBack={pop} />
+      <TopHeader ctx={ctx} title={t("about.title")} onBack={pop} />
       <div className="flex-1 overflow-y-auto p-4 space-y-3 text-sm text-slate-600">
-        <p>በጅሮንድ is a simple ledger for tracking cash in and cash out across businesses and books, with lightweight team roles and exportable reports.</p>
-        <p>All your data is stored privately and stays on your account only.</p>
-        <p className="text-xs text-slate-400 pt-4">Version 1.0.0 · Demo build</p>
+        <p>{t("about.description")}</p>
+        <p>{t("about.privacyNote")}</p>
+        <p className="text-xs text-slate-400 pt-4">{t("about.version")}</p>
       </div>
     </div>
   );

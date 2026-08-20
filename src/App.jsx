@@ -3681,7 +3681,7 @@ function AppSettingsScreen({ ctx }) {
 }
 
 function RemindersScreen({ ctx }) {
-  const { pop, plannedItems, persistPlanned, appSettings, notifPermission, requestNotifPermission } = ctx;
+  const { pop, t, plannedItems, persistPlanned, appSettings, notifPermission, requestNotifPermission } = ctx;
   const pending = plannedItems.filter((p) => !p.done);
 
   const setReminder = async (id, iso) => {
@@ -3696,35 +3696,35 @@ function RemindersScreen({ ctx }) {
   const onAllow = async () => {
     const p = await requestNotifPermission();
     if (p !== "granted") {
-      alert("Notifications weren't allowed. You can still set reminder times, but you won't get a native alert — allow notifications from your phone's app settings to enable them.");
+      alert(t("reminders.notifDeniedAlert"));
     }
   };
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
-      <TopHeader ctx={ctx} title="Reminders" onBack={pop} />
+      <TopHeader ctx={ctx} title={t("reminders.title")} onBack={pop} />
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         <div className="bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg bg-teal-50 flex items-center justify-center text-teal-700 shrink-0">
             {notifPermission === "granted" ? <BellRing size={16} /> : <BellOff size={16} />}
           </div>
           <div className="flex-1">
-            <div className="font-medium text-slate-800 text-sm">Notifications</div>
+            <div className="font-medium text-slate-800 text-sm">{t("reminders.notifications")}</div>
             <div className="text-xs text-slate-500">
-              {notifPermission === "granted" ? "Allowed on this device" : "Allow notifications to get native alerts at the time you pick"}
+              {notifPermission === "granted" ? t("reminders.notifAllowed") : t("reminders.notifAllowHint")}
             </div>
           </div>
           {notifPermission !== "granted" && (
-            <button onClick={onAllow} className="text-xs font-medium text-teal-700 border border-teal-200 rounded-lg px-3 py-1.5 shrink-0">Allow</button>
+            <button onClick={onAllow} className="text-xs font-medium text-teal-700 border border-teal-200 rounded-lg px-3 py-1.5 shrink-0">{t("reminders.allowButton")}</button>
           )}
         </div>
 
         <p className="text-xs text-slate-500 px-1">
-          Set a date and time for any pending item on your "to buy / to pay for" list, and TallyBook will remind you.
+          {t("reminders.intro")}
         </p>
 
         {pending.length === 0 ? (
-          <EmptyState icon={Bell} title="Nothing to remind you about" hint='Add items from the list icon that floats on any screen, then come back here to set reminders.' />
+          <EmptyState icon={Bell} title={t("reminders.emptyTitle")} hint={t("reminders.emptyHint")} />
         ) : (
           <div className="space-y-2">
             {pending.map((p) => (
@@ -3739,7 +3739,7 @@ function RemindersScreen({ ctx }) {
                     className="flex-1 min-w-0 border border-slate-300 rounded-lg px-2.5 py-2 text-sm"
                   />
                   {p.reminderAt && (
-                    <button onClick={() => setReminder(p.id, null)} className="text-xs text-rose-600 border border-rose-200 rounded-lg px-2.5 shrink-0">Clear</button>
+                    <button onClick={() => setReminder(p.id, null)} className="text-xs text-rose-600 border border-rose-200 rounded-lg px-2.5 shrink-0">{t("reminders.clear")}</button>
                   )}
                 </div>
               </div>
@@ -3792,24 +3792,16 @@ function AboutScreen({ ctx }) {
 }
 
 function HelpScreen({ ctx }) {
+  const { pop, t } = ctx;
+  const faqKeys = [1, 2, 3, 4, 5, 6, 7, 8, 9];
   return (
     <div className="flex-1 flex flex-col min-h-0">
-      <TopHeader ctx={ctx} title="Help" />
+      <TopHeader ctx={ctx} title={t("help.title")} onBack={pop} />
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
-        {[
-          ["How do I add a cash entry?", "Open a book, tap Cash In or Cash Out, fill in the amount and details, then Save."],
-          ["How do I invite a team member?", "Open a book → the person-add icon in the header → Add Member, then set their role."],
-          ["What do the roles mean?", "Book Admin: full control. Data Operator: can add entries. Viewer: read-only."],
-          ["How do I export a report?", "Open a book → the report icon → choose filters and Generate Excel or PDF."],
-          ["How do I search or filter entries?", "Open a book and tap the search icon in the header — filter by Cash In/Out or search contact, remark, and category."],
-          ["Where's the expense breakdown chart?", "Open a book → the pie chart icon in the header — switch between by category and by month."],
-          ["Can each book use a different currency?", "Yes — open a book → the menu icon → Book Settings, and pick a currency just for that book."],
-          ["Can I hide a book's balance?", "On the books list, tap the eye icon next to any book to hide or show its balance."],
-          ["How do I switch business?", "Tap the business name at the top of the books list to open the business switcher."],
-        ].map(([q, a]) => (
-          <div key={q} className="bg-white border border-slate-200 rounded-xl p-4">
-            <div className="font-medium text-slate-900 text-sm mb-1">{q}</div>
-            <div className="text-sm text-slate-500">{a}</div>
+        {faqKeys.map((n) => (
+          <div key={n} className="bg-white border border-slate-200 rounded-xl p-4">
+            <div className="font-medium text-slate-900 text-sm mb-1">{t(`help.q${n}`)}</div>
+            <div className="text-sm text-slate-500">{t(`help.a${n}`)}</div>
           </div>
         ))}
       </div>

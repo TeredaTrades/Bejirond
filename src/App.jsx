@@ -2527,17 +2527,17 @@ function BookSettingsScreen({ ctx, bookId }) {
 }
 
 function ActivityScreen({ ctx, bookId }) {
-  const { pop, getActivity } = ctx;
+  const { pop, getActivity, t } = ctx;
   const [activity, setActivity] = useState(null);
   useEffect(() => { getActivity(bookId).then(setActivity); }, [bookId]);
   return (
     <div className="flex-1 flex flex-col min-h-0">
-      <TopHeader ctx={ctx} title="Book Activity" onBack={pop} />
+      <TopHeader ctx={ctx} title={t("activity.title")} onBack={pop} />
       <div className="flex-1 overflow-y-auto p-4">
         {activity === null ? (
           <div className="flex justify-center py-10"><Loader2 className="animate-spin text-teal-700" size={24} /></div>
         ) : activity.length === 0 ? (
-          <EmptyState icon={Clock} title="No activity yet" />
+          <EmptyState icon={Clock} title={t("activity.noActivity")} />
         ) : (
           <div className="space-y-3">
             {activity.map((a) => (
@@ -2555,7 +2555,7 @@ function ActivityScreen({ ctx, bookId }) {
 
 // ---------- Add member ----------
 function AddMemberScreen({ ctx, bookId }) {
-  const { activeBusiness, businesses, persistBusinesses, pop, logActivity, viewer } = ctx;
+  const { activeBusiness, businesses, persistBusinesses, pop, logActivity, viewer, t } = ctx;
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [role, setRole] = useState("Data Operator");
@@ -2583,20 +2583,20 @@ function AddMemberScreen({ ctx, bookId }) {
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
-      <TopHeader ctx={ctx} title="Manage Members" onBack={pop} />
+      <TopHeader ctx={ctx} title={t("members.manageTitle")} onBack={pop} />
       <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-28">
-        <div className="text-xs font-medium text-slate-400 uppercase">Members</div>
-        {members.length === 0 && <div className="text-sm text-slate-400">No members added yet.</div>}
+        <div className="text-xs font-medium text-slate-400 uppercase">{t("members.membersLabel")}</div>
+        {members.length === 0 && <div className="text-sm text-slate-400">{t("members.noMembers")}</div>}
         <div className="space-y-2">
           {members.map((m) => (
             <div key={m.id} className="bg-white border border-slate-200 rounded-xl px-3 py-3 flex items-center gap-3">
               <div className="w-9 h-9 rounded-full bg-teal-600 text-white flex items-center justify-center text-sm font-semibold">{m.name[0]}</div>
               <div className="flex-1 min-w-0">
                 <div className="font-medium text-slate-900 text-sm">{m.name}</div>
-                <div className="text-xs text-slate-500">{m.phone || "No phone"} · {m.status === "pending" ? "Pending" : "Active"}</div>
+                <div className="text-xs text-slate-500">{m.phone || t("members.noPhone")} · {m.status === "pending" ? t("members.statusPending") : t("members.statusActive")}</div>
               </div>
               <select value={m.role} onChange={(e) => changeRole(m.id, e.target.value)} className="text-xs border border-slate-300 rounded-lg px-2 py-1 bg-white">
-                {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
+                {ROLES.map((r) => <option key={r} value={r}>{roleLabel(t, r)}</option>)}
               </select>
               <button onClick={() => removeMember(m.id)} className="text-rose-600 p-1"><Trash2 size={14} /></button>
             </div>
@@ -2604,15 +2604,15 @@ function AddMemberScreen({ ctx, bookId }) {
         </div>
 
         <div className="bg-white border border-slate-200 rounded-xl p-4 space-y-3">
-          <div className="font-medium text-slate-800">Add Member</div>
-          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
-          <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone number (optional)" className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
+          <div className="font-medium text-slate-800">{t("members.addMember")}</div>
+          <input value={name} onChange={(e) => setName(e.target.value)} placeholder={t("members.fullNamePlaceholder")} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
+          <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder={t("members.phonePlaceholder")} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
           <div className="flex gap-2 flex-wrap">
-            {ROLES.map((r) => <Chip key={r} active={role === r} onClick={() => setRole(r)}>{r}</Chip>)}
+            {ROLES.map((r) => <Chip key={r} active={role === r} onClick={() => setRole(r)}>{roleLabel(t, r)}</Chip>)}
           </div>
           <button onClick={addMember} disabled={!name.trim()}
             className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-semibold ${name.trim() ? "bg-teal-700 text-white" : "bg-slate-200 text-slate-400"}`}>
-            <UserPlus size={16} /> Add Member
+            <UserPlus size={16} /> {t("members.addMember")}
           </button>
         </div>
       </div>
@@ -2622,11 +2622,11 @@ function AddMemberScreen({ ctx, bookId }) {
 
 // ---------- Reports ----------
 function ReportsScreen({ ctx, bookId }) {
-  const { pop, push, activeBusiness, appSettings } = ctx;
+  const { pop, push, activeBusiness, appSettings, t } = ctx;
   const book = activeBusiness?.books.find((b) => b.id === bookId);
   const members = activeBusiness?.members || [];
-  const [duration, setDuration] = useState("All Time");
-  const [entryType, setEntryType] = useState("All");
+  const [duration, setDuration] = useState("allTime");
+  const [entryType, setEntryType] = useState("all");
   const [member, setMember] = useState("All");
   const [cats, setCats] = useState([]);
   const [mode, setMode] = useState("All");
@@ -2638,54 +2638,54 @@ function ReportsScreen({ ctx, bookId }) {
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
-      <TopHeader ctx={ctx} title="Generate Report" onBack={pop} />
+      <TopHeader ctx={ctx} title={t("reports.title")} onBack={pop} />
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        <div className="text-sm font-medium text-slate-700">Report will be generated for</div>
+        <div className="text-sm font-medium text-slate-700">{t("reports.generateFor")}</div>
 
         <div className="grid grid-cols-2 gap-3">
           <label className="block">
-            <div className="text-xs text-slate-500 mb-1">Duration</div>
+            <div className="text-xs text-slate-500 mb-1">{t("reports.durationLabel")}</div>
             <select value={duration} onChange={(e) => setDuration(e.target.value)} className="w-full border border-slate-300 rounded-lg px-2 py-2 text-sm bg-white">
-              {["All Time", "This Month", "Last 7 Days", "Today"].map(o => <option key={o}>{o}</option>)}
+              {["allTime", "thisMonth", "last7", "today"].map(o => <option key={o} value={o}>{reportDurationLabel(t, o)}</option>)}
             </select>
           </label>
           <label className="block">
-            <div className="text-xs text-slate-500 mb-1">Entry Type</div>
+            <div className="text-xs text-slate-500 mb-1">{t("reports.entryTypeLabel")}</div>
             <select value={entryType} onChange={(e) => setEntryType(e.target.value)} className="w-full border border-slate-300 rounded-lg px-2 py-2 text-sm bg-white">
-              {["All", "Cash In", "Cash Out"].map(o => <option key={o}>{o}</option>)}
+              {["all", "in", "out"].map(o => <option key={o} value={o}>{reportEntryTypeLabel(t, o)}</option>)}
             </select>
           </label>
           <label className="block">
-            <div className="text-xs text-slate-500 mb-1">Members</div>
+            <div className="text-xs text-slate-500 mb-1">{t("reports.membersLabel")}</div>
             <select value={member} onChange={(e) => setMember(e.target.value)} className="w-full border border-slate-300 rounded-lg px-2 py-2 text-sm bg-white">
-              <option>All</option>
-              <option>You</option>
-              {members.map((m) => <option key={m.id}>{m.name}</option>)}
+              <option value="All">{t("entries.all")}</option>
+              <option value="You">{t("common.you")}</option>
+              {members.map((m) => <option key={m.id} value={m.name}>{m.name}</option>)}
             </select>
           </label>
           <label className="block">
-            <div className="text-xs text-slate-500 mb-1">Payment Mode</div>
+            <div className="text-xs text-slate-500 mb-1">{t("reports.paymentModeLabel")}</div>
             <select value={mode} onChange={(e) => setMode(e.target.value)} className="w-full border border-slate-300 rounded-lg px-2 py-2 text-sm bg-white">
-              <option>All</option>
+              <option value="All">{t("entries.all")}</option>
               {appSettings.paymentModes.map((m) => <option key={m}>{m}</option>)}
             </select>
           </label>
         </div>
 
         <div>
-          <div className="text-xs text-slate-500 mb-1.5">Categories</div>
+          <div className="text-xs text-slate-500 mb-1.5">{t("reports.categoriesLabel")}</div>
           <div className="flex flex-wrap gap-2">
             {appSettings.categories.map((c) => <Chip key={c} active={cats.includes(c)} onClick={() => toggleCat(c)}>{c}</Chip>)}
           </div>
         </div>
 
         <div>
-          <div className="text-sm font-medium text-slate-700 mb-2">Select Report Type</div>
+          <div className="text-sm font-medium text-slate-700 mb-2">{t("reports.selectReportType")}</div>
           <div className="space-y-2">
             {[
-              { id: "all", title: "All Entries Report", sub: "List of all entries and details" },
-              { id: "category", title: "Category-wise summary", sub: "Income & expenses of all categories" },
-              { id: "payment", title: "Payment Mode summary", sub: "Income & expenses of all payment modes" },
+              { id: "all", title: t("reports.allEntriesTitle"), sub: t("reports.allEntriesSub") },
+              { id: "category", title: t("reports.categoryTitle"), sub: t("reports.categorySub") },
+              { id: "payment", title: t("reports.paymentTitle"), sub: t("reports.paymentSub") },
             ].map((rt) => (
               <button key={rt.id} onClick={() => setReportType(rt.id)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-left ${reportType === rt.id ? "border-teal-600 bg-teal-50" : "border-slate-200 bg-white"}`}>
@@ -2704,29 +2704,56 @@ function ReportsScreen({ ctx, bookId }) {
       <div className="p-3 border-t border-slate-200 bg-white flex gap-2">
         <button onClick={() => push("reportView", { bookId, filters: { ...filters, mode: "excel" } })}
           className="flex-1 flex items-center justify-center gap-2 border border-teal-700 text-teal-700 py-2.5 rounded-xl font-semibold">
-          <Download size={16} /> Generate Excel
+          <Download size={16} /> {t("reports.generateExcel")}
         </button>
         <button onClick={() => push("reportView", { bookId, filters: { ...filters, mode: "pdf" } })}
           className="flex-1 flex items-center justify-center gap-2 bg-teal-700 text-white py-2.5 rounded-xl font-semibold">
-          <Printer size={16} /> Generate PDF
+          <Printer size={16} /> {t("reports.generatePdf")}
         </button>
       </div>
     </div>
   );
 }
 
+function roleLabel(t, role) {
+  switch (role) {
+    case "Book Admin": return t("roles.bookAdmin");
+    case "Data Operator": return t("roles.dataOperator");
+    case "Viewer": return t("roles.viewer");
+    case "Primary Admin": return t("roles.primaryAdmin");
+    default: return role;
+  }
+}
+
+function reportDurationLabel(t, key) {
+  switch (key) {
+    case "thisMonth": return t("reports.durationThisMonth");
+    case "last7": return t("reports.durationLast7Days");
+    case "today": return t("reports.durationToday");
+    default: return t("reports.durationAllTime");
+  }
+}
+
+function reportEntryTypeLabel(t, key) {
+  switch (key) {
+    case "in": return t("entries.cashIn");
+    case "out": return t("entries.cashOut");
+    default: return t("entries.all");
+  }
+}
+
 function applyFilters(entries, f) {
   let list = [...entries];
   const now = new Date();
-  if (f.duration === "Today") list = list.filter(e => e.date === todayStr());
-  else if (f.duration === "Last 7 Days") {
+  if (f.duration === "today") list = list.filter(e => e.date === todayStr());
+  else if (f.duration === "last7") {
     const cut = new Date(); cut.setDate(cut.getDate() - 7);
     list = list.filter(e => new Date(e.date) >= cut);
-  } else if (f.duration === "This Month") {
+  } else if (f.duration === "thisMonth") {
     list = list.filter(e => new Date(e.date).getMonth() === now.getMonth() && new Date(e.date).getFullYear() === now.getFullYear());
   }
-  if (f.entryType === "Cash In") list = list.filter(e => e.type === "in");
-  if (f.entryType === "Cash Out") list = list.filter(e => e.type === "out");
+  if (f.entryType === "in") list = list.filter(e => e.type === "in");
+  if (f.entryType === "out") list = list.filter(e => e.type === "out");
   if (f.member && f.member !== "All") list = list.filter(e => (e.addedBy || "You") === f.member);
   if (f.cats && f.cats.length) list = list.filter(e => f.cats.includes(e.category));
   if (f.paymentMode && f.paymentMode !== "All") list = list.filter(e => e.paymentMode === f.paymentMode);
@@ -2734,7 +2761,7 @@ function applyFilters(entries, f) {
 }
 
 function ReportViewScreen({ ctx, bookId, filters }) {
-  const { pop, getEntries, appSettings, activeBusiness } = ctx;
+  const { pop, getEntries, appSettings, activeBusiness, t } = ctx;
   const [entries, setEntries] = useState(null);
   useEffect(() => { getEntries(bookId).then(setEntries); }, [bookId]);
 
@@ -2751,12 +2778,12 @@ function ReportViewScreen({ ctx, bookId, filters }) {
   const categorySummary = useMemo(() => {
     const map = {};
     filtered.forEach(e => {
-      const k = e.category || "Uncategorized";
+      const k = e.category || t("reportView.uncategorized");
       if (!map[k]) map[k] = { in: 0, out: 0 };
       map[k][e.type] += e.amount;
     });
     return map;
-  }, [filtered]);
+  }, [filtered, t]);
 
   const paymentSummary = useMemo(() => {
     const map = {};
@@ -2770,7 +2797,9 @@ function ReportViewScreen({ ctx, bookId, filters }) {
 
   const [exporting, setExporting] = useState(false);
 
-  const reportSubtitle = `${filters.duration} · ${filters.entryType}${filters.member && filters.member !== "All" ? ` · ${filters.member}` : ""}`;
+  const durationDisplay = reportDurationLabel(t, filters.duration);
+  const entryTypeDisplay = reportEntryTypeLabel(t, filters.entryType);
+  const reportSubtitle = `${durationDisplay} · ${entryTypeDisplay}${filters.member && filters.member !== "All" ? ` · ${filters.member}` : ""}`;
 
   const reportTable = () => {
     if (filters.reportType === "all") {
@@ -2811,7 +2840,7 @@ function ReportViewScreen({ ctx, bookId, filters }) {
       await saveAndShareFile({ filename: `${filters.bookName || "report"}.csv`, data: csv, mimeType: "text/csv", base64: false });
     } catch (err) {
       console.error("CSV export failed", err);
-      alert("Couldn't export the CSV. Please try again.");
+      alert(t("reportView.csvExportFailed"));
     } finally {
       setExporting(false);
     }
@@ -2829,7 +2858,7 @@ function ReportViewScreen({ ctx, bookId, filters }) {
       await saveAndShareFile({ filename: `${filters.bookName || "report"}.pdf`, data: base64, mimeType: "application/pdf", base64: true });
     } catch (err) {
       console.error("PDF export failed", err);
-      alert("Couldn't create the PDF. Please try again.");
+      alert(t("reportView.pdfExportFailed"));
     } finally {
       setExporting(false);
     }
@@ -2837,20 +2866,20 @@ function ReportViewScreen({ ctx, bookId, filters }) {
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
-      <TopHeader ctx={ctx} title="Report" onBack={pop}
+      <TopHeader ctx={ctx} title={t("reportView.title")} onBack={pop}
         right={<button onClick={downloadPdf} disabled={exporting} className="p-2 text-teal-700 disabled:opacity-40"><Printer size={18} /></button>} />
       <div className="flex-1 overflow-y-auto p-4 space-y-4" id="report-printable">
         <div className="text-center">
           <div className="font-bold text-slate-900">{filters.bookName}</div>
-          <div className="text-xs text-slate-500">{filters.duration} · {filters.entryType} {filters.member && filters.member !== "All" ? `· ${filters.member}` : ""}</div>
+          <div className="text-xs text-slate-500">{durationDisplay} · {entryTypeDisplay} {filters.member && filters.member !== "All" ? `· ${filters.member}` : ""}</div>
         </div>
         <div className="flex gap-3">
           <div className="flex-1 bg-emerald-50 rounded-xl p-3 text-center">
-            <div className="text-xs text-emerald-800">Total In</div>
+            <div className="text-xs text-emerald-800">{t("reportView.totalIn")}</div>
             <div className="font-bold text-emerald-800">{cur}{totalIn.toLocaleString()}</div>
           </div>
           <div className="flex-1 bg-rose-50 rounded-xl p-3 text-center">
-            <div className="text-xs text-rose-800">Total Out</div>
+            <div className="text-xs text-rose-800">{t("reportView.totalOut")}</div>
             <div className="font-bold text-rose-800">{cur}{totalOut.toLocaleString()}</div>
           </div>
         </div>
@@ -2858,13 +2887,13 @@ function ReportViewScreen({ ctx, bookId, filters }) {
         {entries === null ? (
           <div className="flex justify-center py-10"><Loader2 className="animate-spin text-teal-700" size={24} /></div>
         ) : filtered.length === 0 ? (
-          <EmptyState icon={FileText} title="No entries match these filters" />
+          <EmptyState icon={FileText} title={t("reportView.noMatch")} />
         ) : filters.reportType === "all" ? (
           <div className="divide-y divide-slate-100 bg-white border border-slate-200 rounded-xl overflow-hidden">
             {filtered.map((e) => (
               <div key={e.id} className="flex items-center justify-between px-3 py-2.5 text-sm">
                 <div>
-                  <div className="font-medium text-slate-800">{e.contact || e.category || "Entry"}</div>
+                  <div className="font-medium text-slate-800">{e.contact || e.category || t("entries.entryFallback")}</div>
                   <div className="text-xs text-slate-400">{ctx.fmtDate(e.date)} · {e.category || "-"} · {e.paymentMode}</div>
                 </div>
                 <div className={e.type === "in" ? "text-emerald-700 font-semibold" : "text-rose-700 font-semibold"}>
@@ -2904,13 +2933,13 @@ function ReportViewScreen({ ctx, bookId, filters }) {
           <button onClick={downloadCsv} disabled={exporting}
             className="w-full flex items-center justify-center gap-2 bg-teal-700 text-white py-2.5 rounded-xl font-semibold disabled:opacity-50">
             {exporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
-            {exporting ? "Preparing…" : "Download CSV"}
+            {exporting ? t("reportView.preparing") : t("reportView.downloadCsv")}
           </button>
         ) : (
           <button onClick={downloadPdf} disabled={exporting}
             className="w-full flex items-center justify-center gap-2 bg-teal-700 text-white py-2.5 rounded-xl font-semibold disabled:opacity-50">
             {exporting ? <Loader2 size={16} className="animate-spin" /> : <Printer size={16} />}
-            {exporting ? "Preparing…" : "Print / Save as PDF"}
+            {exporting ? t("reportView.preparing") : t("reportView.printSavePdf")}
           </button>
         )}
       </div>
@@ -2920,7 +2949,7 @@ function ReportViewScreen({ ctx, bookId, filters }) {
 
 // ---------- Charts ----------
 function ChartsScreen({ ctx, bookId }) {
-  const { pop, getEntries, appSettings, activeBusiness } = ctx;
+  const { pop, getEntries, appSettings, activeBusiness, t } = ctx;
   const book = activeBusiness?.books.find((b) => b.id === bookId);
   const cur = bookCurrency(book, appSettings);
   const [entries, setEntries] = useState(null);
@@ -2935,33 +2964,33 @@ function ChartsScreen({ ctx, bookId }) {
     const map = {};
     expenseEntries.forEach((e) => {
       const key = groupBy === "category"
-        ? (e.category || "Uncategorized")
+        ? (e.category || t("reportView.uncategorized"))
         : new Date(e.date + "T00:00:00").toLocaleDateString(intlLocale(ctx.dtPref.language, ctx.dtPref.calendarType), { month: "short", year: "numeric" });
       map[key] = (map[key] || 0) + e.amount;
     });
     return Object.entries(map)
       .map(([name, value]) => ({ name, value }))
       .sort((a, b) => b.value - a.value);
-  }, [entries, groupBy]);
+  }, [entries, groupBy, t]);
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
-      <TopHeader ctx={ctx} title="Expense Breakdown" subtitle={book?.name} onBack={pop} />
+      <TopHeader ctx={ctx} title={t("charts.title")} subtitle={book?.name} onBack={pop} />
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         <div className="flex gap-2">
-          <Chip active={groupBy === "category"} tone="rose" onClick={() => setGroupBy("category")}>By Category</Chip>
-          <Chip active={groupBy === "month"} tone="rose" onClick={() => setGroupBy("month")}>By Month</Chip>
+          <Chip active={groupBy === "category"} tone="rose" onClick={() => setGroupBy("category")}>{t("charts.byCategory")}</Chip>
+          <Chip active={groupBy === "month"} tone="rose" onClick={() => setGroupBy("month")}>{t("charts.byMonth")}</Chip>
         </div>
 
         <div className="bg-rose-50 rounded-xl p-3 text-center">
-          <div className="text-xs text-rose-800">Total Expenses</div>
+          <div className="text-xs text-rose-800">{t("charts.totalExpenses")}</div>
           <div className="font-bold text-rose-800 text-lg">{cur}{totalExpense.toLocaleString()}</div>
         </div>
 
         {entries === null ? (
           <div className="flex justify-center py-10"><Loader2 className="animate-spin text-teal-700" size={24} /></div>
         ) : data.length === 0 ? (
-          <EmptyState icon={PieChartIcon} title="No expenses yet" hint="Add a Cash Out entry to see the breakdown here." />
+          <EmptyState icon={PieChartIcon} title={t("charts.noExpensesTitle")} hint={t("charts.noExpensesHint")} />
         ) : (
           <>
             <div className="bg-white border border-slate-200 rounded-xl p-2" style={{ height: 260 }}>
@@ -3187,7 +3216,7 @@ function SuggestTranslationScreen({ ctx }) {
 
 // ---------- Quick Access (home screen widget / floating icon) ----------
 function QuickAccessScreen({ ctx }) {
-  const { pop } = ctx;
+  const { pop, t } = ctx;
   const native = Capacitor.isNativePlatform();
   const [overlayGranted, setOverlayGranted] = useState(false);
   const [bubbleOn, setBubbleOn] = useState(false);
@@ -3247,11 +3276,11 @@ function QuickAccessScreen({ ctx }) {
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
-      <TopHeader ctx={ctx} title="Quick Access" subtitle="Reach Expenses Manager without opening the app first" onBack={pop} />
+      <TopHeader ctx={ctx} title={t("quickAccess.title")} subtitle={t("quickAccess.subtitle")} onBack={pop} />
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {!native && (
           <div className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-3">
-            These options only work on an installed Android build, not in this browser preview.
+            {t("quickAccess.previewNote")}
           </div>
         )}
 
@@ -3259,22 +3288,20 @@ function QuickAccessScreen({ ctx }) {
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 rounded-lg bg-teal-50 flex items-center justify-center text-teal-700 shrink-0"><LayoutGrid size={18} /></div>
             <div className="flex-1 min-w-0">
-              <div className="font-medium text-slate-900">Home screen widget</div>
+              <div className="font-medium text-slate-900">{t("quickAccess.widgetTitle")}</div>
               <div className="text-xs text-slate-500 mt-0.5">
-                A small tile on your home screen showing your net balance across every business —
-                tap it any time to jump straight into the app.
+                {t("quickAccess.widgetDesc")}
               </div>
             </div>
           </div>
           {widgetSupported ? (
             <button onClick={addWidget} disabled={!native || busy}
               className="w-full mt-3 bg-teal-700 text-white rounded-lg py-2.5 text-sm font-medium disabled:opacity-50">
-              Add widget to Home screen
+              {t("quickAccess.addWidgetButton")}
             </button>
           ) : (
             <div className="text-xs text-slate-500 mt-3">
-              Your device doesn't support adding widgets from inside the app — instead, long-press an
-              empty spot on your home screen, choose Widgets, and find "TallyBook".
+              {t("quickAccess.widgetUnsupported")}
             </div>
           )}
         </div>
@@ -3283,10 +3310,9 @@ function QuickAccessScreen({ ctx }) {
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 rounded-lg bg-teal-50 flex items-center justify-center text-teal-700 shrink-0"><Move size={18} /></div>
             <div className="flex-1 min-w-0">
-              <div className="font-medium text-slate-900">Floating icon</div>
+              <div className="font-medium text-slate-900">{t("quickAccess.bubbleTitle")}</div>
               <div className="text-xs text-slate-500 mt-0.5">
-                A small draggable bubble that floats over other apps — tap it to open TallyBook instantly.
-                Requires the "display over other apps" permission, granted once from system Settings.
+                {t("quickAccess.bubbleDesc")}
               </div>
             </div>
             <button onClick={toggleBubble} disabled={!native || busy}
@@ -3296,8 +3322,7 @@ function QuickAccessScreen({ ctx }) {
           </div>
           {native && !overlayGranted && (
             <div className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-2.5 mt-3">
-              Tapping the toggle will open your device's Settings to grant "display over other apps" —
-              come back here and tap it again once it's allowed.
+              {t("quickAccess.overlayHint")}
             </div>
           )}
         </div>
@@ -3342,7 +3367,7 @@ function SettingsScreen({ ctx }) {
 }
 
 function BusinessTeamScreen({ ctx }) {
-  const { activeBusiness, businesses, persistBusinesses, pop } = ctx;
+  const { activeBusiness, businesses, persistBusinesses, pop, t } = ctx;
   const members = activeBusiness?.members || [];
   const [adding, setAdding] = useState(false);
   const [name, setName] = useState("");
@@ -3364,36 +3389,36 @@ function BusinessTeamScreen({ ctx }) {
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
-      <TopHeader ctx={ctx} title="Business Team" onBack={pop}
+      <TopHeader ctx={ctx} title={t("members.teamTitle")} onBack={pop}
         right={<button onClick={() => setAdding((v) => !v)} className="p-2 text-teal-700"><UserPlus size={18} /></button>} />
       <div className="flex-1 overflow-y-auto p-4 space-y-2 pb-28">
         <div className="bg-white border border-slate-200 rounded-xl px-4 py-3 flex items-center gap-3">
           <div className="w-9 h-9 rounded-full bg-teal-700 text-white flex items-center justify-center font-semibold">Y</div>
-          <div className="flex-1"><div className="font-medium text-slate-900 text-sm">You</div><div className="text-xs text-slate-500">Primary Admin</div></div>
+          <div className="flex-1"><div className="font-medium text-slate-900 text-sm">{t("common.you")}</div><div className="text-xs text-slate-500">{roleLabel(t, "Primary Admin")}</div></div>
           <ShieldCheck size={16} className="text-teal-700" />
         </div>
 
         {adding && (
           <div className="bg-white border border-slate-200 rounded-xl p-4 space-y-3">
-            <div className="font-medium text-slate-800">Add Member</div>
-            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
-            <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone number (optional)" className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
+            <div className="font-medium text-slate-800">{t("members.addMember")}</div>
+            <input value={name} onChange={(e) => setName(e.target.value)} placeholder={t("members.fullNamePlaceholder")} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
+            <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder={t("members.phonePlaceholder")} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
             <div className="flex gap-2 flex-wrap">
-              {ROLES.map((r) => <Chip key={r} active={role === r} onClick={() => setRole(r)}>{r}</Chip>)}
+              {ROLES.map((r) => <Chip key={r} active={role === r} onClick={() => setRole(r)}>{roleLabel(t, r)}</Chip>)}
             </div>
             <button onClick={addMember} disabled={!name.trim()}
               className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-semibold ${name.trim() ? "bg-teal-700 text-white" : "bg-slate-200 text-slate-400"}`}>
-              <UserPlus size={16} /> Add Member
+              <UserPlus size={16} /> {t("members.addMember")}
             </button>
           </div>
         )}
 
         {members.length === 0 && !adding ? (
-          <EmptyState icon={Users} title="No team members yet" hint="Tap the person-add icon above to invite someone to this business." />
+          <EmptyState icon={Users} title={t("members.noTeamTitle")} hint={t("members.noTeamHint")} />
         ) : members.map((m) => (
           <div key={m.id} className="bg-white border border-slate-200 rounded-xl px-4 py-3 flex items-center gap-3">
             <div className="w-9 h-9 rounded-full bg-slate-300 text-white flex items-center justify-center font-semibold">{m.name[0]}</div>
-            <div className="flex-1"><div className="font-medium text-slate-900 text-sm">{m.name}</div><div className="text-xs text-slate-500">{m.role} · {m.status === "pending" ? "Pending" : "Active"}</div></div>
+            <div className="flex-1"><div className="font-medium text-slate-900 text-sm">{m.name}</div><div className="text-xs text-slate-500">{roleLabel(t, m.role)} · {m.status === "pending" ? t("members.statusPending") : t("members.statusActive")}</div></div>
             <button onClick={() => removeMember(m.id)} className="text-rose-600 p-1"><Trash2 size={14} /></button>
           </div>
         ))}
@@ -3403,7 +3428,7 @@ function BusinessTeamScreen({ ctx }) {
 }
 
 function MoveRequestsScreen({ ctx }) {
-  const { activeBusiness, businesses, persistBusinesses, pop, getEntries, saveEntries, logActivity } = ctx;
+  const { activeBusiness, businesses, persistBusinesses, pop, getEntries, saveEntries, logActivity, t } = ctx;
   const requests = (activeBusiness?.moveRequests || []);
 
   const respond = async (reqId, approve) => {
@@ -3446,24 +3471,24 @@ function MoveRequestsScreen({ ctx }) {
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
-      <TopHeader ctx={ctx} title="Move & Copy Book Requests" onBack={pop} />
+      <TopHeader ctx={ctx} title={t("moveRequests.title")} onBack={pop} />
       <div className="flex-1 overflow-y-auto p-4 space-y-2">
         {requests.length === 0 ? (
-          <EmptyState icon={Inbox} title="No pending requests" hint="Requests to move or copy a book into this business will appear here." />
+          <EmptyState icon={Inbox} title={t("moveRequests.noRequestsTitle")} hint={t("moveRequests.noRequestsHint")} />
         ) : requests.map((r) => (
           <div key={r.id} className="bg-white border border-slate-200 rounded-xl p-4">
             <div className="flex items-center gap-2 mb-1">
               <div className="font-medium text-slate-900 text-sm">{r.bookName}</div>
               <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${r.mode === "copy" ? "bg-sky-100 text-sky-700" : "bg-amber-100 text-amber-700"}`}>
-                {r.mode === "copy" ? "COPY" : "MOVE"}
+                {r.mode === "copy" ? t("moveRequests.copyBadge") : t("moveRequests.moveBadge")}
               </span>
             </div>
             <div className="text-xs text-slate-500 mb-3">
-              From {r.fromBusinessName}{r.mode === "copy" ? " — a copy will be added here; the original stays there too." : " — it will no longer be in that business once approved."}
+              {r.mode === "copy" ? t("moveRequests.fromPrefixCopy", { business: r.fromBusinessName }) : t("moveRequests.fromPrefixMove", { business: r.fromBusinessName })}
             </div>
             <div className="flex gap-2">
-              <button onClick={() => respond(r.id, true)} className="flex-1 bg-teal-700 text-white py-2 rounded-lg text-sm font-medium">Approve</button>
-              <button onClick={() => respond(r.id, false)} className="flex-1 border border-slate-300 text-slate-600 py-2 rounded-lg text-sm font-medium">Deny</button>
+              <button onClick={() => respond(r.id, true)} className="flex-1 bg-teal-700 text-white py-2 rounded-lg text-sm font-medium">{t("moveRequests.approve")}</button>
+              <button onClick={() => respond(r.id, false)} className="flex-1 border border-slate-300 text-slate-600 py-2 rounded-lg text-sm font-medium">{t("moveRequests.deny")}</button>
             </div>
           </div>
         ))}

@@ -20,45 +20,18 @@ export const IS_BUNDLE = APP_VARIANT === "bundle";
 // until each one has its own Android applicationId and Play Store listing
 // (see NOTES.md — package IDs were deliberately not set up yet). Until
 // then, the "Get" button on each row doesn't link anywhere yet.
+// Display name/tagline are NOT here — they're fully localized and live in
+// src/i18n/*.js under moreApps.products.<id>.{name,tagline}, looked up by
+// id at render time so they follow the app's language setting.
 export const PRODUCTS = [
-  {
-    id: "expenses-manager",
-    name: "በጅሮንድ Expenses Manager",
-    tagline: "Track cash in and out across businesses and books",
-    playStoreUrl: null,
-  },
-  {
-    id: "loan-calculator",
-    name: "በጅሮንድ Loan Calculator",
-    tagline: "Work out loan payments, interest, and fees",
-    playStoreUrl: null,
-  },
-  {
-    id: "budget",
-    name: "በጅሮንድ Budget",
-    tagline: "Plan and track a monthly budget",
-    playStoreUrl: null,
-  },
-  {
-    id: "trip-organizer",
-    name: "አጋፋሪ",
-    tagline: "Your one-stop shop for experiences & vibes",
-    playStoreUrl: null,
-  },
-  {
-    id: "marketplace",
-    name: "ገበያ",
-    tagline: "Buy & sell marketplace",
-    playStoreUrl: null,
-  },
+  { id: "expenses-manager", playStoreUrl: null },
+  { id: "loan-calculator", playStoreUrl: null },
+  { id: "budget", playStoreUrl: null },
+  { id: "trip-organizer", playStoreUrl: null },
+  { id: "marketplace", playStoreUrl: null },
 ];
 
-export const BUNDLE_PRODUCT = {
-  id: "bundle",
-  name: "በጅሮንድ Finances",
-  tagline: "Every tool together, no ads",
-  playStoreUrl: null,
-};
+export const BUNDLE_PRODUCT = { id: "bundle", playStoreUrl: null };
 
 export function productById(id) {
   return PRODUCTS.find((p) => p.id === id) || null;

@@ -264,12 +264,12 @@ export default {
     replaceConfirm: "እዚ ኣብዚ መተግበሪ ዘሎ ዳታ {name} ክትካእ እዩ። ትቕጽሉ ዲኹም?",
     wrongFileError: "እዚ ፋይል ናይ {product} ውጽኢት እዩ፡ ናይ {name} ኣይኮነን።",
     products: {
-      "expenses-manager": "ኣብ መንጎ ንግድታትን ደብተራትን ናይ ገንዘብ መእተውን መውጽእን ተኸታተል",
-      "loan-calculator": "ክፍሊት ልቓሕ፡ ወለድን ክፍሊታትን ኣተምት",
-      budget: "ወርሓዊ በጀት ተኸታተልን ውጠንን",
-      "trip-organizer": "ንተመኩሮታትን ስምዒታትን ዝኸውን ቦታኻ",
-      marketplace: "ናይ ዕዳጋ ሽያጭን ግዝኣትን",
-      bundle: "ኩሎም መሳርሒታት ብሓደ፡ ብዘይ ማስታወቂያ",
+      "expenses-manager": { name: "በጅሮንድ ኣመሓዳሪ ወጻኢታት", tagline: "ኣብ መንጎ ንግድታትን ደብተራትን ናይ ገንዘብ መእተውን መውጽእን ተኸታተል" },
+      "loan-calculator": { name: "በጅሮንድ ሕሳብ ልቓሕ", tagline: "ክፍሊት ልቓሕ፡ ወለድን ክፍሊታትን ኣተምት" },
+      budget: { name: "በጅሮንድ በጀት", tagline: "ወርሓዊ በጀት ተኸታተልን ውጠንን" },
+      "trip-organizer": { name: "መራሒ", tagline: "ንተመኩሮታትን ስምዒታትን ዝኸውን ቦታኻ" },
+      marketplace: { name: "ዕዳጋ", tagline: "ናይ ዕዳጋ ሽያጭን ግዝኣትን" },
+      bundle: { name: "በጅሮንድ ፋይናንስ", tagline: "ኩሎም መሳርሒታት ብሓደ፡ ብዘይ ማስታወቂያ" },
     },
   },
 };

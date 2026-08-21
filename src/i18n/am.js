@@ -266,12 +266,12 @@ export default {
     replaceConfirm: "ይህ በዚህ መተግበሪያ ውስጥ ያለውን የ{name} ውሂብዎን ይተካል። ይቀጥሉ?",
     wrongFileError: "ይህ ፋይል የ{product} ላክ እንጂ የ{name} አይደለም።",
     products: {
-      "expenses-manager": "በንግዶች እና በደብተሮች መካከል ገንዘብ ግቤትና ወጪን ይከታተሉ",
-      "loan-calculator": "የብድር ክፍያ፣ ወለድ እና ክፍያዎችን ያሰሉ",
-      budget: "ወርሃዊ በጀት ያቅዱ እና ይከታተሉ",
-      "trip-organizer": "ለተሞክሮዎችና ስሜቶች ሁሉ የሚሆን ቦታዎ",
-      marketplace: "የመሸጫና መግዣ ገበያ",
-      bundle: "ሁሉም መሳሪያዎች በአንድ ላይ፣ ያለ ማስታወቂያ",
+      "expenses-manager": { name: "በጅሮንድ የወጪ አስተዳዳሪ", tagline: "በንግዶች እና በደብተሮች መካከል ገንዘብ ግቤትና ወጪን ይከታተሉ" },
+      "loan-calculator": { name: "በጅሮንድ የብድር ማስሊያ", tagline: "የብድር ክፍያ፣ ወለድ እና ክፍያዎችን ያሰሉ" },
+      budget: { name: "በጅሮንድ በጀት", tagline: "ወርሃዊ በጀት ያቅዱ እና ይከታተሉ" },
+      "trip-organizer": { name: "አጋፋሪ", tagline: "ለተሞክሮዎችና ስሜቶች ሁሉ የሚሆን ቦታዎ" },
+      marketplace: { name: "ገበያ", tagline: "የመሸጫና መግዣ ገበያ" },
+      bundle: { name: "በጅሮንድ ፋይናንስ", tagline: "ሁሉም መሳሪያዎች በአንድ ላይ፣ ያለ ማስታወቂያ" },
     },
   },
   profile: {

@@ -264,12 +264,12 @@ export default {
     replaceConfirm: "Cela remplacera vos données {name} existantes dans cette application. Continuer ?",
     wrongFileError: "Ce fichier est une exportation de {product}, pas de {name}.",
     products: {
-      "expenses-manager": "Suivez les entrées et sorties d'argent entre vos commerces et carnets",
-      "loan-calculator": "Calculez les mensualités, intérêts et frais d'un prêt",
-      budget: "Planifiez et suivez un budget mensuel",
-      "trip-organizer": "Votre boutique unique pour les expériences et l'ambiance",
-      marketplace: "Marché d'achat et de vente",
-      bundle: "Tous les outils réunis, sans publicité",
+      "expenses-manager": { name: "በጅሮንድ Gestionnaire de Dépenses", tagline: "Suivez les entrées et sorties d'argent entre vos commerces et carnets" },
+      "loan-calculator": { name: "በጅሮንድ Calculatrice de Prêt", tagline: "Calculez les mensualités, intérêts et frais d'un prêt" },
+      budget: { name: "በጅሮንድ Budget", tagline: "Planifiez et suivez un budget mensuel" },
+      "trip-organizer": { name: "Guide", tagline: "Votre boutique unique pour les expériences et l'ambiance" },
+      marketplace: { name: "Marché", tagline: "Marché d'achat et de vente" },
+      bundle: { name: "በጅሮንድ Finances", tagline: "Tous les outils réunis, sans publicité" },
     },
   },
 };

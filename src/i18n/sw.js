@@ -264,12 +264,12 @@ export default {
     replaceConfirm: "Hii itabadilisha data yako ya {name} iliyopo kwenye programu hii. Endelea?",
     wrongFileError: "Faili hiyo ni ya kuhamisha {product}, si {name}.",
     products: {
-      "expenses-manager": "Fuatilia pesa zinazoingia na kutoka katika biashara na vitabu",
-      "loan-calculator": "Kokotoa malipo ya mkopo, riba na ada",
-      budget: "Panga na fuatilia bajeti ya kila mwezi",
-      "trip-organizer": "Sehemu yako moja ya matukio na hisia",
-      marketplace: "Soko la kuuza na kununua",
-      bundle: "Zana zote pamoja, bila matangazo",
+      "expenses-manager": { name: "በጅሮንድ Msimamizi wa Matumizi", tagline: "Fuatilia pesa zinazoingia na kutoka katika biashara na vitabu" },
+      "loan-calculator": { name: "በጅሮንድ Kikokotoo cha Mkopo", tagline: "Kokotoa malipo ya mkopo, riba na ada" },
+      budget: { name: "በጅሮንድ Bajeti", tagline: "Panga na fuatilia bajeti ya kila mwezi" },
+      "trip-organizer": { name: "Kiongozi", tagline: "Sehemu yako moja ya matukio na hisia" },
+      marketplace: { name: "Soko", tagline: "Soko la kuuza na kununua" },
+      bundle: { name: "በጅሮንድ Fedha", tagline: "Zana zote pamoja, bila matangazo" },
     },
   },
 };

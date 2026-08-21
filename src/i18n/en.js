@@ -267,12 +267,12 @@ export default {
     replaceConfirm: "This will replace your existing {name} data in this app. Continue?",
     wrongFileError: "That file is a {product} export, not {name}.",
     products: {
-      "expenses-manager": "Track cash in and out across businesses and books",
-      "loan-calculator": "Work out loan payments, interest, and fees",
-      budget: "Plan and track a monthly budget",
-      "trip-organizer": "Your one-stop shop for experiences & vibes",
-      marketplace: "Buy & sell marketplace",
-      bundle: "Every tool together, no ads",
+      "expenses-manager": { name: "በጅሮንድ Expenses Manager", tagline: "Track cash in and out across businesses and books" },
+      "loan-calculator": { name: "በጅሮንድ Loan Calculator", tagline: "Work out loan payments, interest, and fees" },
+      budget: { name: "በጅሮንድ Budget", tagline: "Plan and track a monthly budget" },
+      "trip-organizer": { name: "Guide", tagline: "Your one-stop shop for experiences & vibes" },
+      marketplace: { name: "Marketplace", tagline: "Buy & sell marketplace" },
+      bundle: { name: "በጅሮንድ Finances", tagline: "Every tool together, no ads" },
     },
   },
   profile: {

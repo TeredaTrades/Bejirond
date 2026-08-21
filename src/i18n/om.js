@@ -267,12 +267,12 @@ export default {
     replaceConfirm: "Kun daataa {name} amma app kana keessa jiru ni bakka buusa. Itti fufuu?",
     wrongFileError: "Faayiliin kun baasa {product} malee kan {name} miti.",
     products: {
-      "expenses-manager": "Daldala fi kitaabota gidduutti maallaqa seenu fi bahu hordofi",
-      "loan-calculator": "Kaffaltii liqii, dhala fi kaffaltiiwwan herregi",
-      budget: "Baajata ji'aa karoorsi fi hordofi",
-      "trip-organizer": "Bakka muuxannoo fi dhandhamaaf sirriitti si tajaajilu",
-      marketplace: "Gabaa gurgurtaa fi bittaa",
-      bundle: "Meeshaalee hunda walitti qabaa, beeksisa malee",
+      "expenses-manager": { name: "በጅሮንድ Bulchaa Baasii", tagline: "Daldala fi kitaabota gidduutti maallaqa seenu fi bahu hordofi" },
+      "loan-calculator": { name: "በጅሮንድ Herregaa Liqii", tagline: "Kaffaltii liqii, dhala fi kaffaltiiwwan herregi" },
+      budget: { name: "በጅሮንድ Baajata", tagline: "Baajata ji'aa karoorsi fi hordofi" },
+      "trip-organizer": { name: "Qajeelchaa", tagline: "Bakka muuxannoo fi dhandhamaaf sirriitti si tajaajilu" },
+      marketplace: { name: "Gabaa", tagline: "Gabaa gurgurtaa fi bittaa" },
+      bundle: { name: "በጅሮንድ Faayinaansii", tagline: "Meeshaalee hunda walitti qabaa, beeksisa malee" },
     },
   },
 };

@@ -171,6 +171,7 @@ export default {
     deleteYes: "Eeyyee, Haqi",
     byPrefix: "{name} tiin",
     balancePrefix: "Haft",
+    entryFallback: "Galmee",
   },
   entryDetail: {
     title: "Bal'ina Galmee",
@@ -186,6 +187,7 @@ export default {
     lastTransferredFrom: "Dhumarratti kan irraa dabarfame",
     methodCash: "Maallaqa Harkaa",
     methodElectronic: "Elektiroonikii",
+    receiptAlt: "Ragaa",
   },
   addEntry: {
     titleEdit: "Galmee Gulaali",
@@ -204,6 +206,8 @@ export default {
     showMore: "Dabalata argisiisi",
     saveAndAddNew: "Ol Kaa'i fi Haaraa Itti Dabali",
     savedFlash: "Ol kaa'ame!",
+    calculatorTitle: "Herrega",
+    receiptAlt: "Ragaa",
   },
   bookSettings: {
     importCsvTitle: "Galmeewwan CSV irraa Galchi",
@@ -308,6 +312,32 @@ export default {
     totalExpenses: "Waliigala Baasii",
     noExpensesTitle: "Ammatti baasiin hin jiru",
     noExpensesHint: "Caccabsa kana arguuf galmee Baasii (Cash Out) itti dabali.",
+  },
+  bookScreen: {
+    bookNotFound: "Kitaabni hin argamne",
+  },
+  members: {
+    manageTitle: "Miseensota Bulchi",
+    teamTitle: "Garee Daldalaa",
+    membersLabel: "Miseensota",
+    noMembers: "Miseensonni ammatti hin dabalamne.",
+    noTeamTitle: "Ammatti miseensonni garee hin jiran",
+    noTeamHint: "Daldala kanatti nama afeeruuf mallattoo 'nama-itti-dabali' isa gubbaa tuqi.",
+    addMember: "Miseensa Itti Dabali",
+    fullNamePlaceholder: "Maqaa guutuu",
+    phonePlaceholder: "Lakkoofsa bilbilaa (dirqama miti)",
+    noPhone: "Bilbilli hin jiru",
+    statusPending: "Eegaa jira",
+    statusActive: "Hojiirra jira",
+  },
+  moveCopyModal: {
+    titleSingle: "Galmee Sochoosi ykn Garagalchi",
+    titleMultiple: "Galmee {count} Sochoosi ykn Garagalchi",
+    entrySummary: "{sign}{amount} · {label}",
+    entriesSelectedSummary: "{count} galmeen filataman · guutuu {sign}{amount}",
+    noOtherBooksHint: "Ammatti kitaaba biraa kan itti sochoosan ykn garagalchan hin jiru.",
+    copyButton: "Garagalchi",
+    moveButton: "Sochoosi",
   },
   defaults: {
     categoryHome: "Mana",

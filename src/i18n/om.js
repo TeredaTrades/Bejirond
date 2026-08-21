@@ -215,6 +215,12 @@ export default {
     importCsvErrorFormat: "Kun faayilii CSV galmee በጅሮንድ hin fakkaatu. Gabaasa → CSV Baasi gosa gabaasaa \"Galmeewwan Hunda\" fayyadami.",
     importCsvErrorNoRows: "Faayilii kana keessatti galmeen sirrii hin argamne.",
   },
+  reminderAlarm: {
+    label: "Yaadachiisaa",
+    snooze: "Daqiiqaa 10 Boodatti Dabarsi",
+    markDone: "Akka Xumurametti Mallatteessi",
+    dismiss: "Cufi",
+  },
   planned: {
     fabTitle: "Wantoota Bitamuu / Kaffalamuu Qaban",
     title: "Kan Bitamuu / Kaffalamuu Qabu",
@@ -276,6 +282,32 @@ export default {
       marketplace: { name: "Gabaa", tagline: "Gabaa gurgurtaa fi bittaa" },
       bundle: { name: "በጅሮንድ Faayinaansii", tagline: "Meeshaalee hunda walitti qabaa, beeksisa malee" },
     },
+  },
+  profile: {
+    title: "Piroofaayilii Kee",
+    nameLabel: "Maqaa",
+    mobileLabel: "Lakkoofsa Bilbilaa",
+    emailLabel: "Imeelii",
+  },
+  about: {
+    title: "Waa'ee በጅሮንድ",
+    description: "በጅሮንድ galmee salphaa maallaqa seenu fi bahu daldalootaa fi kitaabota gidduutti hordofuudha, gahee garee salphaa fi gabaasa baafamuu danda'u waliin.",
+    privacyNote: "Odeeffannoon kee hundi dhoksaan kuufamee herrega kee qofa keessatti hafa.",
+    version: "Sarara 1.0.0 · Ijaarsa Agarsiisaa",
+  },
+  roles: {
+    bookAdmin: "Bulchaa Kitaabaa",
+    dataOperator: "Hojjetaa Deetaa",
+    viewer: "Ilaalaa",
+    primaryAdmin: "Bulchaa Olaanaa",
+  },
+  charts: {
+    title: "Caccabsa Baasii",
+    byCategory: "Akka Gosaatti",
+    byMonth: "Akka Ji'aatti",
+    totalExpenses: "Waliigala Baasii",
+    noExpensesTitle: "Ammatti baasiin hin jiru",
+    noExpensesHint: "Caccabsa kana arguuf galmee Baasii (Cash Out) itti dabali.",
   },
   defaults: {
     categoryHome: "Mana",

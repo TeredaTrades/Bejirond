@@ -3498,7 +3498,7 @@ function MoveRequestsScreen({ ctx }) {
 }
 
 function BusinessSettingsScreen({ ctx }) {
-  const { activeBusiness, businesses, persistBusinesses, pop, session, resetTo } = ctx;
+  const { activeBusiness, businesses, persistBusinesses, pop, session, resetTo, t } = ctx;
   const [name, setName] = useState(activeBusiness?.name || "");
   const [moveTarget, setMoveTarget] = useState("");
   const [moveBook, setMoveBook] = useState("");
@@ -3527,70 +3527,70 @@ function BusinessSettingsScreen({ ctx }) {
 
   const bookCount = activeBusiness?.books?.length || 0;
   const deleteBusinessMessage = bookCount > 0
-    ? `This will remove "${activeBusiness.name}" and its ${bookCount} book${bookCount === 1 ? "" : "s"} for good — there's no getting it back after.`
-    : `This will remove "${activeBusiness?.name}" for good — there's no getting it back after.`;
+    ? t(bookCount === 1 ? "businessSettings.deleteConfirmMessageWithBooksOne" : "businessSettings.deleteConfirmMessageWithBooksOther", { name: activeBusiness.name, count: bookCount })
+    : t("businessSettings.deleteConfirmMessageNoBooks", { name: activeBusiness?.name });
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
-      <TopHeader ctx={ctx} title="Business Settings" onBack={pop} />
+      <TopHeader ctx={ctx} title={t("settings.businessSettingsTitle")} onBack={pop} />
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         <div className="bg-white border border-slate-200 rounded-xl p-4">
-          <div className="text-xs text-slate-500 mb-1">Business Name</div>
+          <div className="text-xs text-slate-500 mb-1">{t("businessSettings.nameLabel")}</div>
           <div className="flex gap-2">
             <input value={name} onChange={(e) => setName(e.target.value)} className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm" />
-            <button onClick={rename} className="bg-teal-700 text-white px-3 rounded-lg text-sm font-medium">Save</button>
+            <button onClick={rename} className="bg-teal-700 text-white px-3 rounded-lg text-sm font-medium">{t("common.save")}</button>
           </div>
         </div>
 
         <div className="bg-white border border-slate-200 rounded-xl p-4 space-y-3">
-          <div className="font-medium text-slate-800 flex items-center gap-2"><ArrowRightLeft size={16} className="text-teal-700" /> Move or copy a book to another business</div>
+          <div className="font-medium text-slate-800 flex items-center gap-2"><ArrowRightLeft size={16} className="text-teal-700" /> {t("businessSettings.moveCopyTitle")}</div>
           {businesses.length <= 1 ? (
-            <div className="text-xs text-slate-500">Add another business first — you'll need somewhere to move or copy a book into.</div>
+            <div className="text-xs text-slate-500">{t("businessSettings.addBusinessFirstHint")}</div>
           ) : activeBusiness.books.length === 0 ? (
-            <div className="text-xs text-slate-500">This business has no books yet to move or copy.</div>
+            <div className="text-xs text-slate-500">{t("businessSettings.noBooksHint")}</div>
           ) : (
             <>
               <div className="flex gap-2">
                 <button type="button" onClick={() => setMoveMode("move")}
                   className={`flex-1 py-2 rounded-lg text-sm font-medium border ${moveMode === "move" ? "bg-teal-700 text-white border-teal-700" : "bg-white text-slate-600 border-slate-300"}`}>
-                  Move
+                  {t("businessSettings.moveButton")}
                 </button>
                 <button type="button" onClick={() => setMoveMode("copy")}
                   className={`flex-1 py-2 rounded-lg text-sm font-medium border ${moveMode === "copy" ? "bg-teal-700 text-white border-teal-700" : "bg-white text-slate-600 border-slate-300"}`}>
-                  Copy
+                  {t("businessSettings.copyButton")}
                 </button>
               </div>
               <div className="text-xs text-slate-500">
                 {moveMode === "copy"
-                  ? "Copy: the book will exist in both businesses as two independent copies — one here, one there."
-                  : "Move: the book leaves this business and exists only in the target business once approved."}
+                  ? t("businessSettings.copyModeHint")
+                  : t("businessSettings.moveModeHint")}
               </div>
               <select value={moveBook} onChange={(e) => setMoveBook(e.target.value)} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white">
-                <option value="">Select book</option>
+                <option value="">{t("businessSettings.selectBookPlaceholder")}</option>
                 {activeBusiness.books.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
               </select>
               <select value={moveTarget} onChange={(e) => setMoveTarget(e.target.value)} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white">
-                <option value="">Select target business</option>
+                <option value="">{t("businessSettings.selectTargetPlaceholder")}</option>
                 {businesses.filter(b => b.id !== activeBusiness.id).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
               </select>
               <button onClick={requestMove} disabled={!moveTarget || !moveBook}
                 className={`w-full py-2.5 rounded-xl font-semibold text-sm ${(!moveTarget || !moveBook) ? "bg-slate-200 text-slate-400" : "bg-teal-700 text-white"}`}>
-                Send {moveMode === "copy" ? "Copy" : "Move"} Request
+                {moveMode === "copy" ? t("businessSettings.sendCopyRequest") : t("businessSettings.sendMoveRequest")}
               </button>
             </>
           )}
         </div>
 
         <button onClick={() => setConfirmDeleteBusiness(true)} className="w-full flex items-center justify-center gap-2 text-rose-700 border border-rose-200 rounded-xl py-3 font-medium">
-          <Trash2 size={16} /> Delete Business
+          <Trash2 size={16} /> {t("businessSettings.deleteButton")}
         </button>
       </div>
 
       {confirmDeleteBusiness && (
         <ConfirmModal
-          title="Delete this business?"
+          title={t("businessSettings.deleteConfirmTitle")}
           message={deleteBusinessMessage}
-          confirmLabel="Yes, Delete" cancelLabel="No"
+          confirmLabel={t("businessSettings.deleteConfirmYes")} cancelLabel={t("common.no")}
           onCancel={() => setConfirmDeleteBusiness(false)}
           onConfirm={() => { setConfirmDeleteBusiness(false); deleteBusiness(); }} />
       )}
@@ -3599,7 +3599,7 @@ function BusinessSettingsScreen({ ctx }) {
 }
 
 function AppSettingsScreen({ ctx }) {
-  const { appSettings, persistSettings, pop } = ctx;
+  const { appSettings, persistSettings, pop, t } = ctx;
   const [newCat, setNewCat] = useState("");
   const [newMode, setNewMode] = useState("");
 
@@ -3618,27 +3618,27 @@ function AppSettingsScreen({ ctx }) {
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
-      <TopHeader ctx={ctx} title="App Settings" onBack={pop} />
+      <TopHeader ctx={ctx} title={t("settings.appSettingsTitle")} onBack={pop} />
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         <div className="bg-white border border-slate-200 rounded-xl p-4">
-          <div className="font-medium text-slate-800 mb-2">Calendar</div>
-          <div className="text-xs text-slate-500 mb-3">Choose how dates are shown throughout the app. Entries are always stored the same way — this only changes the display.</div>
+          <div className="font-medium text-slate-800 mb-2">{t("appSettingsScreen.calendarTitle")}</div>
+          <div className="text-xs text-slate-500 mb-3">{t("appSettingsScreen.calendarHint")}</div>
           <div className="flex gap-2 flex-wrap">
-            <Chip active={(appSettings.calendarType || "gregorian") === "gregorian"} onClick={() => persistSettings({ ...appSettings, calendarType: "gregorian" })}>Gregorian</Chip>
-            <Chip active={appSettings.calendarType === "ethiopian"} onClick={() => persistSettings({ ...appSettings, calendarType: "ethiopian" })}>Ethiopian</Chip>
+            <Chip active={(appSettings.calendarType || "gregorian") === "gregorian"} onClick={() => persistSettings({ ...appSettings, calendarType: "gregorian" })}>{t("appSettingsScreen.calendarGregorian")}</Chip>
+            <Chip active={appSettings.calendarType === "ethiopian"} onClick={() => persistSettings({ ...appSettings, calendarType: "ethiopian" })}>{t("appSettingsScreen.calendarEthiopian")}</Chip>
           </div>
         </div>
 
         <div className="bg-white border border-slate-200 rounded-xl p-4">
-          <div className="font-medium text-slate-800 mb-2">Time format</div>
+          <div className="font-medium text-slate-800 mb-2">{t("appSettingsScreen.timeFormatTitle")}</div>
           <div className="flex gap-2 flex-wrap">
-            <Chip active={(appSettings.timeFormat || "12h") === "12h"} onClick={() => persistSettings({ ...appSettings, timeFormat: "12h" })}>12-hour (AM/PM)</Chip>
-            <Chip active={appSettings.timeFormat === "24h"} onClick={() => persistSettings({ ...appSettings, timeFormat: "24h" })}>24-hour</Chip>
+            <Chip active={(appSettings.timeFormat || "12h") === "12h"} onClick={() => persistSettings({ ...appSettings, timeFormat: "12h" })}>{t("appSettingsScreen.timeFormat12h")}</Chip>
+            <Chip active={appSettings.timeFormat === "24h"} onClick={() => persistSettings({ ...appSettings, timeFormat: "24h" })}>{t("appSettingsScreen.timeFormat24h")}</Chip>
           </div>
         </div>
 
         <div className="bg-white border border-slate-200 rounded-xl p-4">
-          <div className="font-medium text-slate-800 mb-2">Currency</div>
+          <div className="font-medium text-slate-800 mb-2">{t("appSettingsScreen.currencyTitle")}</div>
           <div className="flex gap-2 flex-wrap">
             {Object.keys(CURRENCIES).map((c) => (
               <Chip key={c} active={appSettings.currency === c} onClick={() => persistSettings({ ...appSettings, currency: c })}>{c} {CURRENCIES[c]}</Chip>
@@ -3647,7 +3647,7 @@ function AppSettingsScreen({ ctx }) {
         </div>
 
         <div className="bg-white border border-slate-200 rounded-xl p-4">
-          <div className="font-medium text-slate-800 mb-2">Categories</div>
+          <div className="font-medium text-slate-800 mb-2">{t("appSettingsScreen.categoriesTitle")}</div>
           <div className="flex flex-wrap gap-2 mb-3">
             {appSettings.categories.map((c) => (
               <span key={c} className="flex items-center gap-1 bg-slate-100 rounded-full pl-3 pr-1 py-1 text-sm text-slate-700">
@@ -3656,13 +3656,13 @@ function AppSettingsScreen({ ctx }) {
             ))}
           </div>
           <div className="flex gap-2">
-            <input value={newCat} onChange={(e) => setNewCat(e.target.value)} placeholder="New category" className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm" />
-            <button onClick={addCat} className="bg-teal-700 text-white px-3 rounded-lg text-sm font-medium">Add</button>
+            <input value={newCat} onChange={(e) => setNewCat(e.target.value)} placeholder={t("appSettingsScreen.newCategoryPlaceholder")} className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm" />
+            <button onClick={addCat} className="bg-teal-700 text-white px-3 rounded-lg text-sm font-medium">{t("common.add")}</button>
           </div>
         </div>
 
         <div className="bg-white border border-slate-200 rounded-xl p-4">
-          <div className="font-medium text-slate-800 mb-2">Payment Modes</div>
+          <div className="font-medium text-slate-800 mb-2">{t("appSettingsScreen.paymentModesTitle")}</div>
           <div className="flex flex-wrap gap-2 mb-3">
             {appSettings.paymentModes.map((m) => (
               <span key={m} className="flex items-center gap-1 bg-slate-100 rounded-full pl-3 pr-1 py-1 text-sm text-slate-700">
@@ -3671,8 +3671,8 @@ function AppSettingsScreen({ ctx }) {
             ))}
           </div>
           <div className="flex gap-2">
-            <input value={newMode} onChange={(e) => setNewMode(e.target.value)} placeholder="New payment mode" className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm" />
-            <button onClick={addMode} className="bg-teal-700 text-white px-3 rounded-lg text-sm font-medium">Add</button>
+            <input value={newMode} onChange={(e) => setNewMode(e.target.value)} placeholder={t("appSettingsScreen.newPaymentModePlaceholder")} className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm" />
+            <button onClick={addMode} className="bg-teal-700 text-white px-3 rounded-lg text-sm font-medium">{t("common.add")}</button>
           </div>
         </div>
       </div>

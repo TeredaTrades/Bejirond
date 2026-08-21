@@ -184,6 +184,8 @@ export default {
     lastEditedBy: "Kan dhumarratti gulaale",
     neverEdited: "Takkaa hin gulaalamne",
     lastTransferredFrom: "Dhumarratti kan irraa dabarfame",
+    methodCash: "Maallaqa Harkaa",
+    methodElectronic: "Elektiroonikii",
   },
   addEntry: {
     titleEdit: "Galmee Gulaali",
@@ -274,5 +276,19 @@ export default {
       marketplace: { name: "Gabaa", tagline: "Gabaa gurgurtaa fi bittaa" },
       bundle: { name: "በጅሮንድ Faayinaansii", tagline: "Meeshaalee hunda walitti qabaa, beeksisa malee" },
     },
+  },
+  defaults: {
+    categoryHome: "Mana",
+    categoryElectronics: "Elektirooniksii",
+    categoryFood: "Nyaata",
+    categorySalary: "Mindaa",
+    categoryRent: "Kiraa",
+    categoryTransport: "Geejjiba",
+    categoryUtilities: "Tajaajila",
+    categoryOther: "Kan Biraa",
+    paymentModeCash: "Maallaqa Harkaa",
+    paymentModeOnline: "Onlaayinii",
+    paymentModeCard: "Kaardii",
+    paymentModeCheque: "Cheekii",
   },
 };

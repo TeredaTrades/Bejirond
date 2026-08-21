@@ -181,6 +181,8 @@ export default {
     lastEditedBy: "ናይ መወዳእታ ዝኣረምዎ",
     neverEdited: "ገና ኣይተኣረመን",
     lastTransferredFrom: "ናይ መወዳእታ ካብ ዝተግዓዘሉ",
+    methodCash: "ጥረ ገንዘብ",
+    methodElectronic: "ኤሌክትሮኒካዊ",
   },
   addEntry: {
     titleEdit: "ምዝገባ ኣርትዕ",
@@ -271,5 +273,19 @@ export default {
       marketplace: { name: "ዕዳጋ", tagline: "ናይ ዕዳጋ ሽያጭን ግዝኣትን" },
       bundle: { name: "በጅሮንድ ፋይናንስ", tagline: "ኩሎም መሳርሒታት ብሓደ፡ ብዘይ ማስታወቂያ" },
     },
+  },
+  defaults: {
+    categoryHome: "ገዛ",
+    categoryElectronics: "ኤሌክትሮኒክስ",
+    categoryFood: "ምግቢ",
+    categorySalary: "ደሞዝ",
+    categoryRent: "ክራይ",
+    categoryTransport: "መጓዓዝያ",
+    categoryUtilities: "ኣገልግሎት",
+    categoryOther: "ካልእ",
+    paymentModeCash: "ጥረ ገንዘብ",
+    paymentModeOnline: "ኦንላይን",
+    paymentModeCard: "ካርድ",
+    paymentModeCheque: "ቼክ",
   },
 };

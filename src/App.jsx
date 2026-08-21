@@ -421,6 +421,173 @@ function EmptyState({ icon: Icon, title, hint }) {
   );
 }
 
+// ---------- Custom date/time pickers ----------
+// Native <input type="date">/<input type="time">/<input type="datetime-local">
+// render their picker UI in the *device's* language, ignoring the app's own
+// language setting — so someone running the app in Amharic still gets English
+// month names and an English AM/PM toggle the moment they tap to pick a date.
+// These components render entirely in React/Tailwind instead, using the same
+// Intl machinery as fmtDate/fmtTime above, so the picker always matches the
+// app's chosen language regardless of device language. They stay Gregorian
+// (matching how dates are always stored) even when the display calendar is
+// set to Ethiopian — the Ethiopian-calendar *picker* itself is a bigger,
+// separate piece of work than the language gap this fixes.
+function CustomDatePicker({ value, onChange, language = "en", className }) {
+  const [open, setOpen] = useState(false);
+  const locale = INTL_LOCALE[language] || "en";
+  const base = value ? new Date(value + "T00:00:00") : new Date();
+  const [viewYear, setViewYear] = useState(base.getFullYear());
+  const [viewMonth, setViewMonth] = useState(base.getMonth());
+
+  useEffect(() => {
+    const d = value ? new Date(value + "T00:00:00") : new Date();
+    setViewYear(d.getFullYear());
+    setViewMonth(d.getMonth());
+  }, [value]);
+
+  const monthLabel = new Intl.DateTimeFormat(locale, { month: "long" }).format(new Date(viewYear, viewMonth, 1));
+  const weekdayLabels = useMemo(() => {
+    // Jan 4 1970 was a Sunday — walking 7 days from there gives Sun..Sat in
+    // this locale's own weekday names, independent of what day today is.
+    const labels = [];
+    for (let i = 0; i < 7; i++) labels.push(new Intl.DateTimeFormat(locale, { weekday: "narrow" }).format(new Date(1970, 0, 4 + i)));
+    return labels;
+  }, [locale]);
+
+  const startWeekday = new Date(viewYear, viewMonth, 1).getDay();
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+  const cells = [...Array(startWeekday).fill(null), ...Array.from({ length: daysInMonth }, (_, i) => i + 1)];
+  const todayIso = todayStr();
+
+  const pick = (day) => {
+    onChange(`${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`);
+    setOpen(false);
+  };
+  const prevMonth = () => { if (viewMonth === 0) { setViewMonth(11); setViewYear((y) => y - 1); } else setViewMonth((m) => m - 1); };
+  const nextMonth = () => { if (viewMonth === 11) { setViewMonth(0); setViewYear((y) => y + 1); } else setViewMonth((m) => m + 1); };
+
+  const displayText = value ? new Intl.DateTimeFormat(locale, { day: "2-digit", month: "short", year: "numeric" }).format(new Date(value + "T00:00:00")) : "";
+
+  return (
+    <div className="relative flex-1 min-w-0">
+      <button type="button" onClick={() => setOpen((o) => !o)}
+        className={className || "w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white text-left truncate"}>
+        {displayText}
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div className="absolute z-50 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg p-3 w-64">
+            <div className="flex items-center justify-between mb-2">
+              <button type="button" onClick={prevMonth} className="p-1 text-slate-500 hover:bg-slate-100 rounded-full"><ChevronLeft size={16} /></button>
+              <div className="text-sm font-semibold text-slate-800">{monthLabel} {viewYear}</div>
+              <button type="button" onClick={nextMonth} className="p-1 text-slate-500 hover:bg-slate-100 rounded-full"><ChevronRight size={16} /></button>
+            </div>
+            <div className="grid grid-cols-7 gap-1 mb-1">
+              {weekdayLabels.map((w, i) => <div key={i} className="text-[10px] text-slate-400 text-center">{w}</div>)}
+            </div>
+            <div className="grid grid-cols-7 gap-1">
+              {cells.map((d, i) => {
+                if (d === null) return <div key={i} />;
+                const iso = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+                const isSelected = iso === value;
+                const isToday = iso === todayIso;
+                return (
+                  <button type="button" key={i} onClick={() => pick(d)}
+                    className={`text-xs rounded-full h-7 w-7 flex items-center justify-center ${isSelected ? "bg-teal-700 text-white" : isToday ? "border border-teal-500 text-teal-700" : "text-slate-700 hover:bg-slate-100"}`}>
+                    {d}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function CustomTimePicker({ value, onChange, language = "en", timeFormat = "12h", className }) {
+  const [open, setOpen] = useState(false);
+  const locale = INTL_LOCALE[language] || "en";
+  const t24 = to24h(value);
+  const [hh24, mm] = t24.split(":").map((n) => parseInt(n, 10));
+  const isPM = hh24 >= 12;
+  const hour12 = (hh24 % 12) || 12;
+
+  const periodLabel = (pm) => new Intl.DateTimeFormat(locale, { hour: "numeric", hourCycle: "h12" })
+    .formatToParts(new Date(2024, 0, 1, pm ? 21 : 9)).find((p) => p.type === "dayPeriod")?.value || (pm ? "PM" : "AM");
+
+  const setHour = (h) => {
+    const newHH24 = timeFormat === "24h" ? h : (h % 12) + (isPM ? 12 : 0);
+    onChange(`${String(newHH24).padStart(2, "0")}:${String(mm).padStart(2, "0")}`);
+  };
+  const setMinute = (m) => onChange(`${String(hh24).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
+  const setPeriod = (pm) => {
+    const newHH24 = (hour12 % 12) + (pm ? 12 : 0);
+    onChange(`${String(newHH24).padStart(2, "0")}:${String(mm).padStart(2, "0")}`);
+  };
+
+  const displayText = fmtTime(value, { language, timeFormat });
+
+  return (
+    <div className="relative flex-1 min-w-0">
+      <button type="button" onClick={() => setOpen((o) => !o)}
+        className={className || "w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white text-left truncate"}>
+        {displayText}
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div className="absolute z-50 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg p-3 flex items-center gap-2 right-0">
+            <select value={timeFormat === "24h" ? hh24 : hour12} onChange={(e) => setHour(parseInt(e.target.value, 10))}
+              className="border border-slate-300 rounded-lg px-2 py-1.5 text-sm bg-white">
+              {(timeFormat === "24h" ? Array.from({ length: 24 }, (_, i) => i) : Array.from({ length: 12 }, (_, i) => i + 1)).map((h) => (
+                <option key={h} value={h}>{String(h).padStart(2, "0")}</option>
+              ))}
+            </select>
+            <span className="text-slate-400">:</span>
+            <select value={mm} onChange={(e) => setMinute(parseInt(e.target.value, 10))}
+              className="border border-slate-300 rounded-lg px-2 py-1.5 text-sm bg-white">
+              {Array.from({ length: 60 }, (_, i) => i).map((m) => <option key={m} value={m}>{String(m).padStart(2, "0")}</option>)}
+            </select>
+            {timeFormat !== "24h" && (
+              <div className="flex flex-col gap-1">
+                <button type="button" onClick={() => setPeriod(false)} className={`text-xs px-2 py-1 rounded ${!isPM ? "bg-teal-700 text-white" : "bg-slate-100 text-slate-600"}`}>{periodLabel(false)}</button>
+                <button type="button" onClick={() => setPeriod(true)} className={`text-xs px-2 py-1 rounded ${isPM ? "bg-teal-700 text-white" : "bg-slate-100 text-slate-600"}`}>{periodLabel(true)}</button>
+              </div>
+            )}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// Combines the two above for the reminders screen's single "pick a date and time"
+// field. Keeps the same contract the native <input type="datetime-local"> had:
+// value/onChange work in local time, producing/consuming a UTC ISO string (or null).
+function CustomDateTimePicker({ valueIso, onChange, language = "en", timeFormat = "12h" }) {
+  const local = valueIso ? new Date(valueIso) : null;
+  const datePart = local ? `${local.getFullYear()}-${String(local.getMonth() + 1).padStart(2, "0")}-${String(local.getDate()).padStart(2, "0")}` : "";
+  const timePart = local ? `${String(local.getHours()).padStart(2, "0")}:${String(local.getMinutes()).padStart(2, "0")}` : "09:00";
+
+  const commit = (nextDate, nextTime) => {
+    if (!nextDate) { onChange(null); return; }
+    const [y, mo, d] = nextDate.split("-").map(Number);
+    const [hh, min] = (nextTime || "09:00").split(":").map(Number);
+    onChange(new Date(y, mo - 1, d, hh, min, 0, 0).toISOString());
+  };
+
+  const fieldClass = "flex-1 min-w-0 border border-slate-300 rounded-lg px-2.5 py-2 text-sm bg-white text-left truncate";
+  return (
+    <div className="flex gap-2 flex-1 min-w-0">
+      <CustomDatePicker value={datePart} onChange={(d) => commit(d, timePart)} language={language} className={fieldClass} />
+      <CustomTimePicker value={timePart} onChange={(tm) => commit(datePart || todayStr(), tm)} language={language} timeFormat={timeFormat} className={fieldClass} />
+    </div>
+  );
+}
+
 // Evaluates a plain arithmetic expression (+ - * / ( ) and decimals only — nothing else is ever
 // allowed through), so users can type e.g. "1200+350-40" straight into an amount field.
 function safeEvalMath(expr) {
@@ -618,7 +785,7 @@ function PlannedSidebar({ ctx, open, onClose }) {
               <input value={amount} onChange={(e) => setAmount(e.target.value)} type="number" step="0.01" placeholder={t("planned.amountPlaceholder")}
                 className="flex-1 min-w-0 border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white" />
               <select value={category} onChange={(e) => setCategory(e.target.value)} className="border border-slate-300 rounded-lg px-2 py-2 text-sm bg-white">
-                {appSettings.categories.map((c) => <option key={c} value={c}>{c}</option>)}
+                {appSettings.categories.map((c) => <option key={c} value={c}>{categoryLabel(t, c)}</option>)}
               </select>
             </div>
             <button onClick={save} className="w-full bg-teal-700 text-white py-2 rounded-lg text-sm font-medium">
@@ -643,7 +810,7 @@ function PlannedSidebar({ ctx, open, onClose }) {
                   <button onClick={() => !p.done && startEdit(p)} className="flex-1 min-w-0 text-left">
                     <div className={`text-sm font-medium text-slate-900 truncate ${p.done ? "line-through" : ""}`}>{p.desc}</div>
                     <div className="text-xs text-slate-500 flex items-center gap-1 truncate">
-                      <span>{p.category}</span>
+                      <span>{categoryLabel(t, p.category)}</span>
                       {p.reminderAt && (
                         <span className="flex items-center gap-0.5 text-teal-700"><Bell size={10} /> {ctx.fmtDateTime(p.reminderAt)}</span>
                       )}
@@ -702,7 +869,7 @@ function ReminderAlarmModal({ alarm, onDismiss, onMarkDone, onSnooze, t }) {
         <div className="text-xs font-medium text-rose-600 uppercase tracking-wide mb-1">{t("reminderAlarm.label")}</div>
         <div className="text-lg font-bold text-slate-900 mb-1">{alarm.desc}</div>
         <div className="text-sm text-slate-500 mb-5">
-          {alarm.amount ? `${alarm.currency}${Number(alarm.amount).toLocaleString()} · ` : ""}{alarm.category}
+          {alarm.amount ? `${alarm.currency}${Number(alarm.amount).toLocaleString()} · ` : ""}{categoryLabel(t, alarm.category)}
         </div>
         <div className="grid grid-cols-2 gap-2 mb-2">
           <button onClick={() => { stopSound(); onSnooze(); }} className="border border-slate-300 text-slate-700 rounded-xl py-2.5 text-sm font-medium">
@@ -2006,10 +2173,10 @@ function EntryRow({ e, cur, balanceText, t, fmtDate, fmtTime, selectMode, select
       </div>
       <div className="flex-1 min-w-0">
         <div className="font-medium text-slate-900 truncate flex items-center gap-1.5">
-          {e.remark || e.contact || e.category || (e.type === "in" ? t("entries.cashIn") : t("entries.cashOut"))}
+          {e.remark || e.contact || categoryLabel(t, e.category) || (e.type === "in" ? t("entries.cashIn") : t("entries.cashOut"))}
           {e.receipt && <Paperclip size={12} className="text-slate-400 shrink-0" />}
         </div>
-        <div className="text-xs text-slate-500 truncate">{fmtDate(e.date)} · {fmtTime(e.time)} · {e.paymentMode}{e.addedBy && e.addedBy !== "You" ? ` · ${t("entries.byPrefix", { name: e.addedBy })}` : ""}</div>
+        <div className="text-xs text-slate-500 truncate">{fmtDate(e.date)} · {fmtTime(e.time)} · {paymentModeLabel(t, e.paymentMode)}{e.addedBy && e.addedBy !== "You" ? ` · ${t("entries.byPrefix", { name: e.addedBy })}` : ""}</div>
       </div>
       <div className="text-right shrink-0">
         <div className={`font-semibold ${e.type === "in" ? "text-emerald-700" : "text-rose-700"}`}>
@@ -2067,7 +2234,7 @@ function MoveCopyModal({ entries, otherBooks, cur, activeBusinessId, onClose, on
           </div>
           <div className="text-sm text-slate-500 mt-1">
             {single
-              ? t("moveCopyModal.entrySummary", { sign: single.type === "in" ? "+" : "-", amount: `${cur}${single.amount.toLocaleString()}`, label: single.contact || single.category || (single.type === "in" ? t("entries.cashIn") : t("entries.cashOut")) })
+              ? t("moveCopyModal.entrySummary", { sign: single.type === "in" ? "+" : "-", amount: `${cur}${single.amount.toLocaleString()}`, label: single.contact || categoryLabel(t, single.category) || (single.type === "in" ? t("entries.cashIn") : t("entries.cashOut")) })
               : t("moveCopyModal.entriesSelectedSummary", { count: entries.length, sign: totalAmount >= 0 ? "+" : "-", amount: `${cur}${Math.abs(totalAmount).toLocaleString()}` })}
           </div>
         </div>
@@ -2131,7 +2298,7 @@ function EntryDetailScreen({ ctx, bookId, entryId }) {
         <div className={`rounded-xl p-4 text-center ${isIn ? "bg-emerald-50" : "bg-rose-50"}`}>
           <div className={`text-xs font-medium ${isIn ? "text-emerald-800" : "text-rose-800"}`}>{isIn ? ctx.t("entries.cashIn") : ctx.t("entries.cashOut")}</div>
           <div className={`text-2xl font-bold ${isIn ? "text-emerald-800" : "text-rose-800"}`}>{cur}{entry.amount.toLocaleString()}</div>
-          <div className="text-xs text-slate-500 mt-1">{methodKind} · {entry.paymentMode}</div>
+          <div className="text-xs text-slate-500 mt-1">{methodKind} · {paymentModeLabel(t, entry.paymentMode)}</div>
         </div>
 
         {entry.receipt && (
@@ -2148,7 +2315,7 @@ function EntryDetailScreen({ ctx, bookId, entryId }) {
           {entry.category && (
             <div className="px-4 py-3 flex items-center justify-between">
               <span className="text-sm text-slate-500">{ctx.t("entryDetail.category")}</span>
-              <span className="text-sm font-medium text-slate-800">{entry.category}</span>
+              <span className="text-sm font-medium text-slate-800">{categoryLabel(ctx.t, entry.category)}</span>
             </div>
           )}
           {entry.remark && (
@@ -2290,13 +2457,11 @@ function AddEntryScreen({ ctx, bookId, type, editEntry }) {
         <div className="flex gap-3">
           <label className="flex-1">
             <div className="text-xs text-slate-500 mb-1 flex items-center gap-1"><Calendar size={12} /> {t("addEntry.date")}</div>
-            <input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })}
-              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
+            <CustomDatePicker value={form.date} onChange={(d) => setForm({ ...form, date: d })} language={ctx.dtPref.language} />
           </label>
           <label className="flex-1">
             <div className="text-xs text-slate-500 mb-1 flex items-center gap-1"><Clock size={12} /> {t("addEntry.time")}</div>
-            <input type="time" value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })}
-              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
+            <CustomTimePicker value={form.time} onChange={(tm) => setForm({ ...form, time: tm })} language={ctx.dtPref.language} timeFormat={ctx.dtPref.timeFormat} />
           </label>
         </div>
         {appSettings.calendarType === "ethiopian" && form.date && (
@@ -2328,7 +2493,7 @@ function AddEntryScreen({ ctx, bookId, type, editEntry }) {
           <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}
             className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white">
             <option value="">{t("addEntry.selectCategory")}</option>
-            {appSettings.categories.map((c) => <option key={c} value={c}>{c}</option>)}
+            {appSettings.categories.map((c) => <option key={c} value={c}>{categoryLabel(t, c)}</option>)}
           </select>
         </label>
 
@@ -2352,7 +2517,7 @@ function AddEntryScreen({ ctx, bookId, type, editEntry }) {
           <div className="text-xs text-slate-500 mb-1.5">{t("addEntry.paymentModeLabel")}</div>
           <div className="flex items-center gap-2 flex-wrap">
             {visibleModes.map((m) => (
-              <Chip key={m} tone={isIn ? "emerald" : "rose"} active={form.paymentMode === m} onClick={() => setForm({ ...form, paymentMode: m })}>{m}</Chip>
+              <Chip key={m} tone={isIn ? "emerald" : "rose"} active={form.paymentMode === m} onClick={() => setForm({ ...form, paymentMode: m })}>{paymentModeLabel(t, m)}</Chip>
             ))}
             {!showMoreModes && modes.length > 2 && (
               <button onClick={() => setShowMoreModes(true)} className="text-teal-700 text-sm font-medium flex items-center gap-0.5">{t("addEntry.showMore")} <ChevronDown size={14} /></button>
@@ -2668,7 +2833,7 @@ function ReportsScreen({ ctx, bookId }) {
             <div className="text-xs text-slate-500 mb-1">{t("reports.paymentModeLabel")}</div>
             <select value={mode} onChange={(e) => setMode(e.target.value)} className="w-full border border-slate-300 rounded-lg px-2 py-2 text-sm bg-white">
               <option value="All">{t("entries.all")}</option>
-              {appSettings.paymentModes.map((m) => <option key={m}>{m}</option>)}
+              {appSettings.paymentModes.map((m) => <option key={m} value={m}>{paymentModeLabel(t, m)}</option>)}
             </select>
           </label>
         </div>
@@ -2676,7 +2841,7 @@ function ReportsScreen({ ctx, bookId }) {
         <div>
           <div className="text-xs text-slate-500 mb-1.5">{t("reports.categoriesLabel")}</div>
           <div className="flex flex-wrap gap-2">
-            {appSettings.categories.map((c) => <Chip key={c} active={cats.includes(c)} onClick={() => toggleCat(c)}>{c}</Chip>)}
+            {appSettings.categories.map((c) => <Chip key={c} active={cats.includes(c)} onClick={() => toggleCat(c)}>{categoryLabel(t, c)}</Chip>)}
           </div>
         </div>
 
@@ -2714,6 +2879,35 @@ function ReportsScreen({ ctx, bookId }) {
       </div>
     </div>
   );
+}
+
+// Categories/payment modes are stored as their original English words (data
+// stays stable across languages, and "Cash" is matched literally elsewhere —
+// see entry.paymentMode === "Cash"). Only the default, built-in set below is
+// translatable; anything a user typed in themselves (a custom category/mode)
+// has no translation to look up and is shown back exactly as typed.
+function categoryLabel(t, category) {
+  switch (category) {
+    case "Home": return t("defaults.categoryHome");
+    case "Electronics": return t("defaults.categoryElectronics");
+    case "Food": return t("defaults.categoryFood");
+    case "Salary": return t("defaults.categorySalary");
+    case "Rent": return t("defaults.categoryRent");
+    case "Transport": return t("defaults.categoryTransport");
+    case "Utilities": return t("defaults.categoryUtilities");
+    case "Other": return t("defaults.categoryOther");
+    default: return category;
+  }
+}
+
+function paymentModeLabel(t, mode) {
+  switch (mode) {
+    case "Cash": return t("defaults.paymentModeCash");
+    case "Online": return t("defaults.paymentModeOnline");
+    case "Card": return t("defaults.paymentModeCard");
+    case "Cheque": return t("defaults.paymentModeCheque");
+    default: return mode;
+  }
 }
 
 function roleLabel(t, role) {
@@ -2894,8 +3088,8 @@ function ReportViewScreen({ ctx, bookId, filters }) {
             {filtered.map((e) => (
               <div key={e.id} className="flex items-center justify-between px-3 py-2.5 text-sm">
                 <div>
-                  <div className="font-medium text-slate-800">{e.contact || e.category || t("entries.entryFallback")}</div>
-                  <div className="text-xs text-slate-400">{ctx.fmtDate(e.date)} · {e.category || "-"} · {e.paymentMode}</div>
+                  <div className="font-medium text-slate-800">{e.contact || categoryLabel(t, e.category) || t("entries.entryFallback")}</div>
+                  <div className="text-xs text-slate-400">{ctx.fmtDate(e.date)} · {categoryLabel(t, e.category) || "-"} · {paymentModeLabel(t, e.paymentMode)}</div>
                 </div>
                 <div className={e.type === "in" ? "text-emerald-700 font-semibold" : "text-rose-700 font-semibold"}>
                   {e.type === "in" ? "+" : "-"}{cur}{e.amount.toLocaleString()}
@@ -2907,7 +3101,7 @@ function ReportViewScreen({ ctx, bookId, filters }) {
           <div className="divide-y divide-slate-100 bg-white border border-slate-200 rounded-xl overflow-hidden">
             {Object.entries(categorySummary).map(([k, v]) => (
               <div key={k} className="flex items-center justify-between px-3 py-2.5 text-sm">
-                <div className="font-medium text-slate-800">{k}</div>
+                <div className="font-medium text-slate-800">{categoryLabel(t, k)}</div>
                 <div className="text-right">
                   <div className="text-emerald-700">+{cur}{(v.in || 0).toLocaleString()}</div>
                   <div className="text-rose-700">-{cur}{(v.out || 0).toLocaleString()}</div>
@@ -2919,7 +3113,7 @@ function ReportViewScreen({ ctx, bookId, filters }) {
           <div className="divide-y divide-slate-100 bg-white border border-slate-200 rounded-xl overflow-hidden">
             {Object.entries(paymentSummary).map(([k, v]) => (
               <div key={k} className="flex items-center justify-between px-3 py-2.5 text-sm">
-                <div className="font-medium text-slate-800">{k}</div>
+                <div className="font-medium text-slate-800">{paymentModeLabel(t, k)}</div>
                 <div className="text-right">
                   <div className="text-emerald-700">+{cur}{(v.in || 0).toLocaleString()}</div>
                   <div className="text-rose-700">-{cur}{(v.out || 0).toLocaleString()}</div>
@@ -2965,7 +3159,7 @@ function ChartsScreen({ ctx, bookId }) {
     const map = {};
     expenseEntries.forEach((e) => {
       const key = groupBy === "category"
-        ? (e.category || t("reportView.uncategorized"))
+        ? categoryLabel(t, e.category) || t("reportView.uncategorized")
         : new Date(e.date + "T00:00:00").toLocaleDateString(intlLocale(ctx.dtPref.language, ctx.dtPref.calendarType), { month: "short", year: "numeric" });
       map[key] = (map[key] || 0) + e.amount;
     });
@@ -3654,7 +3848,7 @@ function AppSettingsScreen({ ctx }) {
           <div className="flex flex-wrap gap-2 mb-3">
             {appSettings.categories.map((c) => (
               <span key={c} className="flex items-center gap-1 bg-slate-100 rounded-full pl-3 pr-1 py-1 text-sm text-slate-700">
-                {c} <button onClick={() => removeCat(c)} className="p-1 text-slate-400"><X size={12} /></button>
+                {categoryLabel(t, c)} <button onClick={() => removeCat(c)} className="p-1 text-slate-400"><X size={12} /></button>
               </span>
             ))}
           </div>
@@ -3669,7 +3863,7 @@ function AppSettingsScreen({ ctx }) {
           <div className="flex flex-wrap gap-2 mb-3">
             {appSettings.paymentModes.map((m) => (
               <span key={m} className="flex items-center gap-1 bg-slate-100 rounded-full pl-3 pr-1 py-1 text-sm text-slate-700">
-                {m} <button onClick={() => removeMode(m)} className="p-1 text-slate-400"><X size={12} /></button>
+                {paymentModeLabel(t, m)} <button onClick={() => removeMode(m)} className="p-1 text-slate-400"><X size={12} /></button>
               </span>
             ))}
           </div>
@@ -3733,13 +3927,13 @@ function RemindersScreen({ ctx }) {
             {pending.map((p) => (
               <div key={p.id} className="bg-white border border-slate-200 rounded-xl p-3.5">
                 <div className="font-medium text-slate-900 text-sm mb-0.5">{p.desc}</div>
-                <div className="text-xs text-slate-500 mb-2">{p.category} · {appSettings.currency}{Number(p.amount || 0).toLocaleString()}</div>
+                <div className="text-xs text-slate-500 mb-2">{categoryLabel(t, p.category)} · {appSettings.currency}{Number(p.amount || 0).toLocaleString()}</div>
                 <div className="flex gap-2">
-                  <input
-                    type="datetime-local"
-                    defaultValue={p.reminderAt ? p.reminderAt.slice(0, 16) : ""}
-                    onChange={(e) => setReminder(p.id, e.target.value ? new Date(e.target.value).toISOString() : null)}
-                    className="flex-1 min-w-0 border border-slate-300 rounded-lg px-2.5 py-2 text-sm"
+                  <CustomDateTimePicker
+                    valueIso={p.reminderAt || null}
+                    onChange={(iso) => setReminder(p.id, iso)}
+                    language={ctx.dtPref.language}
+                    timeFormat={ctx.dtPref.timeFormat}
                   />
                   {p.reminderAt && (
                     <button onClick={() => setReminder(p.id, null)} className="text-xs text-rose-600 border border-rose-200 rounded-lg px-2.5 shrink-0">{t("reminders.clear")}</button>

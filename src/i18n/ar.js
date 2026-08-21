@@ -182,6 +182,8 @@ export default {
     lastEditedBy: "آخر تعديل بواسطة",
     neverEdited: "لم يُعدَّل قط",
     lastTransferredFrom: "آخر نقل من",
+    methodCash: "نقدًا",
+    methodElectronic: "إلكتروني",
   },
   addEntry: {
     titleEdit: "تعديل القيد",
@@ -272,5 +274,19 @@ export default {
       marketplace: { name: "السوق", tagline: "سوق للبيع والشراء" },
       bundle: { name: "በጅሮንድ المالية", tagline: "كل الأدوات في مكان واحد، بلا إعلانات" },
     },
+  },
+  defaults: {
+    categoryHome: "المنزل",
+    categoryElectronics: "إلكترونيات",
+    categoryFood: "طعام",
+    categorySalary: "راتب",
+    categoryRent: "إيجار",
+    categoryTransport: "مواصلات",
+    categoryUtilities: "مرافق",
+    categoryOther: "أخرى",
+    paymentModeCash: "نقدًا",
+    paymentModeOnline: "عبر الإنترنت",
+    paymentModeCard: "بطاقة",
+    paymentModeCheque: "شيك",
   },
 };

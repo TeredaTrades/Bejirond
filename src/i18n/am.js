@@ -481,4 +481,18 @@ export default {
     copyButton: "ግለብጥ",
     moveButton: "አዛውር",
   },
+  defaults: {
+    categoryHome: "ቤት",
+    categoryElectronics: "ኤሌክትሮኒክስ",
+    categoryFood: "ምግብ",
+    categorySalary: "ደሞዝ",
+    categoryRent: "ኪራይ",
+    categoryTransport: "መጓጓዣ",
+    categoryUtilities: "መገልገያ",
+    categoryOther: "ሌላ",
+    paymentModeCash: "ጥሬ ገንዘብ",
+    paymentModeOnline: "ኦንላይን",
+    paymentModeCard: "ካርድ",
+    paymentModeCheque: "ቼክ",
+  },
 };

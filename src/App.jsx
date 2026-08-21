@@ -32,13 +32,13 @@ const TallyWidget = registerPlugin("TallyWidget");
 
 // ---------- constants ----------
 const DEFAULT_CATEGORIES = ["Home", "Electronics", "Food", "Salary", "Rent", "Transport", "Utilities", "Other"];
-const DEFAULT_PAYMENT_MODES = ["Cash", "Online", "Card", "Cheque"];
+const DEFAULT_PAYMENT_MODES = ["Cash", "Telebirr", "CBE Birr", "Coopay", "Online", "Card", "Cheque"];
 const CURRENCIES = { "$": "USD", "Br": "ETB", "₹": "INR", "€": "EUR", "£": "GBP" };
 // calendarType: "gregorian" | "ethiopian" — which calendar dates are *displayed*
 // in (all dates are still stored internally as plain Gregorian ISO strings, so
 // switching this never touches saved data, only how it's shown).
 // timeFormat: "12h" | "24h" — whether times are shown with AM/PM or 24-hour.
-const DEFAULT_APP_SETTINGS = { categories: DEFAULT_CATEGORIES, paymentModes: DEFAULT_PAYMENT_MODES, currency: "$", calendarType: "gregorian", timeFormat: "12h" };
+const DEFAULT_APP_SETTINGS = { categories: DEFAULT_CATEGORIES, paymentModes: DEFAULT_PAYMENT_MODES, currency: "Br", calendarType: "gregorian", timeFormat: "12h" };
 const ROLES = ["Book Admin", "Data Operator", "Viewer"];
 const BOOK_TEMPLATE_KEYS = ["salesLedger", "bankReconciliation", "sharedCashbook", "payrollStaffExpenses"];
 
@@ -345,7 +345,7 @@ async function pushWidgetBalance(businesses, appSettings) {
         total += es.reduce((s, e) => s + (e.type === "in" ? e.amount : -e.amount), 0);
       }
     }
-    const cur = appSettings?.currency || "$";
+    const cur = appSettings?.currency || "Br";
     const text = `${total >= 0 ? "+" : "-"}${cur}${Math.abs(total).toLocaleString()}`;
     await TallyWidget.updateBalance({ text });
   } catch (e) { /* widget is a nice-to-have — never let this affect the app */ }
@@ -2900,6 +2900,11 @@ function categoryLabel(t, category) {
   }
 }
 
+// Telebirr/CBE Birr/Coopay are branded service names, not generic concepts —
+// they're recognized by these exact names by Ethiopian users regardless of
+// app language, the same way "በጅሮንድ" itself stays fixed as the brand mark in
+// every language elsewhere in this app. They intentionally have no case here
+// and fall through to the default (shown exactly as stored).
 function paymentModeLabel(t, mode) {
   switch (mode) {
     case "Cash": return t("defaults.paymentModeCash");

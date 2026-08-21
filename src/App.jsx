@@ -3026,25 +3026,27 @@ function ChartsScreen({ ctx, bookId }) {
 // with a subtle background pattern (dots/grid/stripes) that only ever
 // shows in the gaps between cards — every card and form field still sits
 // on a fully solid surface color, so patterns never affect form readability.
+// label/sub are looked up at render time via t("theme.options.<id>.label"/"sub")
+// so they follow the app's language setting — see src/i18n/*.js "theme.options".
 const THEME_OPTIONS = [
-  { id: "light", label: "Light", sub: "The default look", swatches: ["#f8fafc", "#0f766e", "#b45309"], group: "Solid" },
-  { id: "dark", label: "Dark", sub: "Easier on the eyes at night", swatches: ["#0f172a", "#14b8a6", "#f59e0b"], group: "Solid" },
-  { id: "brown-cream", label: "Brown & Cream", sub: "Warm, earthy tones", swatches: ["#f5ede1", "#7c4a25", "#a86b2d"], group: "Solid" },
-  { id: "pink", label: "Pink", sub: "Soft pastel rose", swatches: ["#fef7fa", "#d6598e", "#e17ba6"], group: "Solid" },
-  { id: "islamic", label: "Green & Gold", sub: "Rich green and gold tones", swatches: ["#f4f8f4", "#0f6b3f", "#b8860b"], group: "Solid" },
-  { id: "minimalist", label: "Minimalist", sub: "Clean, modern & monochrome", swatches: ["#fafafa", "#2563eb", "#18181b"], group: "Solid" },
-  { id: "light-dots", label: "Light Dots", sub: "Light theme with a soft dot grid", swatches: ["#f8fafc", "#0f766e", "#b45309"], group: "Pattern" },
-  { id: "dark-grid", label: "Dark Grid", sub: "Dark theme with a fine line grid", swatches: ["#0f172a", "#14b8a6", "#f59e0b"], group: "Pattern" },
-  { id: "terracotta-waves", label: "Terracotta Waves", sub: "Warm terracotta with a diagonal weave", swatches: ["#fdf6ee", "#c2410c", "#9a3412"], group: "Pattern" },
-  { id: "holiday-newyear", label: "New Year", sub: "Midnight blue & gold sparkle", swatches: ["#0b1f3a", "#d4af37", "#14355e"], group: "Holiday" },
-  { id: "holiday-genna", label: "Genna", sub: "Ethiopian Christmas — deep red & gold", swatches: ["#fdf6ec", "#7a1f2b", "#b8860b"], group: "Holiday" },
-  { id: "holiday-timkat", label: "Timkat", sub: "Epiphany — sky blue ripples", swatches: ["#eef7fb", "#0369a1", "#b8860b"], group: "Holiday" },
-  { id: "holiday-eid", label: "Eid", sub: "Green & gold, fine mesh", swatches: ["#f3f9f4", "#0a5c33", "#b8860b"], group: "Holiday" },
-  { id: "holiday-enkutatash", label: "Enkutatash", sub: "Ethiopian New Year — Adey Abeba yellow & green", swatches: ["#f6faf0", "#4d7c0f", "#ca8a04"], group: "Holiday" },
-  { id: "holiday-meskel", label: "Meskel", sub: "Meskel flower purple & gold", swatches: ["#f7f3fa", "#6b21a8", "#ca8a04"], group: "Holiday" },
-  { id: "holiday-christmas", label: "Christmas", sub: "Red, green & a dusting of snow", swatches: ["#fdf5f5", "#b91c1c", "#15803d"], group: "Holiday" },
+  { id: "light", swatches: ["#f8fafc", "#0f766e", "#b45309"], group: "solid" },
+  { id: "dark", swatches: ["#0f172a", "#14b8a6", "#f59e0b"], group: "solid" },
+  { id: "brown-cream", swatches: ["#f5ede1", "#7c4a25", "#a86b2d"], group: "solid" },
+  { id: "pink", swatches: ["#fef7fa", "#d6598e", "#e17ba6"], group: "solid" },
+  { id: "islamic", swatches: ["#f4f8f4", "#0f6b3f", "#b8860b"], group: "solid" },
+  { id: "minimalist", swatches: ["#fafafa", "#2563eb", "#18181b"], group: "solid" },
+  { id: "light-dots", swatches: ["#f8fafc", "#0f766e", "#b45309"], group: "pattern" },
+  { id: "dark-grid", swatches: ["#0f172a", "#14b8a6", "#f59e0b"], group: "pattern" },
+  { id: "terracotta-waves", swatches: ["#fdf6ee", "#c2410c", "#9a3412"], group: "pattern" },
+  { id: "holiday-newyear", swatches: ["#0b1f3a", "#d4af37", "#14355e"], group: "holiday" },
+  { id: "holiday-genna", swatches: ["#fdf6ec", "#7a1f2b", "#b8860b"], group: "holiday" },
+  { id: "holiday-timkat", swatches: ["#eef7fb", "#0369a1", "#b8860b"], group: "holiday" },
+  { id: "holiday-eid", swatches: ["#f3f9f4", "#0a5c33", "#b8860b"], group: "holiday" },
+  { id: "holiday-enkutatash", swatches: ["#f6faf0", "#4d7c0f", "#ca8a04"], group: "holiday" },
+  { id: "holiday-meskel", swatches: ["#f7f3fa", "#6b21a8", "#ca8a04"], group: "holiday" },
+  { id: "holiday-christmas", swatches: ["#fdf5f5", "#b91c1c", "#15803d"], group: "holiday" },
 ];
-const THEME_GROUP_ORDER = ["Solid", "Pattern", "Holiday"];
+const THEME_GROUP_ORDER = ["solid", "pattern", "holiday"];
 
 function ThemeScreen({ ctx }) {
   const { pop, theme, persistTheme, t } = ctx;
@@ -3054,7 +3056,7 @@ function ThemeScreen({ ctx }) {
       <div className="flex-1 overflow-y-auto p-4 space-y-5">
         {THEME_GROUP_ORDER.map((group) => (
           <div key={group}>
-            <div className="text-xs font-medium text-slate-400 uppercase mb-2 px-1">{group}</div>
+            <div className="text-xs font-medium text-slate-400 uppercase mb-2 px-1">{t(`theme.groups.${group}`)}</div>
             <div className="space-y-2.5">
               {THEME_OPTIONS.filter((opt) => opt.group === group).map((opt) => {
                 const active = theme === opt.id;
@@ -3065,8 +3067,8 @@ function ThemeScreen({ ctx }) {
                       {opt.swatches.map((c, i) => <div key={i} className="flex-1 h-full" style={{ backgroundColor: c }} />)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-slate-900 text-sm">{opt.label}</div>
-                      <div className="text-xs text-slate-500">{opt.sub}</div>
+                      <div className="font-medium text-slate-900 text-sm">{t(`theme.options.${opt.id}.label`)}</div>
+                      <div className="text-xs text-slate-500">{t(`theme.options.${opt.id}.sub`)}</div>
                     </div>
                     {active ? <CheckCircle2 size={20} className="text-teal-700 shrink-0" /> : <Circle size={20} className="text-slate-200 shrink-0" />}
                   </button>

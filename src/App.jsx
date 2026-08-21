@@ -438,7 +438,7 @@ function safeEvalMath(expr) {
 
 // Amount input that accepts typed math (e.g. "500+120-30") and also has an expandable
 // tap calculator for doing small add/subtract adjustments without leaving the field.
-function AmountInput({ value, onChange, currencySymbol = "", placeholder = "0", autoFocus = false }) {
+function AmountInput({ value, onChange, currencySymbol = "", placeholder = "0", autoFocus = false, calcTitle = "Calculator" }) {
   const [raw, setRaw] = useState(value != null && value !== "" ? String(value) : "");
   const [calcOpen, setCalcOpen] = useState(false);
   const hasOperator = /[+\-*/]/.test(raw.slice(1)); // ignore a leading minus sign
@@ -471,7 +471,7 @@ function AmountInput({ value, onChange, currencySymbol = "", placeholder = "0", 
           className={`w-full border-2 border-teal-600 rounded-lg ${currencySymbol ? "pl-9" : "pl-3"} pr-10 py-2 text-lg font-semibold`}
           placeholder={placeholder} />
         <button type="button" onClick={() => setCalcOpen((v) => !v)}
-          className={`absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded ${calcOpen ? "text-teal-700" : "text-slate-400"}`} title="Calculator">
+          className={`absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded ${calcOpen ? "text-teal-700" : "text-slate-400"}`} title={calcTitle}>
           <Calculator size={18} />
         </button>
       </div>
@@ -671,7 +671,7 @@ function PlannedSidebar({ ctx, open, onClose }) {
 // user taps the notification (from the tray or a cold start). Plays the
 // same alarm tone in-app (looped a few times) since a system notification
 // only plays its sound once.
-function ReminderAlarmModal({ alarm, onDismiss, onMarkDone, onSnooze }) {
+function ReminderAlarmModal({ alarm, onDismiss, onMarkDone, onSnooze, t }) {
   const audioRef = useRef(null);
   const stopTimerRef = useRef(null);
 
@@ -699,21 +699,21 @@ function ReminderAlarmModal({ alarm, onDismiss, onMarkDone, onSnooze }) {
         <div className="w-14 h-14 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto mb-3 animate-pulse">
           <BellRing size={26} />
         </div>
-        <div className="text-xs font-medium text-rose-600 uppercase tracking-wide mb-1">Reminder</div>
+        <div className="text-xs font-medium text-rose-600 uppercase tracking-wide mb-1">{t("reminderAlarm.label")}</div>
         <div className="text-lg font-bold text-slate-900 mb-1">{alarm.desc}</div>
         <div className="text-sm text-slate-500 mb-5">
           {alarm.amount ? `${alarm.currency}${Number(alarm.amount).toLocaleString()} · ` : ""}{alarm.category}
         </div>
         <div className="grid grid-cols-2 gap-2 mb-2">
           <button onClick={() => { stopSound(); onSnooze(); }} className="border border-slate-300 text-slate-700 rounded-xl py-2.5 text-sm font-medium">
-            Snooze 10 min
+            {t("reminderAlarm.snooze")}
           </button>
           <button onClick={() => { stopSound(); onMarkDone(); }} className="bg-emerald-700 text-white rounded-xl py-2.5 text-sm font-medium">
-            Mark done
+            {t("reminderAlarm.markDone")}
           </button>
         </div>
         <button onClick={() => { stopSound(); onDismiss(); }} className="w-full flex items-center justify-center gap-1.5 text-slate-500 text-sm py-2">
-          <VolumeX size={14} /> Dismiss
+          <VolumeX size={14} /> {t("reminderAlarm.dismiss")}
         </button>
       </div>
     </div>
@@ -1071,7 +1071,7 @@ export default function TallyBookApp() {
       <BottomNav tab={tab} setTab={(nextTab) => { setTab(nextTab); resetTo(nextTab); }} t={t} />
       <PlannedFAB pendingCount={pendingPlannedCount} onClick={() => setPlannedSidebarOpen(true)} hidden={inputFocused} t={t} />
       <PlannedSidebar ctx={ctx} open={plannedSidebarOpen} onClose={() => setPlannedSidebarOpen(false)} />
-      <ReminderAlarmModal alarm={activeAlarm} onDismiss={dismissAlarm} onMarkDone={markAlarmDone} onSnooze={snoozeAlarm} />
+      <ReminderAlarmModal alarm={activeAlarm} onDismiss={dismissAlarm} onMarkDone={markAlarmDone} onSnooze={snoozeAlarm} t={t} />
     </div>
   );
 }
@@ -1725,7 +1725,7 @@ function SwitchBusinessScreen({ ctx, embedded, onDone }) {
 
 // ---------- Book screen ----------
 function BookScreen({ ctx, bookId }) {
-  const { activeBusiness, businesses, push, pop, getEntries, saveEntries, appSettings, canAddEntries, viewer, logActivity, setBackHandler } = ctx;
+  const { activeBusiness, businesses, push, pop, getEntries, saveEntries, appSettings, canAddEntries, viewer, logActivity, setBackHandler, t } = ctx;
   const book = activeBusiness?.books.find((b) => b.id === bookId);
   const [entries, setEntries] = useState(null);
   const [search, setSearch] = useState("");
@@ -1749,7 +1749,7 @@ function BookScreen({ ctx, bookId }) {
     return () => setBackHandler?.(null);
   }, [deleteConfirmEntries, moveCopyEntries, selectMode, setBackHandler]);
 
-  if (!book) return <EmptyState icon={BookMarked} title="Book not found" />;
+  if (!book) return <EmptyState icon={BookMarked} title={t("bookScreen.bookNotFound")} />;
 
   // Move/copy targets span every business the user has, not just the active one —
   // each book is tagged with which business it belongs to so the picker can group
@@ -1964,7 +1964,7 @@ function BookScreen({ ctx, bookId }) {
 
       {moveCopyEntries && (
         <MoveCopyModal entries={moveCopyEntries} otherBooks={otherBooks} cur={cur} activeBusinessId={activeBusiness?.id}
-          onClose={() => setMoveCopyEntries(null)} onAction={doMoveOrCopy} />
+          onClose={() => setMoveCopyEntries(null)} onAction={doMoveOrCopy} t={ctx.t} />
       )}
 
       {deleteConfirmEntries && (
@@ -2038,7 +2038,7 @@ function ConfirmModal({ title, message, confirmLabel = "Yes", cancelLabel = "No"
   );
 }
 
-function MoveCopyModal({ entries, otherBooks, cur, activeBusinessId, onClose, onAction }) {
+function MoveCopyModal({ entries, otherBooks, cur, activeBusinessId, onClose, onAction, t }) {
   const single = entries.length === 1 ? entries[0] : null;
   const totalAmount = entries.reduce((s, e) => s + (e.type === "in" ? e.amount : -e.amount), 0);
 
@@ -2062,18 +2062,18 @@ function MoveCopyModal({ entries, otherBooks, cur, activeBusinessId, onClose, on
       <div className="w-full max-w-md bg-white rounded-t-2xl max-h-[75vh] flex flex-col" onClick={(ev) => ev.stopPropagation()}>
         <div className="p-4 border-b border-slate-100">
           <div className="flex items-center justify-between">
-            <div className="font-semibold text-slate-900">Move or Copy {single ? "Entry" : `${entries.length} Entries`}</div>
+            <div className="font-semibold text-slate-900">{single ? t("moveCopyModal.titleSingle") : t("moveCopyModal.titleMultiple", { count: entries.length })}</div>
             <button onClick={onClose} className="p-1 text-slate-400"><X size={18} /></button>
           </div>
           <div className="text-sm text-slate-500 mt-1">
             {single
-              ? <>{single.type === "in" ? "+" : "-"}{cur}{single.amount.toLocaleString()} · {single.contact || single.category || (single.type === "in" ? "Cash In" : "Cash Out")}</>
-              : <>{entries.length} entries selected · net {totalAmount >= 0 ? "+" : "-"}{cur}{Math.abs(totalAmount).toLocaleString()}</>}
+              ? t("moveCopyModal.entrySummary", { sign: single.type === "in" ? "+" : "-", amount: `${cur}${single.amount.toLocaleString()}`, label: single.contact || single.category || (single.type === "in" ? t("entries.cashIn") : t("entries.cashOut")) })
+              : t("moveCopyModal.entriesSelectedSummary", { count: entries.length, sign: totalAmount >= 0 ? "+" : "-", amount: `${cur}${Math.abs(totalAmount).toLocaleString()}` })}
           </div>
         </div>
         <div className="flex-1 overflow-y-auto">
           {otherBooks.length === 0 ? (
-            <div className="p-6 text-center text-sm text-slate-500">No other books to move or copy into yet.</div>
+            <div className="p-6 text-center text-sm text-slate-500">{t("moveCopyModal.noOtherBooksHint")}</div>
           ) : (
             <div className="divide-y divide-slate-100">
               {grouped.map((g) => (
@@ -2087,8 +2087,8 @@ function MoveCopyModal({ entries, otherBooks, cur, activeBusinessId, onClose, on
                     <div key={b.id} className="flex items-center justify-between px-4 py-3">
                       <div className="font-medium text-slate-800 text-sm">{b.name}</div>
                       <div className="flex gap-2">
-                        <button onClick={() => onAction(b.id, "copy")} className="text-xs font-medium border border-teal-700 text-teal-700 rounded-lg px-3 py-1.5">Copy</button>
-                        <button onClick={() => onAction(b.id, "move")} className="text-xs font-medium bg-teal-700 text-white rounded-lg px-3 py-1.5">Move</button>
+                        <button onClick={() => onAction(b.id, "copy")} className="text-xs font-medium border border-teal-700 text-teal-700 rounded-lg px-3 py-1.5">{t("moveCopyModal.copyButton")}</button>
+                        <button onClick={() => onAction(b.id, "move")} className="text-xs font-medium bg-teal-700 text-white rounded-lg px-3 py-1.5">{t("moveCopyModal.moveButton")}</button>
                       </div>
                     </div>
                   ))}
@@ -2103,7 +2103,7 @@ function MoveCopyModal({ entries, otherBooks, cur, activeBusinessId, onClose, on
 }
 // ---------- Entry detail ----------
 function EntryDetailScreen({ ctx, bookId, entryId }) {
-  const { pop, push, getEntries, appSettings, activeBusiness, canAddEntries } = ctx;
+  const { pop, push, getEntries, appSettings, activeBusiness, canAddEntries, t } = ctx;
   const book = activeBusiness?.books.find((b) => b.id === bookId);
   const cur = bookCurrency(book, appSettings);
   const [entry, setEntry] = useState(null);
@@ -2115,14 +2115,14 @@ function EntryDetailScreen({ ctx, bookId, entryId }) {
   if (!entry) {
     return (
       <div className="flex-1 flex flex-col min-h-0">
-        <TopHeader ctx={ctx} title="Entry" onBack={pop} />
+        <TopHeader ctx={ctx} title={t("entryDetail.title")} onBack={pop} />
         <div className="flex justify-center py-10"><Loader2 className="animate-spin text-teal-700" size={24} /></div>
       </div>
     );
   }
 
   const isIn = entry.type === "in";
-  const methodKind = entry.paymentMode === "Cash" ? "Cash" : "Electronic";
+  const methodKind = entry.paymentMode === "Cash" ? t("entryDetail.methodCash") : t("entryDetail.methodElectronic");
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
@@ -2135,7 +2135,7 @@ function EntryDetailScreen({ ctx, bookId, entryId }) {
         </div>
 
         {entry.receipt && (
-          <img src={entry.receipt} alt="Receipt" className="w-full max-h-72 object-contain rounded-xl border border-slate-200 bg-white" />
+          <img src={entry.receipt} alt={t("entryDetail.receiptAlt")} className="w-full max-h-72 object-contain rounded-xl border border-slate-200 bg-white" />
         )}
 
         <div className="bg-white border border-slate-200 rounded-xl divide-y divide-slate-100">
@@ -2307,7 +2307,7 @@ function AddEntryScreen({ ctx, bookId, type, editEntry }) {
 
         <label className="block">
           <div className="text-xs text-teal-700 mb-1 font-medium">{t("addEntry.amount")}</div>
-          <AmountInput autoFocus value={form.amount} onChange={(v) => setForm({ ...form, amount: v })} currencySymbol={bookCur} />
+          <AmountInput autoFocus value={form.amount} onChange={(v) => setForm({ ...form, amount: v })} currencySymbol={bookCur} calcTitle={t("addEntry.calculatorTitle")} />
         </label>
 
         <label className="block relative">
@@ -2336,7 +2336,7 @@ function AddEntryScreen({ ctx, bookId, type, editEntry }) {
           <div className="text-xs text-slate-500 mb-1.5">{t("addEntry.receiptLabel")}</div>
           {form.receipt ? (
             <div className="relative inline-block">
-              <img src={form.receipt} alt="Receipt" className="h-24 w-24 object-cover rounded-lg border border-slate-200" />
+              <img src={form.receipt} alt={t("addEntry.receiptAlt")} className="h-24 w-24 object-cover rounded-lg border border-slate-200" />
               <button onClick={() => setForm({ ...form, receipt: null })}
                 className="absolute -top-2 -right-2 bg-slate-900 text-white rounded-full p-1"><X size={12} /></button>
             </div>
@@ -2432,31 +2432,31 @@ function BookSettingsScreen({ ctx, bookId }) {
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
-      <TopHeader ctx={ctx} title="Book Settings" onBack={pop} />
+      <TopHeader ctx={ctx} title={t("bookSettings.title")} onBack={pop} />
       <div className="flex-1 overflow-y-auto p-4 pb-28 space-y-4">
         <div className="bg-white border border-slate-200 rounded-xl p-4">
-          <div className="text-xs text-slate-500 mb-1">Cashbook Name</div>
+          <div className="text-xs text-slate-500 mb-1">{t("bookSettings.cashbookNameLabel")}</div>
           {renaming ? (
             <div className="flex gap-2">
               <input autoFocus value={name} onChange={(e) => setName(e.target.value)} className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm" />
-              <button onClick={doRename} className="bg-teal-700 text-white px-3 rounded-lg text-sm font-medium">Save</button>
+              <button onClick={doRename} className="bg-teal-700 text-white px-3 rounded-lg text-sm font-medium">{t("common.save")}</button>
             </div>
           ) : (
             <div className="flex items-center justify-between">
               <div className="font-semibold text-slate-900">{book?.name}</div>
-              {canManage && <button onClick={() => setRenaming(true)} className="text-teal-700 text-sm font-medium border border-teal-700 rounded-lg px-3 py-1">Rename</button>}
+              {canManage && <button onClick={() => setRenaming(true)} className="text-teal-700 text-sm font-medium border border-teal-700 rounded-lg px-3 py-1">{t("bookSettings.renameButton")}</button>}
             </div>
           )}
         </div>
 
         <div className="bg-white border border-slate-200 rounded-xl p-4">
-          <div className="text-xs text-slate-500 mb-2">Book Currency</div>
+          <div className="text-xs text-slate-500 mb-2">{t("bookSettings.bookCurrencyLabel")}</div>
           <div className="flex gap-2 flex-wrap">
             {Object.keys(CURRENCIES).map((c) => (
               <Chip key={c} active={bookCurrency(book, appSettings) === c} onClick={() => canManage && setBookCurrency(c)}>{c} {CURRENCIES[c]}</Chip>
             ))}
           </div>
-          <div className="text-xs text-slate-400 mt-2">This book's amounts display in this currency, independent of other books.</div>
+          <div className="text-xs text-slate-400 mt-2">{t("bookSettings.bookCurrencyHint")}</div>
         </div>
 
         {canAddEntries && (
@@ -2473,16 +2473,16 @@ function BookSettingsScreen({ ctx, bookId }) {
         )}
 
         <div className="bg-white border border-slate-200 rounded-xl divide-y divide-slate-100">
-          <div className="px-4 py-2 text-xs font-medium text-slate-400 uppercase">General Book Settings</div>
+          <div className="px-4 py-2 text-xs font-medium text-slate-400 uppercase">{t("bookSettings.generalSettingsHeader")}</div>
           <button onClick={() => push("activity", { bookId })} className="w-full flex items-center gap-3 px-4 py-3.5 text-left">
             <div className="w-9 h-9 rounded-lg bg-teal-50 flex items-center justify-center text-teal-700"><Clock size={16} /></div>
-            <div className="flex-1"><div className="font-medium text-slate-900">Book Activity</div><div className="text-xs text-slate-500">Stay updated on all book activities</div></div>
+            <div className="flex-1"><div className="font-medium text-slate-900">{t("bookSettings.bookActivityTitle")}</div><div className="text-xs text-slate-500">{t("bookSettings.bookActivitySub")}</div></div>
             <ChevronRight size={16} className="text-slate-300" />
           </button>
           {canManage && (
             <button onClick={() => push("addMember", { bookId })} className="w-full flex items-center gap-3 px-4 py-3.5 text-left">
               <div className="w-9 h-9 rounded-lg bg-teal-50 flex items-center justify-center text-teal-700"><Users size={16} /></div>
-              <div className="flex-1"><div className="font-medium text-slate-900">Manage Members</div><div className="text-xs text-slate-500">Add or edit roles for this book</div></div>
+              <div className="flex-1"><div className="font-medium text-slate-900">{t("bookSettings.manageMembersTitle")}</div><div className="text-xs text-slate-500">{t("bookSettings.manageMembersSub")}</div></div>
               <ChevronRight size={16} className="text-slate-300" />
             </button>
           )}
@@ -2490,11 +2490,11 @@ function BookSettingsScreen({ ctx, bookId }) {
 
         {members.length > 0 && (
           <div className="bg-white border border-slate-200 rounded-xl divide-y divide-slate-100">
-            <div className="px-4 py-2 text-xs font-medium text-slate-400 uppercase">View as (simulate role)</div>
+            <div className="px-4 py-2 text-xs font-medium text-slate-400 uppercase">{t("bookSettings.viewAsHeader")}</div>
             <button onClick={async () => { await persistSession({ ...session, viewingAs: null }); }}
               className={`w-full flex items-center gap-3 px-4 py-3 text-left ${!session.viewingAs ? "bg-teal-50" : ""}`}>
               <div className="w-8 h-8 rounded-full bg-teal-700 text-white flex items-center justify-center text-xs font-semibold">Y</div>
-              <div className="flex-1"><div className="font-medium text-slate-900 text-sm">You</div><div className="text-xs text-slate-500">Primary Admin</div></div>
+              <div className="flex-1"><div className="font-medium text-slate-900 text-sm">{t("bookSettings.youLabel")}</div><div className="text-xs text-slate-500">{t("bookSettings.primaryAdminLabel")}</div></div>
               {!session.viewingAs && <Check size={16} className="text-teal-700" />}
             </button>
             {members.map((m) => (
@@ -2510,16 +2510,16 @@ function BookSettingsScreen({ ctx, bookId }) {
 
         {canManage && (
           <button onClick={() => setConfirmDeleteBook(true)} className="w-full flex items-center justify-center gap-2 text-rose-700 border border-rose-200 rounded-xl py-3 font-medium">
-            <Trash2 size={16} /> Delete Book
+            <Trash2 size={16} /> {t("bookSettings.deleteButton")}
           </button>
         )}
       </div>
 
       {confirmDeleteBook && (
         <ConfirmModal
-          title="Delete this book?"
-          message={`This will remove "${book?.name}" and all its entries for good — there's no getting it back after.`}
-          confirmLabel="Yes, Delete" cancelLabel="No"
+          title={t("bookSettings.deleteConfirmTitle")}
+          message={t("bookSettings.deleteConfirmMessage", { name: book?.name })}
+          confirmLabel={t("businessSettings.deleteConfirmYes")} cancelLabel={t("common.no")}
           onCancel={() => setConfirmDeleteBook(false)}
           onConfirm={() => { setConfirmDeleteBook(false); deleteBook(); }} />
       )}

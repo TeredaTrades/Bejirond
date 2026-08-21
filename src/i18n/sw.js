@@ -181,6 +181,8 @@ export default {
     lastEditedBy: "Ilihaririwa mwisho na",
     neverEdited: "Haijawahi kuhaririwa",
     lastTransferredFrom: "Ilihamishwa mwisho kutoka",
+    methodCash: "Taslimu",
+    methodElectronic: "Kielektroniki",
   },
   addEntry: {
     titleEdit: "Hariri Kumbukumbu",
@@ -271,5 +273,19 @@ export default {
       marketplace: { name: "Soko", tagline: "Soko la kuuza na kununua" },
       bundle: { name: "በጅሮንድ Fedha", tagline: "Zana zote pamoja, bila matangazo" },
     },
+  },
+  defaults: {
+    categoryHome: "Nyumbani",
+    categoryElectronics: "Elektroniki",
+    categoryFood: "Chakula",
+    categorySalary: "Mshahara",
+    categoryRent: "Kodi",
+    categoryTransport: "Usafiri",
+    categoryUtilities: "Huduma",
+    categoryOther: "Nyingine",
+    paymentModeCash: "Taslimu",
+    paymentModeOnline: "Mtandaoni",
+    paymentModeCard: "Kadi",
+    paymentModeCheque: "Hundi",
   },
 };

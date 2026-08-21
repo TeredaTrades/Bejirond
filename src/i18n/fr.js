@@ -181,6 +181,8 @@ export default {
     lastEditedBy: "Dernière modification par",
     neverEdited: "Jamais modifié",
     lastTransferredFrom: "Dernier transfert depuis",
+    methodCash: "Espèces",
+    methodElectronic: "Électronique",
   },
   addEntry: {
     titleEdit: "Modifier l'entrée",
@@ -271,5 +273,19 @@ export default {
       marketplace: { name: "Marché", tagline: "Marché d'achat et de vente" },
       bundle: { name: "በጅሮንድ Finances", tagline: "Tous les outils réunis, sans publicité" },
     },
+  },
+  defaults: {
+    categoryHome: "Maison",
+    categoryElectronics: "Électronique",
+    categoryFood: "Alimentation",
+    categorySalary: "Salaire",
+    categoryRent: "Loyer",
+    categoryTransport: "Transport",
+    categoryUtilities: "Charges",
+    categoryOther: "Autre",
+    paymentModeCash: "Espèces",
+    paymentModeOnline: "En ligne",
+    paymentModeCard: "Carte",
+    paymentModeCheque: "Chèque",
   },
 };

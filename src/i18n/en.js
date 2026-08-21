@@ -482,4 +482,18 @@ export default {
     copyButton: "Copy",
     moveButton: "Move",
   },
+  defaults: {
+    categoryHome: "Home",
+    categoryElectronics: "Electronics",
+    categoryFood: "Food",
+    categorySalary: "Salary",
+    categoryRent: "Rent",
+    categoryTransport: "Transport",
+    categoryUtilities: "Utilities",
+    categoryOther: "Other",
+    paymentModeCash: "Cash",
+    paymentModeOnline: "Online",
+    paymentModeCard: "Card",
+    paymentModeCheque: "Cheque",
+  },
 };

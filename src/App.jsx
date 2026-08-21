@@ -32,7 +32,16 @@ const TallyWidget = registerPlugin("TallyWidget");
 
 // ---------- constants ----------
 const DEFAULT_CATEGORIES = ["Home", "Electronics", "Food", "Salary", "Rent", "Transport", "Utilities", "Other"];
-const DEFAULT_PAYMENT_MODES = ["Cash", "Telebirr", "CBE Birr", "Coopay", "Online", "Card", "Cheque"];
+const DEFAULT_PAYMENT_MODES = ["Cash", "Telebirr", "CBE Birr", "Coopay", "M-Pesa", "Online", "Card", "Cheque"];
+// Modes added to DEFAULT_PAYMENT_MODES after the original release. New defaults
+// only apply to brand-new installs (see DEFAULT_APP_SETTINGS above) — an
+// existing install already has its own persisted "app-settings" record, and
+// the shallow-merge on load (`{ ...DEFAULT_APP_SETTINGS, ...stored }`) keeps
+// the stored paymentModes array as-is rather than pulling in new entries. This
+// list drives a one-time migration (see the initial-load effect) that appends
+// any of these the user doesn't already have — and won't re-add one a user
+// has deliberately removed, since it only ever runs once per install.
+const PAYMENT_MODES_MIGRATION_V2 = ["Telebirr", "CBE Birr", "Coopay", "M-Pesa"];
 const CURRENCIES = { "$": "USD", "Br": "ETB", "₹": "INR", "€": "EUR", "£": "GBP" };
 // calendarType: "gregorian" | "ethiopian" — which calendar dates are *displayed*
 // in (all dates are still stored internally as plain Gregorian ISO strings, so
@@ -945,7 +954,17 @@ export default function TallyBookApp() {
       const acct = await storeGet("account", null);
       const biz = await storeGet("businesses", []);
       const sess = await storeGet("session", { activeBusinessId: null, viewingAs: null });
-      const settings = { ...DEFAULT_APP_SETTINGS, ...(await storeGet("app-settings", DEFAULT_APP_SETTINGS)) };
+      let settings = { ...DEFAULT_APP_SETTINGS, ...(await storeGet("app-settings", DEFAULT_APP_SETTINGS)) };
+      // One-time migration: pull in any payment modes added to the defaults
+      // after this install's app-settings was first saved (see
+      // PAYMENT_MODES_MIGRATION_V2 above). Runs once per install — the
+      // paymentModesV2 flag stops it from reintroducing a mode the user
+      // later removes on purpose.
+      if (!settings.paymentModesV2) {
+        const missing = PAYMENT_MODES_MIGRATION_V2.filter((m) => !settings.paymentModes.includes(m));
+        settings = { ...settings, paymentModes: [...settings.paymentModes, ...missing], paymentModesV2: true };
+        await storeSet("app-settings", settings);
+      }
       const savedTheme = await storeGet("app-theme", "light");
       setTheme(savedTheme);
       const savedLanguage = await storeGet("app-language", DEFAULT_LANGUAGE);
@@ -1102,9 +1121,14 @@ export default function TallyBookApp() {
     pushWidgetBalance(businesses, appSettings);
   }, [businesses, appSettings]);
 
-  const logActivity = useCallback(async (bookId, text) => {
+  // Stores a translation key + params rather than baked-in English text, so
+  // activity entries render in whatever language is active *now* — including
+  // entries logged in a different language than the one currently selected.
+  // See ActivityScreen for the render side; activityMessageKeys lists every
+  // key this can be called with.
+  const logActivity = useCallback(async (bookId, key, params) => {
     const cur = activityCache[bookId] || (await storeGet(`activity:${bookId}`, []));
-    const next = [{ id: uid(), text, at: new Date().toISOString() }, ...cur].slice(0, 50);
+    const next = [{ id: uid(), key, params, at: new Date().toISOString() }, ...cur].slice(0, 50);
     setActivityCache((c) => ({ ...c, [bookId]: next }));
     await storeSet(`activity:${bookId}`, next);
     return next;
@@ -1958,20 +1982,20 @@ function BookScreen({ ctx, bookId }) {
     const sourceEntries = await getEntries(bookId);
     const targetEntries = await getEntries(targetBookId);
     const count = selected.length;
-    const countLabel = count === 1 ? "an entry" : `${count} entries`;
+    const suffix = count === 1 ? "One" : "Other";
     if (mode === "move") {
       const nextSource = sourceEntries.filter((e) => !selectedIdSet.has(e.id));
       const moved = sourceEntries.filter((e) => selectedIdSet.has(e.id)).map((e) => ({ ...e, ...stamp }));
       await saveEntries(bookId, nextSource);
       await saveEntries(targetBookId, [...targetEntries, ...moved]);
-      await logActivity(bookId, `${viewer.name} moved ${countLabel} to ${targetBook?.name}`);
-      await logActivity(targetBookId, `${viewer.name} moved ${countLabel} in from ${book?.name}`);
+      await logActivity(bookId, `activity.movedOut${suffix}`, { name: viewer.name, count, book: targetBook?.name });
+      await logActivity(targetBookId, `activity.movedIn${suffix}`, { name: viewer.name, count, book: book?.name });
       setEntries(nextSource);
     } else {
       const copied = sourceEntries.filter((e) => selectedIdSet.has(e.id)).map((e) => ({ ...e, ...stamp, id: uid() }));
       await saveEntries(targetBookId, [...targetEntries, ...copied]);
-      await logActivity(bookId, `${viewer.name} copied ${countLabel} to ${targetBook?.name}`);
-      await logActivity(targetBookId, `${viewer.name} copied ${countLabel} in from ${book?.name}`);
+      await logActivity(bookId, `activity.copiedOut${suffix}`, { name: viewer.name, count, book: targetBook?.name });
+      await logActivity(targetBookId, `activity.copiedIn${suffix}`, { name: viewer.name, count, book: book?.name });
     }
     setMoveCopyEntries(null);
     exitSelectMode();
@@ -1984,7 +2008,7 @@ function BookScreen({ ctx, bookId }) {
     const es = await getEntries(bookId);
     const next = es.filter((e) => !selectedIdSet.has(e.id));
     await saveEntries(bookId, next);
-    await logActivity(bookId, `${viewer.name} deleted ${selected.length === 1 ? "an entry" : `${selected.length} entries`}`);
+    await logActivity(bookId, selected.length === 1 ? "activity.deletedEntriesOne" : "activity.deletedEntriesOther", { name: viewer.name, count: selected.length });
     setEntries(next);
     setDeleteConfirmEntries(null);
     exitSelectMode();
@@ -2402,11 +2426,11 @@ function AddEntryScreen({ ctx, bookId, type, editEntry }) {
     if (isEdit) {
       const payload = { ...form, amount: amt, addedBy: editEntry.addedBy, createdAt: editEntry.createdAt, editedBy: viewer.name, editedAt: new Date().toISOString() };
       next = es.map((e) => e.id === editEntry.id ? { ...payload, id: editEntry.id } : e);
-      await logActivity(bookId, `${viewer.name} edited an entry (${bookCur}${amt})`);
+      await logActivity(bookId, "activity.editedEntry", { name: viewer.name, amount: `${bookCur}${amt}` });
     } else {
       const payload = { ...form, amount: amt, addedBy: viewer.name };
       next = [...es, { ...payload, id: uid(), createdAt: new Date().toISOString() }];
-      await logActivity(bookId, `${viewer.name} added ${form.type === "in" ? "Cash In" : "Cash Out"} of ${bookCur}${amt}`);
+      await logActivity(bookId, "activity.addedEntry", { name: viewer.name, type: form.type === "in" ? "entries.cashIn" : "entries.cashOut", amount: `${bookCur}${amt}` });
     }
     await saveEntries(bookId, next);
     if (addAnother) {
@@ -2421,7 +2445,7 @@ function AddEntryScreen({ ctx, bookId, type, editEntry }) {
   const deleteEntry = async () => {
     const es = await getEntries(bookId);
     await saveEntries(bookId, es.filter((e) => e.id !== editEntry.id));
-    await logActivity(bookId, `${viewer.name} deleted an entry`);
+    await logActivity(bookId, "activity.deletedEntriesOne", { name: viewer.name });
     pop();
   };
 
@@ -2566,7 +2590,7 @@ function BookSettingsScreen({ ctx, bookId }) {
       }
       const existing = await getEntries(bookId);
       await saveEntries(bookId, [...existing, ...parsed]);
-      await logActivity(bookId, `${viewer.name} imported ${parsed.length} ${parsed.length === 1 ? "entry" : "entries"} from a CSV file`);
+      await logActivity(bookId, parsed.length === 1 ? "activity.importedCsvOne" : "activity.importedCsvOther", { name: viewer.name, count: parsed.length });
       setCsvMsg({ ok: true, text: t("bookSettings.importCsvSuccess", { count: parsed.length }) });
     } catch (err) {
       console.error("CSV import failed", err);
@@ -2692,6 +2716,22 @@ function BookSettingsScreen({ ctx, bookId }) {
   );
 }
 
+// Renders one activity entry. Entries store a translation key + raw params
+// (see logActivity) rather than a pre-translated string, so a log stays
+// readable if the app's language is changed later — same as every other
+// translated string in the app. A couple of params are themselves nested
+// translatable values (which role, which entry type) and need one extra
+// lookup before the outer message can be interpolated; those are resolved
+// here rather than at the call site. `a.text` is a fallback for activity
+// entries logged before this change, stored as raw English text.
+function activityText(t, a) {
+  if (!a.key) return a.text || "";
+  const params = { ...a.params };
+  if (a.key === "activity.addedEntry" && params.type) params.type = t(params.type);
+  if (a.key === "activity.invitedMember" && params.role) params.role = roleLabel(t, params.role);
+  return t(a.key, params);
+}
+
 function ActivityScreen({ ctx, bookId }) {
   const { pop, getActivity, t } = ctx;
   const [activity, setActivity] = useState(null);
@@ -2708,7 +2748,7 @@ function ActivityScreen({ ctx, bookId }) {
           <div className="space-y-3">
             {activity.map((a) => (
               <div key={a.id} className="bg-white border border-slate-200 rounded-lg px-3 py-2.5">
-                <div className="text-sm text-slate-800">{a.text}</div>
+                <div className="text-sm text-slate-800">{activityText(t, a)}</div>
                 <div className="text-xs text-slate-400 mt-0.5">{ctx.fmtDateTime(a.at)}</div>
               </div>
             ))}
@@ -2733,7 +2773,7 @@ function AddMemberScreen({ ctx, bookId }) {
     const m = { id: uid(), name: name.trim(), phone: phone.trim(), role, status: "pending" };
     const next = businesses.map((b) => b.id === activeBusiness.id ? { ...b, members: [...b.members, m] } : b);
     await persistBusinesses(next);
-    await logActivity(bookId, `${viewer.name} invited ${m.name} as ${role}`);
+    await logActivity(bookId, "activity.invitedMember", { name: viewer.name, member: m.name, role });
     setName(""); setPhone("");
   };
 
@@ -3649,7 +3689,7 @@ function MoveRequestsScreen({ ctx }) {
           const newBook = { ...sourceBook, id: uid(), createdAt: new Date().toISOString() };
           const sourceEntries = await getEntries(req.bookId);
           await saveEntries(newBook.id, sourceEntries.map(e => ({ ...e })));
-          await logActivity(newBook.id, `Copied from "${req.fromBusinessName}"`);
+          await logActivity(newBook.id, "activity.copiedFromBusiness", { business: req.fromBusinessName });
           const next = businesses.map((b) => b.id === activeBusiness.id
             ? { ...b, books: [...b.books, newBook], moveRequests: b.moveRequests.filter(r => r.id !== reqId) }
             : b);

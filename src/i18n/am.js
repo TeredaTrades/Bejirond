@@ -265,6 +265,14 @@ export default {
     importedData: "የ{name} ውሂብ ገብቷል።",
     replaceConfirm: "ይህ በዚህ መተግበሪያ ውስጥ ያለውን የ{name} ውሂብዎን ይተካል። ይቀጥሉ?",
     wrongFileError: "ይህ ፋይል የ{product} ላክ እንጂ የ{name} አይደለም።",
+    products: {
+      "expenses-manager": "በንግዶች እና በደብተሮች መካከል ገንዘብ ግቤትና ወጪን ይከታተሉ",
+      "loan-calculator": "የብድር ክፍያ፣ ወለድ እና ክፍያዎችን ያሰሉ",
+      budget: "ወርሃዊ በጀት ያቅዱ እና ይከታተሉ",
+      "trip-organizer": "ለተሞክሮዎችና ስሜቶች ሁሉ የሚሆን ቦታዎ",
+      marketplace: "የመሸጫና መግዣ ገበያ",
+      bundle: "ሁሉም መሳሪያዎች በአንድ ላይ፣ ያለ ማስታወቂያ",
+    },
   },
   profile: {
     title: "የእርስዎ መገለጫ",

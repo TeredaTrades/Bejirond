@@ -1399,7 +1399,7 @@ function ImportRow({ product, onDone, t }) {
         <div className="w-10 h-10 rounded-lg bg-teal-50 flex items-center justify-center text-teal-700 shrink-0"><Upload size={18} /></div>
         <div className="flex-1 min-w-0">
           <div className="font-medium text-slate-900 text-sm">{product.name}</div>
-          <div className="text-xs text-slate-500">{product.tagline}</div>
+          <div className="text-xs text-slate-500">{t(`moreApps.products.${product.id}`)}</div>
         </div>
         <button onClick={() => inputRef.current && inputRef.current.click()} disabled={busy}
           className="shrink-0 text-xs font-medium bg-teal-700 text-white rounded-lg px-3 py-2 disabled:opacity-50">
@@ -1420,7 +1420,7 @@ function ProductRow({ product, isBundleCard, t }) {
       </div>
       <div className="flex-1 min-w-0">
         <div className={`font-medium text-sm ${isBundleCard ? "text-white" : "text-slate-900"}`}>{product.name}</div>
-        <div className={`text-xs ${isBundleCard ? "text-teal-100" : "text-slate-500"}`}>{product.tagline}</div>
+        <div className={`text-xs ${isBundleCard ? "text-teal-100" : "text-slate-500"}`}>{t(`moreApps.products.${product.id}`)}</div>
       </div>
       {product.playStoreUrl ? (
         <a href={product.playStoreUrl} target="_blank" rel="noopener noreferrer"

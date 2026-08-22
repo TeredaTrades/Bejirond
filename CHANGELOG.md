@@ -3,6 +3,28 @@
 A running log of what's been built or changed, so we both have a shared
 record without needing to scroll back through chat history.
 
+## 2026-08-22 (cont.) — Explicit, optional user-triggered backup/restore
+Added a dedicated "Backup & Restore" item in Settings (`BackupRestoreScreen`),
+separate from the existing cross-product export/import buried in "More Apps"
+(that one's still there, unchanged, for moving data into the tallybook-app
+bundle). This one is squarely about the person's own data on the device
+they're already using:
+- "Save backup" — exports ledgers, entries, app-settings, profile,
+  planned-items, and theme/language to a single JSON file via the OS share
+  sheet (same `exportProductData` used elsewhere, scope widened in
+  `dataPortability.js` to cover more than just ledgers/entries).
+- "Choose backup file" — restores from a previously saved file, with a
+  confirm-before-overwrite warning, then reloads the app so every screen
+  picks up the restored data.
+- Deliberately does NOT include `account`/`first-run-done` — restoring a
+  backup shouldn't silently hand you someone else's PIN; account setup on
+  the device you're restoring onto is left untouched.
+- UI copy is explicit that this is entirely optional and nothing is
+  uploaded automatically — this is the person doing it on purpose, not the
+  app doing it for them.
+
+Translated into all 7 supported languages.
+
 ## 2026-08-22 (cont.) — Turn off Android auto backup (was silently restoring old data on "fresh" installs)
 Diagnosed a testing report of the welcome flow / first-run language-theme-
 currency picker / about-splash all being missing from a freshly-installed
@@ -19,21 +41,23 @@ the restore happens right after install, before first launch, so
 `first-run-done`/`account` come back already set and every first-run screen
 gets skipped.
 
-Set `android:allowBackup="false"` in AndroidManifest.xml. Trade-off worth
-knowing: this also means the app itself no longer has any automatic
-cross-device/cross-reinstall backup for real ledger data — CSV/PDF export
-(Reports → Export) is the supported way to move data to a new install now.
-Given this is a financial ledger, explicit user-controlled export felt
-safer than data reappearing silently and unpredictably anyway.
+Initial fix was `android:allowBackup="false"` (blunt — turns off backup for
+everything). Replaced with a more surgical approach: `first-run-done` and
+`account` now live in their own Capacitor Preferences group (`onboarding`,
+via a new `group` param on `storeGet`/`storeSet` in App.jsx), which puts
+them in their own SharedPreferences file (`onboarding.xml`). Android's
+backup config (`android/app/src/main/res/xml/backup_rules.xml` for API <31,
+`data_extraction_rules.xml` for API 31+) excludes just that file from both
+cloud backup and device-transfer. Net effect: `allowBackup` is back to
+`true`, real data (ledgers, entries, settings, profile) still gets Android's
+normal auto-backup/restore across reinstalls and new phones, but a fresh
+install always gets a genuine first run — onboarding, account/PIN setup,
+and all.
 
-For anyone testing right now on a device that already has an old install's
-data auto-restored onto it: this manifest fix doesn't retroactively clear
-that already-restored data. Uninstalling again won't help either (it'll
-just get restored again on the next install, until this fix is in the APK
-you're installing). Fastest way to actually see a clean first run right
-now, without waiting on this: Android Settings → Apps → በጅሮንድ → Storage →
-Clear storage, then reopen the app (no reinstall needed) — clearing storage
-this way doesn't trigger a backup restore the way installing does.
+For anyone testing on a device that already has old data auto-restored onto
+it from before this fix: Android Settings → Apps → በጅሮንድ → Storage → Clear
+storage, then reopen the app (no reinstall needed) — clearing storage this
+way doesn't trigger a backup restore the way installing does.
 
 ## 2026-08-22 — Lenient CSV import for partial/hand-made spreadsheets
 CSV import (`bookSettings.importCsvButton`) previously accepted only the

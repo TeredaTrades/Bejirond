@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android 12+ (API 31+) equivalent of backup_rules.xml — see that file's
+  comment for the full explanation of why onboarding.xml is excluded.
+
+  Excluded from both cloud-backup (Google Drive) and device-transfer (the
+  direct phone-to-phone migration flow) so switching phones also gets a
+  genuine first run — including setting up the account/PIN again — rather
+  than silently carrying the old one over onto hardware the user hasn't
+  unlocked with it yet.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="sharedpref" path="onboarding.xml" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="sharedpref" path="onboarding.xml" />
+    </device-transfer>
+</data-extraction-rules>

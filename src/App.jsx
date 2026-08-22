@@ -293,14 +293,22 @@ function parseEntriesCsv(text, t) {
 
 // On-device storage only — Capacitor Preferences persists to the phone's
 // local app storage. Nothing is sent over a network; the app works fully offline.
-async function storeGet(key, fallback) {
+//
+// `group` puts a key in a separate underlying SharedPreferences file (see
+// PreferencesConfiguration.group in the Android plugin). Used to split off
+// "account" / "first-run-done" into the ONBOARDING_GROUP so Android's backup
+// rules (android/app/src/main/res/xml/*.xml) can exclude just that file —
+// real data (ledgers, entries, settings) still gets Android's normal
+// auto-backup/restore, but a fresh install always sees a genuine first run.
+const ONBOARDING_GROUP = "onboarding";
+async function storeGet(key, fallback, group) {
   try {
-    const r = await Preferences.get({ key });
+    const r = await Preferences.get(group ? { key, group } : { key });
     return r && r.value != null ? JSON.parse(r.value) : fallback;
   } catch { return fallback; }
 }
-async function storeSet(key, value) {
-  try { await Preferences.set({ key, value: JSON.stringify(value) }); } catch (e) { console.error("storage set failed", key, e); }
+async function storeSet(key, value, group) {
+  try { await Preferences.set(group ? { key, value: JSON.stringify(value), group } : { key, value: JSON.stringify(value) }); } catch (e) { console.error("storage set failed", key, e); }
 }
 
 // ---------- reminders (things to buy / to pay for) ----------
@@ -955,7 +963,7 @@ export default function TallyBookApp() {
   // ---- initial load ----
   useEffect(() => {
     (async () => {
-      const acct = await storeGet("account", null);
+      const acct = await storeGet("account", null, ONBOARDING_GROUP);
       const biz = await storeGet("ledgers", []);
       const sess = await storeGet("session", { activeLedgerId: null, viewingAs: null });
       let settings = { ...DEFAULT_APP_SETTINGS, ...(await storeGet("app-settings", DEFAULT_APP_SETTINGS)) };
@@ -973,7 +981,7 @@ export default function TallyBookApp() {
       setTheme(savedTheme);
       const savedLanguage = await storeGet("app-language", DEFAULT_LANGUAGE);
       setLanguage(savedLanguage);
-      const savedFirstRunDone = await storeGet("first-run-done", false);
+      const savedFirstRunDone = await storeGet("first-run-done", false, ONBOARDING_GROUP);
       setFirstRunDone(savedFirstRunDone);
       const planned = await storeGet("planned-items", []);
       setAccount(acct);
@@ -1042,7 +1050,7 @@ export default function TallyBookApp() {
   }, []);
   const completeFirstRun = useCallback(async () => {
     setFirstRunDone(true);
-    await storeSet("first-run-done", true);
+    await storeSet("first-run-done", true, ONBOARDING_GROUP);
   }, []);
   // Mirror the theme onto <html> too, so backgrounds outside the app's root wrapper
   // (e.g. iOS overscroll/bounce edges) match instead of flashing white/black.
@@ -1207,7 +1215,7 @@ export default function TallyBookApp() {
         persistTheme={persistTheme}
         t={t}
         onDone={async (acct) => {
-          await storeSet("account", acct);
+          await storeSet("account", acct, ONBOARDING_GROUP);
           setAccount(acct);
           setUnlocked(true);
         }}
@@ -1224,7 +1232,7 @@ export default function TallyBookApp() {
         account={account}
         onUnlock={() => setUnlocked(true)}
         onResetAccount={async () => {
-          await storeSet("account", null);
+          await storeSet("account", null, ONBOARDING_GROUP);
           setAccount(null);
         }}
       />
@@ -1719,6 +1727,7 @@ function Router({ ctx, tab, setTab }) {
     case "suggestTranslation": return <SuggestTranslationScreen ctx={ctx} />;
     case "quickAccess": return <QuickAccessScreen ctx={ctx} />;
     case "profile": return <ProfileScreen ctx={ctx} />;
+    case "backup": return <BackupRestoreScreen ctx={ctx} />;
     case "about": return <AboutScreen ctx={ctx} />;
     case "switchLedger": return <SwitchLedgerScreen ctx={ctx} />;
     case "activity": return <ActivityScreen ctx={ctx} bookId={top.bookId} />;
@@ -3740,6 +3749,7 @@ function SettingsScreen({ ctx }) {
           <Item icon={Languages} title={t("settings.languageTitle")} sub={t("settings.languageSub")} onClick={() => push("language")} />
           <Item icon={LayoutGrid} title={t("settings.quickAccessTitle")} sub={t("settings.quickAccessSub")} onClick={() => push("quickAccess")} />
           <Item icon={Eye} title={t("settings.profileTitle")} sub={t("settings.profileSub")} onClick={() => push("profile")} />
+          <Item icon={Download} title={t("settings.backupTitle")} sub={t("settings.backupSub")} onClick={() => push("backup")} />
           <Item icon={Info} title={t("settings.aboutTitle")} sub={t("settings.aboutSub")} onClick={() => push("about")} />
         </div>
       </div>
@@ -4153,6 +4163,95 @@ function ProfileScreen({ ctx }) {
           <div className="text-xs text-slate-500 mb-1">{t("profile.emailLabel")}</div>
           <input value={profile.email} onChange={(e) => save({ ...profile, email: e.target.value })} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
         </label>
+      </div>
+    </div>
+  );
+}
+
+function BackupRestoreScreen({ ctx }) {
+  const { pop, t } = ctx;
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState(null);
+  const restoreInputRef = useRef(null);
+
+  const doExport = async () => {
+    setBusy(true); setMsg(null);
+    try {
+      await exportProductData(APP_VARIANT);
+    } catch (e) {
+      setMsg({ ok: false, text: e.message || t("backupRestore.exportFailed") });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const onRestoreFile = async (e) => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (!file) return;
+    setBusy(true); setMsg(null);
+    try {
+      const bundle = await readExportFile(file);
+      if (bundle.product !== APP_VARIANT) {
+        setMsg({ ok: false, text: t("backupRestore.wrongFileError") });
+        return;
+      }
+      const already = await hasExistingData(APP_VARIANT);
+      if (already && !confirm(t("backupRestore.replaceConfirm"))) {
+        return;
+      }
+      await importProductData(bundle);
+      setMsg({ ok: true, text: t("backupRestore.restoreSuccess") });
+      // A restore rewrites storage wholesale (books, entries, settings) — a
+      // full reload is the simplest way to get every already-mounted screen
+      // back in sync with it, rather than threading a refresh through each
+      // piece of state that reads from Preferences on first load only.
+      setTimeout(() => window.location.reload(), 1200);
+    } catch (err) {
+      setMsg({ ok: false, text: err.message || t("backupRestore.restoreFailed") });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="flex-1 flex flex-col min-h-0">
+      <TopHeader ctx={ctx} title={t("backupRestore.title")} onBack={pop} />
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className="text-xs text-slate-500 bg-slate-100 rounded-lg p-3">
+          {t("backupRestore.optionalNote")}
+        </div>
+
+        <div className="bg-white border border-slate-200 rounded-xl p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-teal-50 flex items-center justify-center text-teal-700 shrink-0"><Download size={18} /></div>
+            <div className="flex-1 min-w-0">
+              <div className="font-medium text-slate-900 text-sm">{t("backupRestore.exportTitle")}</div>
+              <div className="text-xs text-slate-500">{t("backupRestore.exportHint")}</div>
+            </div>
+          </div>
+          <button onClick={doExport} disabled={busy}
+            className="w-full mt-3 text-sm font-medium bg-teal-700 text-white rounded-lg px-3 py-2.5 disabled:opacity-50">
+            {busy ? t("backupRestore.workingButton") : t("backupRestore.exportButton")}
+          </button>
+        </div>
+
+        <div className="bg-white border border-slate-200 rounded-xl p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-teal-50 flex items-center justify-center text-teal-700 shrink-0"><Upload size={18} /></div>
+            <div className="flex-1 min-w-0">
+              <div className="font-medium text-slate-900 text-sm">{t("backupRestore.restoreTitle")}</div>
+              <div className="text-xs text-slate-500">{t("backupRestore.restoreHint")}</div>
+            </div>
+          </div>
+          <button onClick={() => restoreInputRef.current && restoreInputRef.current.click()} disabled={busy}
+            className="w-full mt-3 text-sm font-medium bg-white border border-teal-700 text-teal-700 rounded-lg px-3 py-2.5 disabled:opacity-50">
+            {busy ? t("backupRestore.workingButton") : t("backupRestore.restoreButton")}
+          </button>
+          <input ref={restoreInputRef} type="file" accept=".json,application/json" className="hidden" onChange={onRestoreFile} />
+        </div>
+
+        {msg && <div className={`text-sm ${msg.ok ? "text-teal-700" : "text-rose-600"}`}>{msg.text}</div>}
       </div>
     </div>
   );

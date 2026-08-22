@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Auto Backup rules for Android <12 (API < 31).
+
+  The "onboarding" Capacitor Preferences group (the "account" and
+  "first-run-done" keys — see ONBOARDING_GROUP in src/App.jsx) is stored in
+  its own SharedPreferences file, onboarding.xml, specifically so it can be
+  excluded here. Without this exclusion, Android's Auto Backup for Apps
+  silently restores that file on reinstall/new-device whenever the app is
+  signed with the same key, which makes a "fresh" install skip the welcome
+  flow, first-run language/theme/currency picker, and about-splash because
+  it isn't actually fresh as far as storage is concerned.
+
+  Everything else — ledgers, entries, app-settings, profile, planned items —
+  stays in the default CapacitorStorage.xml file and is NOT excluded, so
+  real data still benefits from Android's normal backup/restore across
+  reinstalls and device changes.
+-->
+<full-backup-content>
+    <exclude domain="sharedpref" path="onboarding.xml" />
+</full-backup-content>

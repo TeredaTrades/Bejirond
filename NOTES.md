@@ -22,21 +22,19 @@ _(add notes here as you think of them)_
 - If targeting SMEs, also consider: customer/supplier database, simple
   invoicing & receipts (in their preferred language), basic inventory &
   sales tracking.
-- Home dashboard: this month's income/expenses, top 3 categories,
-  progress bars.
 - Comparative spending insights — surface automatic comparisons like
   "fuel spending this month is higher than last year's monthly average"
   or "food spending is down from last month," with a trendline or chart
   per category rather than just a number. Needs scoping: which
   comparisons to run by default (month vs. last month, month vs. same
   month last year, month vs. trailing average), whether it's a feed of
-  auto-generated callouts on the Home dashboard or a dedicated
-  insights/trends screen, and how far back category history needs to go
-  before a comparison is even meaningful (a brand-new category has
-  nothing to compare against yet). Natural fit alongside the Home
-  dashboard and the existing Reports/category pie chart — likely reuses
-  the same category-aggregation logic rather than needing new data
-  collection.
+  auto-generated callouts inside the per-book month summary (see Done)
+  or a dedicated insights/trends screen, and how far back category
+  history needs to go before a comparison is even meaningful (a
+  brand-new category has nothing to compare against yet). Natural fit
+  alongside the per-book month summary and the existing Reports/category
+  pie chart — likely reuses the same category-aggregation logic rather
+  than needing new data collection.
 - iOS support — add the Capacitor iOS platform so the app runs natively
   on iPhone/iPad, same codebase as Android. Needs a Mac with Xcode to
   build/sign, and an Apple Developer Program membership ($99/yr) for
@@ -104,6 +102,14 @@ via a normal merge from `individual-base`.
 ## Done
 _(move items here once handled, with the date)_
 
+- Per-book "this month" summary added to `BookScreen` (2026-08-22).
+  Originally scoped as a Home dashboard, but this build (standalone
+  Expenses Manager) has no Home screen, so it lives per-book instead —
+  collapsed by default (just the month's net, tap to expand), showing
+  income/expense totals and top 3 expense categories with progress bars.
+  Hidden entirely on a book with no activity yet this month. Comparative
+  spending insights (above, still open) would build on this same
+  component.
 - Confirmed already built, previously left mis-filed under Inbox/To add
   (no single date on record for these — noting as verified 2026-08-22):
   Ethiopian/Gregorian calendar switching (Settings toggle, dates rendered

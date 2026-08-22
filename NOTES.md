@@ -35,11 +35,6 @@ _(add notes here as you think of them)_
   alongside the per-book month summary and the existing Reports/category
   pie chart — likely reuses the same category-aggregation logic rather
   than needing new data collection.
-- iOS support — add the Capacitor iOS platform so the app runs natively
-  on iPhone/iPad, same codebase as Android. Needs a Mac with Xcode to
-  build/sign, and an Apple Developer Program membership ($99/yr) for
-  device testing/App Store distribution. Still open — native iOS not
-  started; PWA path (below) is done for the parts that don't need a Mac.
 
 ## To add
 - Scan receipt — camera/OCR capture that reads a receipt and pre-fills an
@@ -85,19 +80,26 @@ product branch is otherwise the same codebase and can pull in shared fixes
 via a normal merge from `individual-base`.
 
 ## Open decisions
-- Each standalone app needs its own Android `applicationId` (package name)
-  and Play Store listing before it can actually be published separately —
-  intentionally not set up yet. Until then the "Get it" buttons on the
-  More Apps screen show "Coming soon". `playStoreUrl` for each product
-  lives in `src/appConfig.js` — fill those in once each listing exists.
+- Play Store listing for Bejirond itself — the Android `applicationId`
+  (`com.teredatrades.bejirond`) is set and confirmed in
+  `android/app/build.gradle`, so that part's done; the actual Play
+  Console listing (store page, screenshots, submission) is still open.
+  The other individual apps (loan-calculator, budget, trip-organizer,
+  marketplace) still show `playStoreUrl: null` in `appConfig.js` — not
+  this repo's concern, but noting so it's not assumed resolved for them
+  too.
 - Ad network for the free/ad-supported individual apps isn't picked yet
   (AdMob is the likely default) — no ad code has been added.
 - Fasika (Orthodox Easter) isn't in the holiday-theme rotation yet — its
   date moves every year and needs a reliable lookup before adding it the
   same way as the other holidays.
-- PWA is built but not deployed — needs a host with a real URL (Vercel,
-  Netlify, GitHub Pages, etc.) before "Add to Home Screen" actually works
-  for anyone; nothing published yet.
+- iOS: web/PWA path is built (manifest, service worker, iOS meta tags —
+  see Done) and covers "usable on iPhone" without needing a Mac, but
+  isn't deployed anywhere with a real URL yet — see the domain/hosting
+  discussion in `PROJECT_LOG.md`. A true native iOS build (Capacitor iOS
+  platform, App Store listing) is the separate, bigger remaining piece —
+  still blocked on a Mac with Xcode and an Apple Developer Program
+  membership ($99/yr), not started.
 
 ## Done
 _(move items here once handled, with the date)_

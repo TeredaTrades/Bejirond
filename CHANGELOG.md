@@ -3,6 +3,38 @@
 A running log of what's been built or changed, so we both have a shared
 record without needing to scroll back through chat history.
 
+## 2026-08-22 (cont.) — Turn off Android auto backup (was silently restoring old data on "fresh" installs)
+Diagnosed a testing report of the welcome flow / first-run language-theme-
+currency picker / about-splash all being missing from a freshly-installed
+APK, even after a full uninstall + reinstall.
+
+Cause: `android:allowBackup` was left at its default `true`, and everything
+this app stores — `first-run-done`, `account`, ledgers, entries, settings —
+goes through the same Capacitor Preferences plugin (Android SharedPreferences),
+which Android's Auto Backup for Apps silently backs up to the installing
+Google account's Drive and restores automatically on reinstall, as long as
+the app is signed with the same key. An uninstall + reinstall on a device
+that had ever run an earlier build looks like a fresh install but isn't —
+the restore happens right after install, before first launch, so
+`first-run-done`/`account` come back already set and every first-run screen
+gets skipped.
+
+Set `android:allowBackup="false"` in AndroidManifest.xml. Trade-off worth
+knowing: this also means the app itself no longer has any automatic
+cross-device/cross-reinstall backup for real ledger data — CSV/PDF export
+(Reports → Export) is the supported way to move data to a new install now.
+Given this is a financial ledger, explicit user-controlled export felt
+safer than data reappearing silently and unpredictably anyway.
+
+For anyone testing right now on a device that already has an old install's
+data auto-restored onto it: this manifest fix doesn't retroactively clear
+that already-restored data. Uninstalling again won't help either (it'll
+just get restored again on the next install, until this fix is in the APK
+you're installing). Fastest way to actually see a clean first run right
+now, without waiting on this: Android Settings → Apps → በጅሮንድ → Storage →
+Clear storage, then reopen the app (no reinstall needed) — clearing storage
+this way doesn't trigger a backup restore the way installing does.
+
 ## 2026-08-22 — Lenient CSV import for partial/hand-made spreadsheets
 CSV import (`bookSettings.importCsvButton`) previously accepted only the
 exact 9-column header this app itself writes, byte for byte — anything a

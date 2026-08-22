@@ -24,6 +24,19 @@ _(add notes here as you think of them)_
   sales tracking.
 - Home dashboard: this month's income/expenses, top 3 categories,
   progress bars.
+- Comparative spending insights — surface automatic comparisons like
+  "fuel spending this month is higher than last year's monthly average"
+  or "food spending is down from last month," with a trendline or chart
+  per category rather than just a number. Needs scoping: which
+  comparisons to run by default (month vs. last month, month vs. same
+  month last year, month vs. trailing average), whether it's a feed of
+  auto-generated callouts on the Home dashboard or a dedicated
+  insights/trends screen, and how far back category history needs to go
+  before a comparison is even meaningful (a brand-new category has
+  nothing to compare against yet). Natural fit alongside the Home
+  dashboard and the existing Reports/category pie chart — likely reuses
+  the same category-aggregation logic rather than needing new data
+  collection.
 - iOS support — add the Capacitor iOS platform so the app runs natively
   on iPhone/iPad, same codebase as Android. Needs a Mac with Xcode to
   build/sign, and an Apple Developer Program membership ($99/yr) for

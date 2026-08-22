@@ -10,6 +10,42 @@ Newest entry on top.
 
 ---
 
+## 2026-08-22 — Backlog audit: several open items were already built
+
+Went through `NOTES.md` and this log against the actual `Bejirond` source
+and found a handful of things still listed as open/undecided that were
+already implemented, just never marked done:
+
+- **Language toggle** — the 2026-08-15 "New idea from the user" entry
+  below raised this as undecided (toggle vs. separate apps, which
+  languages). It's built, and bigger than what was discussed: a
+  single-app locale toggle (matching the leaning noted below, not
+  separate per-language apps) covering **7 languages** — English,
+  Amharic, Oromifa (Afaan Oromoo), Tigrinya, French, Arabic, Swahili —
+  with each language's native-script name shown in the picker
+  (`src/i18n/`). Tigrinya wasn't even in the original discussion.
+- **Crowdsourced translation suggestions** — also built
+  (`src/translationSuggestions.js`): in-app "suggest a better
+  translation" form, stored on-device, shared out via the OS share
+  sheet. No backend involved, consistent with the offline-only
+  architecture.
+- **Ethiopian/Gregorian calendar switching** and **per-category expense
+  analysis** (pie chart + filterable Reports screen) — both built,
+  previously just mis-filed under `NOTES.md`'s Inbox/To-add sections
+  instead of Done.
+- **Telebirr / CBE Birr / Coopay** — added to the default payment
+  methods list (along with M-Pesa), closing the "add to payment methods
+  list" note.
+
+No code changed for any of this — just correcting the record. Still
+genuinely open, confirmed by checking source: backend for team/
+cross-device sharing, ads-vs-paywall + AdMob, ዱቤ credit tracking, SME
+features (invoicing/inventory/supplier DB), Home dashboard summary,
+Fasika holiday theme, per-app Android `applicationId`/Play Store
+listings, PWA hosting, receipt scanning (OCR) and the split-the-bill/
+shared-receipt features that depend on it, Telegram/WhatsApp
+integration, "simpler ways to add members," and iOS support.
+
 ## 2026-08-19 — Team/cross-device sharing needs a backend decision (found in tallybook-app, not yet in this log)
 
 **Scoping gap, not previously logged here.** Pulled from

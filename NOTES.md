@@ -11,22 +11,17 @@ them when we sit down to make changes.
 ## Inbox
 _(add notes here as you think of them)_
 
-- Ethiopian/Gregorian calendar switching, dashboards, and category
-  analysis; works offline.
 - Default currency must be birr.
 - SMS parsing for auto-tracking of transactions — scope still undecided,
   brainstorm needed. SMS from Telebirr, CBE, Coopbank, Dashen, Awash, Bank
   of Abyssinia, etc. Figure out if it's possible to extract: amount,
   time/date, to/from whom, current balance, reference, sender/receiver,
   and any related fees.
-- Add "Telebirr", "CBE Birr", "Coopay", etc. to the payment methods list.
 - Give shops/businesses a "ዱቤ" (credit) tracking option — track who owes
   you / whom you owe, with due dates and reminders.
 - If targeting SMEs, also consider: customer/supplier database, simple
   invoicing & receipts (in their preferred language), basic inventory &
   sales tracking.
-- Crowdsourcing translations — a simple in-app "suggest a better
-  translation" form.
 - Home dashboard: this month's income/expenses, top 3 categories,
   progress bars.
 - iOS support — add the Capacitor iOS platform so the app runs natively
@@ -96,6 +91,18 @@ via a normal merge from `individual-base`.
 ## Done
 _(move items here once handled, with the date)_
 
+- Confirmed already built, previously left mis-filed under Inbox/To add
+  (no single date on record for these — noting as verified 2026-08-22):
+  Ethiopian/Gregorian calendar switching (Settings toggle, dates rendered
+  via the Ethiopic calendar), per-category expense analysis (pie chart +
+  filterable Reports screen), "Telebirr"/"CBE Birr"/"Coopay" added to the
+  default payment methods list (alongside M-Pesa), and crowdsourced
+  translation suggestions (in-app suggest-a-translation form, stored
+  on-device, shared out via the OS share sheet — `translationSuggestions.js`).
+  Language toggle is also done and bigger than originally scoped — see
+  `PROJECT_LOG.md` for the full note (7 languages: English, Amharic,
+  Oromifa, Tigrinya, French, Arabic, Swahili; native-script names in the
+  picker; single-app toggle, not separate apps).
 - PWA support added to the web build: manifest.json (name/icons/standalone
   display/theme color), a service worker (public/sw.js — precaches the app
   shell, network-first for the page itself so updates land, stale-while-

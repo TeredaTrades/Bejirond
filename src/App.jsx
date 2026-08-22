@@ -19,6 +19,10 @@ import jsPDF from "jspdf";
 import { APP_VARIANT, IS_BUNDLE, PRODUCTS, BUNDLE_PRODUCT, productById } from "./appConfig";
 import { LANGUAGES, DEFAULT_LANGUAGE, getTranslator } from "./i18n";
 import { exportProductData, readExportFile, importProductData, hasExistingData, PRODUCT_DATA_SCOPES } from "./dataPortability";
+// pdfjs-dist (~110KB gzipped) is only needed by the rare person recovering
+// entries from an old PDF report, so it's dynamically imported inside
+// onImportPdf below rather than pulled into the main bundle everyone
+// downloads on every app launch.
 import { getSuggestions, addSuggestion, removeSuggestion, shareSuggestions } from "./translationSuggestions";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
@@ -2647,6 +2651,9 @@ function BookSettingsScreen({ ctx, bookId }) {
   const [csvBusy, setCsvBusy] = useState(false);
   const [csvMsg, setCsvMsg] = useState(null);
   const csvInputRef = useRef(null);
+  const [pdfBusy, setPdfBusy] = useState(false);
+  const [pdfMsg, setPdfMsg] = useState(null);
+  const pdfInputRef = useRef(null);
 
   const onImportCsv = async (e) => {
     const file = e.target.files && e.target.files[0];
@@ -2670,6 +2677,34 @@ function BookSettingsScreen({ ctx, bookId }) {
       setCsvMsg({ ok: false, text: t("bookSettings.importCsvErrorFormat") });
     } finally {
       setCsvBusy(false);
+    }
+  };
+
+  const onImportPdf = async (e) => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (!file) return;
+    setPdfBusy(true);
+    setPdfMsg(null);
+    try {
+      const { parsePdfEntries } = await import("./pdfImport");
+      const { entries: parsed, error, skipped } = await parsePdfEntries(file, t, uid);
+      if (error) {
+        setPdfMsg({ ok: false, text: error });
+        return;
+      }
+      const existing = await getEntries(bookId);
+      await saveEntries(bookId, [...existing, ...parsed]);
+      await logActivity(bookId, parsed.length === 1 ? "activity.importedPdfOne" : "activity.importedPdfOther", { name: viewer.name, count: parsed.length });
+      const successText = skipped > 0
+        ? t("bookSettings.importPdfSuccessPartial", { count: parsed.length, skipped })
+        : t("bookSettings.importPdfSuccess", { count: parsed.length });
+      setPdfMsg({ ok: true, text: successText });
+    } catch (err) {
+      console.error("PDF import failed", err);
+      setPdfMsg({ ok: false, text: t("bookSettings.importPdfErrorFormat") });
+    } finally {
+      setPdfBusy(false);
     }
   };
 
@@ -2731,6 +2766,19 @@ function BookSettingsScreen({ ctx, bookId }) {
             </button>
             <input ref={csvInputRef} type="file" accept=".csv,text/csv" className="hidden" onChange={onImportCsv} />
             {csvMsg && <div className={`text-xs mt-2 ${csvMsg.ok ? "text-teal-700" : "text-rose-600"}`}>{csvMsg.text}</div>}
+          </div>
+        )}
+
+        {canAddEntries && (
+          <div className="bg-white border border-slate-200 rounded-xl p-4">
+            <div className="text-xs text-slate-500 mb-2">{t("bookSettings.importPdfTitle")}</div>
+            <div className="text-xs text-slate-400 mb-3">{t("bookSettings.importPdfHint")}</div>
+            <button onClick={() => pdfInputRef.current && pdfInputRef.current.click()} disabled={pdfBusy}
+              className="flex items-center justify-center gap-2 border border-teal-700 text-teal-700 rounded-lg px-4 py-2.5 text-sm font-medium disabled:opacity-50">
+              <Upload size={16} /> {pdfBusy ? t("bookSettings.importPdfBusy") : t("bookSettings.importPdfButton")}
+            </button>
+            <input ref={pdfInputRef} type="file" accept=".pdf,application/pdf" className="hidden" onChange={onImportPdf} />
+            {pdfMsg && <div className={`text-xs mt-2 ${pdfMsg.ok ? "text-teal-700" : "text-rose-600"}`}>{pdfMsg.text}</div>}
           </div>
         )}
 

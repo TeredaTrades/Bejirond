@@ -80,6 +80,15 @@ product branch is otherwise the same codebase and can pull in shared fixes
 via a normal merge from `individual-base`.
 
 ## Open decisions
+- Discovered while building PDF import: PDF export (Reports → Generate PDF,
+  `buildReportPdfBase64` in `App.jsx`) uses jsPDF's default font, which has
+  no Amharic/Ge'ez or Arabic glyphs — Amharic and Tigrinya text renders
+  garbled whenever the Ethiopian calendar is on (Ge'ez-derived month
+  names), and Arabic text is garbled outright. Pre-existing gap, not
+  something the new PDF importer causes — it just safely skips rows it
+  can't read rather than importing garbage. Fix would mean embedding a
+  Unicode font (Ge'ez + Arabic coverage) into jsPDF via `addFont`; not
+  started (2026-08-22).
 - Play Store listing for Bejirond itself — the Android `applicationId`
   (`com.teredatrades.bejirond`) is set and confirmed in
   `android/app/build.gradle`, so that part's done; the actual Play

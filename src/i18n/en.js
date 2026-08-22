@@ -135,6 +135,7 @@ export default {
       "light-dots": { label: "Light Dots", sub: "Light theme with a soft dot grid" },
       "dark-grid": { label: "Dark Grid", sub: "Dark theme with a fine line grid" },
       "terracotta-waves": { label: "Terracotta Waves", sub: "Warm terracotta with a diagonal weave" },
+      maasai: { label: "Maasai", sub: "Beadwork red, black & blue bands" },
       "holiday-newyear": { label: "New Year", sub: "Midnight blue & gold sparkle" },
       "holiday-genna": { label: "Genna", sub: "Ethiopian Christmas — deep red & gold" },
       "holiday-timkat": { label: "Timkat", sub: "Epiphany — sky blue ripples" },
@@ -142,6 +143,9 @@ export default {
       "holiday-enkutatash": { label: "Enkutatash", sub: "Ethiopian New Year — Adey Abeba yellow & green" },
       "holiday-meskel": { label: "Meskel", sub: "Meskel flower purple & gold" },
       "holiday-christmas": { label: "Christmas", sub: "Red, green & a dusting of snow" },
+      "holiday-madaraka": { label: "Madaraka Day", sub: "Self-governance — red, black & green sunrise" },
+      "holiday-mashujaa": { label: "Mashujaa Day", sub: "Heroes' Day — shield & spear, deep red" },
+      "holiday-jamhuri": { label: "Jamhuri Day", sub: "Republic Day — black, red & green torch" },
     },
   },
   language: {

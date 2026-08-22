@@ -3351,6 +3351,7 @@ const THEME_OPTIONS = [
   { id: "light-dots", swatches: ["#f8fafc", "#0f766e", "#b45309"], group: "pattern" },
   { id: "dark-grid", swatches: ["#0f172a", "#14b8a6", "#f59e0b"], group: "pattern" },
   { id: "terracotta-waves", swatches: ["#fdf6ee", "#c2410c", "#9a3412"], group: "pattern" },
+  { id: "maasai", swatches: ["#fdf6ec", "#c1272d", "#0e7490"], group: "pattern" },
   { id: "holiday-newyear", swatches: ["#0b1f3a", "#d4af37", "#14355e"], group: "holiday" },
   { id: "holiday-genna", swatches: ["#fdf6ec", "#7a1f2b", "#b8860b"], group: "holiday" },
   { id: "holiday-timkat", swatches: ["#eef7fb", "#0369a1", "#b8860b"], group: "holiday" },
@@ -3358,6 +3359,9 @@ const THEME_OPTIONS = [
   { id: "holiday-enkutatash", swatches: ["#f6faf0", "#4d7c0f", "#ca8a04"], group: "holiday" },
   { id: "holiday-meskel", swatches: ["#f7f3fa", "#6b21a8", "#ca8a04"], group: "holiday" },
   { id: "holiday-christmas", swatches: ["#fdf5f5", "#b91c1c", "#15803d"], group: "holiday" },
+  { id: "holiday-madaraka", swatches: ["#fdfaf5", "#bb0000", "#046a38"], group: "holiday" },
+  { id: "holiday-mashujaa", swatches: ["#f8f4ee", "#7a1f1f", "#b8860b"], group: "holiday" },
+  { id: "holiday-jamhuri", swatches: ["#fdf8f0", "#1a1a1a", "#bb0000"], group: "holiday" },
 ];
 const THEME_GROUP_ORDER = ["solid", "pattern", "holiday"];
 

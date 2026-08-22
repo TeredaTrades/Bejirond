@@ -133,6 +133,7 @@ export default {
       "light-dots": { label: "Vitone Vyepesi", sub: "Mandhari nyepesi yenye gridi laini ya vitone" },
       "dark-grid": { label: "Gridi ya Giza", sub: "Mandhari ya giza yenye gridi nyembamba" },
       "terracotta-waves": { label: "Mawimbi ya Terracotta", sub: "Terracotta ya joto yenye usuka wa mshazari" },
+      maasai: { label: "Kimaasai", sub: "Vishaufu vyekundu, vyeusi na buluu" },
       "holiday-newyear": { label: "Mwaka Mpya", sub: "Bluu ya usiku wa manane na mng'ao wa dhahabu" },
       "holiday-genna": { label: "Genna", sub: "Krismasi ya Kiethiopia — nyekundu iliyokolea na dhahabu" },
       "holiday-timkat": { label: "Timkat", sub: "Epifania — mawimbi ya bluu ya anga" },
@@ -140,6 +141,9 @@ export default {
       "holiday-enkutatash": { label: "Enkutatash", sub: "Mwaka Mpya wa Kiethiopia — njano na kijani cha ua la Adey" },
       "holiday-meskel": { label: "Meskel", sub: "Zambarau na dhahabu, ua la Meskel" },
       "holiday-christmas": { label: "Krismasi", sub: "Nyekundu, kijani na mguso wa theluji" },
+      "holiday-madaraka": { label: "Siku ya Madaraka", sub: "Jua likichomoza — nyekundu, nyeusi na kijani" },
+      "holiday-mashujaa": { label: "Siku ya Mashujaa", sub: "Ngao na mkuki, nyekundu iliyokolea" },
+      "holiday-jamhuri": { label: "Siku ya Jamhuri", sub: "Nyeusi, nyekundu na kijani, mwenge" },
     },
   },
   language: {

@@ -1915,6 +1915,77 @@ function SwitchLedgerScreen({ ctx, embedded, onDone }) {
 }
 
 // ---------- Book screen ----------
+// ---------- This-month collapsible summary (per book) ----------
+// Collapsed by default: just the net for the current month, so it doesn't
+// compete for space with the entry list. Expands to income/expense totals
+// and the top 3 expense categories with slim progress bars. Nothing is
+// shown at all if there's no activity yet this month (e.g. a brand-new
+// book) — an empty summary isn't useful and just adds clutter.
+function MonthSummaryCard({ entries, cur, t }) {
+  const [expanded, setExpanded] = useState(false);
+  const monthKey = todayStr().slice(0, 7); // "YYYY-MM"
+  const monthEntries = (entries || []).filter((e) => (e.date || "").slice(0, 7) === monthKey);
+
+  if (monthEntries.length === 0) return null;
+
+  const totalIn = monthEntries.filter((e) => e.type === "in").reduce((s, e) => s + e.amount, 0);
+  const totalOut = monthEntries.filter((e) => e.type === "out").reduce((s, e) => s + e.amount, 0);
+  const net = totalIn - totalOut;
+
+  const byCategory = {};
+  monthEntries.filter((e) => e.type === "out").forEach((e) => {
+    const key = e.category || "__uncategorized__";
+    byCategory[key] = (byCategory[key] || 0) + e.amount;
+  });
+  const topCategories = Object.entries(byCategory).sort((a, b) => b[1] - a[1]).slice(0, 3);
+  const maxCategoryAmount = topCategories.length ? topCategories[0][1] : 0;
+
+  return (
+    <div className="bg-white border-b border-slate-200">
+      <button onClick={() => setExpanded((v) => !v)}
+        className="w-full flex items-center justify-between px-4 py-2.5">
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-slate-500">{t("monthSummary.title")}</span>
+          <span className={`font-semibold text-sm ${net >= 0 ? "text-emerald-700" : "text-rose-700"}`}>
+            {net >= 0 ? "+" : "-"}{cur}{Math.abs(net).toLocaleString()}
+          </span>
+        </div>
+        <ChevronDown size={18} className={`text-slate-400 transition-transform duration-150 ${expanded ? "rotate-180" : ""}`} />
+      </button>
+      {expanded && (
+        <div className="px-4 pb-3.5 space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-emerald-50 rounded-lg p-2.5">
+              <div className="text-xs text-emerald-700">{t("entries.totalIn")}</div>
+              <div className="font-semibold text-emerald-800">{cur}{totalIn.toLocaleString()}</div>
+            </div>
+            <div className="bg-rose-50 rounded-lg p-2.5">
+              <div className="text-xs text-rose-700">{t("entries.totalOut")}</div>
+              <div className="font-semibold text-rose-800">{cur}{totalOut.toLocaleString()}</div>
+            </div>
+          </div>
+          {topCategories.length > 0 && (
+            <div className="space-y-2">
+              <div className="text-xs font-medium text-slate-500">{t("monthSummary.topCategories")}</div>
+              {topCategories.map(([cat, amt]) => (
+                <div key={cat}>
+                  <div className="flex items-center justify-between text-xs mb-1">
+                    <span className="text-slate-600">{cat === "__uncategorized__" ? t("reportView.uncategorized") : categoryLabel(t, cat)}</span>
+                    <span className="text-slate-500">{cur}{amt.toLocaleString()}</span>
+                  </div>
+                  <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div className="h-full bg-teal-600 rounded-full" style={{ width: `${maxCategoryAmount ? (amt / maxCategoryAmount) * 100 : 0}%` }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function BookScreen({ ctx, bookId }) {
   const { activeLedger, ledgers, push, pop, getEntries, saveEntries, appSettings, canAddEntries, viewer, logActivity, setBackHandler, t } = ctx;
   const book = activeLedger?.books.find((b) => b.id === bookId);
@@ -2100,6 +2171,8 @@ function BookScreen({ ctx, bookId }) {
           <span className="text-rose-700 font-medium">{cur}{totalOut.toLocaleString()}</span>
         </div>
       </div>
+
+      <MonthSummaryCard entries={entries} cur={cur} t={ctx.t} />
 
       <div className="flex-1 overflow-y-auto">
         {entries === null ? (

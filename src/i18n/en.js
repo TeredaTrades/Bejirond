@@ -172,6 +172,10 @@ export default {
     balancePrefix: "Bal",
     entryFallback: "Entry",
   },
+  monthSummary: {
+    title: "This month",
+    topCategories: "Top categories",
+  },
   entryDetail: {
     title: "Entry Details",
     receivedFrom: "Received From",

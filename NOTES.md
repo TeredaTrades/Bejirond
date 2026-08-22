@@ -113,6 +113,13 @@ via a normal merge from `individual-base`.
 ## Done
 _(move items here once handled, with the date)_
 
+- PDF entries import added to Book Settings, alongside CSV import
+  (2026-08-22). Best-effort recovery from the app's own "All Entries"
+  PDF report, for people who only have an old PDF and not the CSV.
+  Lossy by design (no payment mode/remark/added-by; contact and
+  category merge into one field) — CSV import stays the recommended,
+  lossless path. See `src/pdfImport.js`. Surfaced a separate,
+  pre-existing PDF-export font gap while testing — see Open decisions.
 - Per-book "this month" summary added to `BookScreen` (2026-08-22).
   Originally scoped as a Home dashboard, but this build (standalone
   Expenses Manager) has no Home screen, so it lives per-book instead —

@@ -171,6 +171,10 @@ export default {
     balancePrefix: "ቀሪ",
     entryFallback: "መዝገብ",
   },
+  monthSummary: {
+    title: "ይህ ወር",
+    topCategories: "ከፍተኛ ምድቦች",
+  },
   entryDetail: {
     title: "የግቤት ዝርዝር",
     receivedFrom: "የተቀበሉት ከ",

@@ -170,6 +170,10 @@ export default {
     balancePrefix: "Solde",
     entryFallback: "Entrée",
   },
+  monthSummary: {
+    title: "Ce mois-ci",
+    topCategories: "Catégories principales",
+  },
   entryDetail: {
     title: "Détails de l'entrée",
     receivedFrom: "Reçu de",

@@ -171,6 +171,10 @@ export default {
     balancePrefix: "الرصيد",
     entryFallback: "قيد",
   },
+  monthSummary: {
+    title: "هذا الشهر",
+    topCategories: "أهم الفئات",
+  },
   entryDetail: {
     title: "تفاصيل القيد",
     receivedFrom: "مستلم من",

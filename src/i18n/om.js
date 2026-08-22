@@ -173,6 +173,10 @@ export default {
     balancePrefix: "Haft",
     entryFallback: "Galmee",
   },
+  monthSummary: {
+    title: "Ji'a Kana",
+    topCategories: "Ramaddiiwwan Guguddaa",
+  },
   entryDetail: {
     title: "Bal'ina Galmee",
     receivedFrom: "Irraa Argame",

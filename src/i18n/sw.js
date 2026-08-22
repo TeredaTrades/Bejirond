@@ -170,6 +170,10 @@ export default {
     balancePrefix: "Salio",
     entryFallback: "Kumbukumbu",
   },
+  monthSummary: {
+    title: "Mwezi Huu",
+    topCategories: "Jamii Kuu",
+  },
   entryDetail: {
     title: "Maelezo ya Kumbukumbu",
     receivedFrom: "Imepokewa Kutoka",

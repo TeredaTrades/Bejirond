@@ -170,6 +170,10 @@ export default {
     balancePrefix: "ተረፍ",
     entryFallback: "ምዝገባ",
   },
+  monthSummary: {
+    title: "እዚ ወርሒ",
+    topCategories: "ላዕለዎት ጽፍሕታት",
+  },
   entryDetail: {
     title: "ዝርዝር ምዝገባ",
     receivedFrom: "ካብ ተቐቢልኩም",

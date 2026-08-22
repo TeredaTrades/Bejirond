@@ -13,7 +13,7 @@ import android.widget.RemoteViews;
  * Small Home screen widget: shows the last balance pushed from the app (see
  * TallyWidgetPlugin#updateBalance) and opens Bejirond when tapped anywhere on it.
  * Purely a shortcut + glanceable summary — it does not read app storage directly,
- * since that would require duplicating the entries/business data model natively.
+ * since that would require duplicating the entries/ledger data model natively.
  */
 public class ExpensesWidgetProvider extends AppWidgetProvider {
 

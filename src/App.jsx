@@ -342,13 +342,13 @@ async function ensureReminderChannel() {
 // Pushes a short "net balance" summary text to the native widget/bubble layer.
 // Fire-and-forget: called opportunistically whenever books/entries change so the
 // widget stays fresh next time it redraws, but nothing in the app waits on it.
-async function pushWidgetBalance(businesses, appSettings) {
+async function pushWidgetBalance(ledgers, appSettings) {
   if (!Capacitor.isNativePlatform()) return;
   try {
-    const active = businesses?.[0];
-    if (!active) { await TallyWidget.updateBalance({ text: "No businesses yet" }); return; }
+    const active = ledgers?.[0];
+    if (!active) { await TallyWidget.updateBalance({ text: "No ledgers yet" }); return; }
     let total = 0;
-    for (const biz of businesses) {
+    for (const biz of ledgers) {
       for (const bk of biz.books) {
         const es = await storeGet(`entries:${bk.id}`, []);
         total += es.reduce((s, e) => s + (e.type === "in" ? e.amount : -e.amount), 0);
@@ -679,7 +679,7 @@ function AmountInput({ value, onChange, currencySymbol = "", placeholder = "0", 
 function BottomNav({ tab, setTab, t }) {
   const items = [
     // The Expenses Manager standalone build drops Home entirely (see App's initial
-    // tab/stack below) — it lands straight on the business selector, so there's no
+    // tab/stack below) — it lands straight on the ledger selector, so there's no
     // Home screen to link to from here.
     // Only the bundle (or the Expenses Manager standalone build) has a
     // dedicated Cashbooks tab — other single-tool builds reach their one
@@ -901,16 +901,16 @@ export default function TallyBookApp() {
   const [loading, setLoading] = useState(true);
   const [account, setAccount] = useState(null);
   const [unlocked, setUnlocked] = useState(false); // resets every cold start — that's what gives the "welcome back" login its purpose
-  // Whether the user has actively confirmed which business they're working in
+  // Whether the user has actively confirmed which ledger they're working in
   // this session. Resets to false on every cold start (like `unlocked`), so a
-  // returning user with more than one business lands on the business picker
+  // returning user with more than one ledger lands on the ledger picker
   // instead of being silently dropped back into whichever one was active last
-  // time. Businesses load async, so this starts false and gets flipped true in
-  // the initial-load effect once we know there's 0 or 1 business (nothing to
+  // time. Ledgers load async, so this starts false and gets flipped true in
+  // the initial-load effect once we know there's 0 or 1 ledger (nothing to
   // pick), or as soon as the user picks/creates one this session.
-  const [sessionBusinessConfirmed, setSessionBusinessConfirmed] = useState(false);
-  const [businesses, setBusinesses] = useState([]);
-  const [session, setSession] = useState({ activeBusinessId: null, viewingAs: null });
+  const [sessionLedgerConfirmed, setSessionLedgerConfirmed] = useState(false);
+  const [ledgers, setLedgers] = useState([]);
+  const [session, setSession] = useState({ activeLedgerId: null, viewingAs: null });
   const [appSettings, setAppSettings] = useState(DEFAULT_APP_SETTINGS);
   const [theme, setTheme] = useState("light");
   const [language, setLanguage] = useState(DEFAULT_LANGUAGE);
@@ -925,7 +925,7 @@ export default function TallyBookApp() {
   const [showAboutSplash, setShowAboutSplash] = useState(false);
   const t = useMemo(() => getTranslator(language), [language]);
   // The Expenses Manager standalone build has no Home screen — it lands directly on
-  // the business selector (the Cashbooks/"books" tab, which shows the Select Business
+  // the ledger selector (the Cashbooks/"books" tab, which shows the Select Ledger
   // picker itself when there's more than one to choose from) right after Welcome /
   // Welcome back, instead of a Home hub it doesn't have any use for.
   const landingTab = APP_VARIANT === "expenses-manager" ? "books" : "home";
@@ -952,8 +952,8 @@ export default function TallyBookApp() {
   useEffect(() => {
     (async () => {
       const acct = await storeGet("account", null);
-      const biz = await storeGet("businesses", []);
-      const sess = await storeGet("session", { activeBusinessId: null, viewingAs: null });
+      const biz = await storeGet("ledgers", []);
+      const sess = await storeGet("session", { activeLedgerId: null, viewingAs: null });
       let settings = { ...DEFAULT_APP_SETTINGS, ...(await storeGet("app-settings", DEFAULT_APP_SETTINGS)) };
       // One-time migration: pull in any payment modes added to the defaults
       // after this install's app-settings was first saved (see
@@ -973,16 +973,16 @@ export default function TallyBookApp() {
       setFirstRunDone(savedFirstRunDone);
       const planned = await storeGet("planned-items", []);
       setAccount(acct);
-      setBusinesses(biz);
+      setLedgers(biz);
       setAppSettings(settings);
       setPlannedItems(planned);
-      const activeId = sess.activeBusinessId && biz.find(b => b.id === sess.activeBusinessId) ? sess.activeBusinessId : (biz[0]?.id || null);
-      setSession({ ...sess, activeBusinessId: activeId });
-      // 0 businesses means there's nothing to pick yet (goes to the "create
-      // your first business" screen instead). 1+ means it stays false, so the
-      // Expenses Manager always lands on the Select Business screen first —
-      // see the SwitchBusinessScreen render inside BooksScreen below.
-      if (biz.length === 0) setSessionBusinessConfirmed(true);
+      const activeId = sess.activeLedgerId && biz.find(b => b.id === sess.activeLedgerId) ? sess.activeLedgerId : (biz[0]?.id || null);
+      setSession({ ...sess, activeLedgerId: activeId });
+      // 0 ledgers means there's nothing to pick yet (goes to the "create
+      // your first ledger" screen instead). 1+ means it stays false, so the
+      // Expenses Manager always lands on the Select Ledger screen first —
+      // see the SwitchLedgerScreen render inside BooksScreen below.
+      if (biz.length === 0) setSessionLedgerConfirmed(true);
       setLoading(false);
       checkNotifPermission().then(setNotifPermission);
       ensureReminderChannel();
@@ -1024,9 +1024,9 @@ export default function TallyBookApp() {
     return () => { document.removeEventListener("focusin", onFocusIn); document.removeEventListener("focusout", onFocusOut); };
   }, []);
 
-  const persistBusinesses = useCallback(async (next) => {
-    setBusinesses(next);
-    await storeSet("businesses", next);
+  const persistLedgers = useCallback(async (next) => {
+    setLedgers(next);
+    await storeSet("ledgers", next);
   }, []);
   const persistTheme = useCallback(async (next) => {
     setTheme(next);
@@ -1106,7 +1106,7 @@ export default function TallyBookApp() {
     return () => { if (handle) handle.remove(); };
   }, [plannedSidebarOpen, activeAlarm, stack, tab, dismissAlarm, landingTab]);
 
-  const activeBusiness = businesses.find((b) => b.id === session.activeBusinessId) || null;
+  const activeLedger = ledgers.find((b) => b.id === session.activeLedgerId) || null;
 
   const getEntries = useCallback(async (bookId) => {
     if (entriesCache[bookId]) return entriesCache[bookId];
@@ -1118,8 +1118,8 @@ export default function TallyBookApp() {
   const saveEntries = useCallback(async (bookId, next) => {
     setEntriesCache((c) => ({ ...c, [bookId]: next }));
     await storeSet(`entries:${bookId}`, next);
-    pushWidgetBalance(businesses, appSettings);
-  }, [businesses, appSettings]);
+    pushWidgetBalance(ledgers, appSettings);
+  }, [ledgers, appSettings]);
 
   // Stores a translation key + params rather than baked-in English text, so
   // activity entries render in whatever language is active *now* — including
@@ -1141,31 +1141,31 @@ export default function TallyBookApp() {
     return a;
   }, [activityCache]);
 
-  // current viewer identity/role for the active business
+  // current viewer identity/role for the active ledger
   const viewer = useMemo(() => {
     if (!session.viewingAs) return { id: "you", name: "You", role: "Primary Admin" };
-    const m = activeBusiness?.members.find((mm) => mm.id === session.viewingAs);
+    const m = activeLedger?.members.find((mm) => mm.id === session.viewingAs);
     return m ? { id: m.id, name: m.name, role: m.role } : { id: "you", name: "You", role: "Primary Admin" };
-  }, [session.viewingAs, activeBusiness]);
+  }, [session.viewingAs, activeLedger]);
 
   const canManage = viewer.role === "Primary Admin" || viewer.role === "Book Admin";
   const canAddEntries = canManage || viewer.role === "Data Operator";
 
-  const createBusiness = async (name) => {
+  const createLedger = async (name) => {
     const nb = { id: uid(), name, createdAt: new Date().toISOString(), books: [], members: [], moveRequests: [] };
-    const next = [...businesses, nb];
-    await persistBusinesses(next);
-    await persistSession({ ...session, activeBusinessId: nb.id });
-    setSessionBusinessConfirmed(true); // creating one counts as picking it
+    const next = [...ledgers, nb];
+    await persistLedgers(next);
+    await persistSession({ ...session, activeLedgerId: nb.id });
+    setSessionLedgerConfirmed(true); // creating one counts as picking it
     return nb;
   };
-  const confirmBusinessSelection = useCallback(() => setSessionBusinessConfirmed(true), []);
+  const confirmLedgerSelection = useCallback(() => setSessionLedgerConfirmed(true), []);
 
   const createBook = async (name) => {
-    if (!activeBusiness) return;
+    if (!activeLedger) return;
     const nbBook = { id: uid(), name, createdAt: new Date().toISOString() };
-    const next = businesses.map((b) => b.id === activeBusiness.id ? { ...b, books: [...b.books, nbBook] } : b);
-    await persistBusinesses(next);
+    const next = ledgers.map((b) => b.id === activeLedger.id ? { ...b, books: [...b.books, nbBook] } : b);
+    await persistLedgers(next);
     return nbBook;
   };
 
@@ -1232,11 +1232,11 @@ export default function TallyBookApp() {
   // to assemble { language, calendarType, timeFormat } itself.
   const dtPref = { language, calendarType: appSettings.calendarType || "gregorian", timeFormat: appSettings.timeFormat || "12h" };
   const ctx = {
-    businesses, activeBusiness, session, appSettings, viewer, canManage, canAddEntries,
-    persistBusinesses, persistSession, persistSettings,
+    ledgers, activeLedger, session, appSettings, viewer, canManage, canAddEntries,
+    persistLedgers, persistSession, persistSettings,
     getEntries, saveEntries, getActivity, logActivity,
-    createBusiness, createBook,
-    sessionBusinessConfirmed, confirmBusinessSelection,
+    createLedger, createBook,
+    sessionLedgerConfirmed, confirmLedgerSelection,
     push, pop, resetTo, stack, top,
     plannedItems, persistPlanned, notifPermission, requestNotifPermission,
     theme, persistTheme,
@@ -1501,14 +1501,14 @@ function WelcomeBackScreen({ account, onUnlock, onResetAccount, theme, persistTh
   );
 }
 
-// ---------- Choose business type (moved out of first launch — now shown inside Expenses
-// Manager the first time a business needs to be created, since it's specific to that tool) ----------
-function ChooseBusinessType({ onDone, t }) {
+// ---------- Choose ledger type (moved out of first launch — now shown inside Expenses
+// Manager the first time a ledger needs to be created, since it's specific to that tool) ----------
+function ChooseLedgerType({ onDone, t }) {
   const [choice, setChoice] = useState(null);
   const options = [
-    { id: "business", label: t("chooseBusinessType.business"), icon: Building2 },
-    { id: "personal", label: t("chooseBusinessType.personal"), icon: Wallet },
-    { id: "explore", label: t("chooseBusinessType.explore"), icon: Info },
+    { id: "ledger", label: t("chooseLedgerType.ledger"), icon: Building2 },
+    { id: "personal", label: t("chooseLedgerType.personal"), icon: Wallet },
+    { id: "explore", label: t("chooseLedgerType.explore"), icon: Info },
   ];
   return (
     <div className="w-full h-full bg-white overflow-hidden flex flex-col">
@@ -1516,8 +1516,8 @@ function ChooseBusinessType({ onDone, t }) {
         <div className="w-20 h-20 rounded-2xl bg-teal-50 border border-teal-100 flex items-center justify-center mb-8">
           <BookMarked size={36} className="text-teal-700" />
         </div>
-        <h1 className="text-xl font-bold text-slate-900 text-center">{t("chooseBusinessType.title")}</h1>
-        <p className="text-xs text-slate-400 text-center mt-1 mb-8">{t("chooseBusinessType.note")}</p>
+        <h1 className="text-xl font-bold text-slate-900 text-center">{t("chooseLedgerType.title")}</h1>
+        <p className="text-xs text-slate-400 text-center mt-1 mb-8">{t("chooseLedgerType.note")}</p>
         <div className="w-full border border-slate-200 rounded-xl divide-y divide-slate-200">
           {options.map((o) => (
             <button key={o.id} onClick={() => setChoice(o.id)} className="w-full flex items-center gap-3 px-4 py-4">
@@ -1533,7 +1533,7 @@ function ChooseBusinessType({ onDone, t }) {
       <div className="p-4">
         <button disabled={!choice} onClick={() => onDone(choice)}
           className={`w-full flex items-center justify-center gap-1 py-3 rounded-xl font-semibold ${choice ? "bg-teal-700 text-white" : "bg-slate-200 text-slate-400"}`}>
-          {t("chooseBusinessType.next")} <ChevronRight size={18} />
+          {t("chooseLedgerType.next")} <ChevronRight size={18} />
         </button>
       </div>
     </div>
@@ -1705,9 +1705,9 @@ function Router({ ctx, tab, setTab }) {
     case "reports": return <ReportsScreen ctx={ctx} bookId={top.bookId} />;
     case "charts": return <ChartsScreen ctx={ctx} bookId={top.bookId} />;
     case "reportView": return <ReportViewScreen ctx={ctx} bookId={top.bookId} filters={top.filters} />;
-    case "businessTeam": return <BusinessTeamScreen ctx={ctx} />;
+    case "ledgerTeam": return <LedgerTeamScreen ctx={ctx} />;
     case "moveRequests": return <MoveRequestsScreen ctx={ctx} />;
-    case "businessSettings": return <BusinessSettingsScreen ctx={ctx} />;
+    case "ledgerSettings": return <LedgerSettingsScreen ctx={ctx} />;
     case "appSettings": return <AppSettingsScreen ctx={ctx} />
     case "reminders": return <RemindersScreen ctx={ctx} />;
     case "theme": return <ThemeScreen ctx={ctx} />;
@@ -1716,7 +1716,7 @@ function Router({ ctx, tab, setTab }) {
     case "quickAccess": return <QuickAccessScreen ctx={ctx} />;
     case "profile": return <ProfileScreen ctx={ctx} />;
     case "about": return <AboutScreen ctx={ctx} />;
-    case "switchBusiness": return <SwitchBusinessScreen ctx={ctx} />;
+    case "switchLedger": return <SwitchLedgerScreen ctx={ctx} />;
     case "activity": return <ActivityScreen ctx={ctx} bookId={top.bookId} />;
     default: return <BooksScreen ctx={ctx} />;
   }
@@ -1724,7 +1724,7 @@ function Router({ ctx, tab, setTab }) {
 
 // ---------- Books list ----------
 function BooksScreen({ ctx }) {
-  const { activeBusiness, push, canManage, getEntries, appSettings, businesses, persistBusinesses, createBusiness, sessionBusinessConfirmed, confirmBusinessSelection, theme, persistTheme, t } = ctx;
+  const { activeLedger, push, canManage, getEntries, appSettings, ledgers, persistLedgers, createLedger, sessionLedgerConfirmed, confirmLedgerSelection, theme, persistTheme, t } = ctx;
   const [showTemplates, setShowTemplates] = useState(false);
   const [newName, setNewName] = useState("");
   const [balances, setBalances] = useState({});
@@ -1739,56 +1739,56 @@ function BooksScreen({ ctx }) {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      if (!activeBusiness) return;
+      if (!activeLedger) return;
       const entries = {};
-      for (const bk of activeBusiness.books) {
+      for (const bk of activeLedger.books) {
         const es = await getEntries(bk.id);
         entries[bk.id] = es.reduce((s, e) => s + (e.type === "in" ? e.amount : -e.amount), 0);
       }
       if (!cancelled) setBalances(entries);
     })();
     return () => { cancelled = true; };
-  }, [activeBusiness?.id, activeBusiness?.books.length]);
+  }, [activeLedger?.id, activeLedger?.books.length]);
 
   const toggleHidden = async (bookId) => {
-    const next = businesses.map((b) => b.id === activeBusiness.id
+    const next = ledgers.map((b) => b.id === activeLedger.id
       ? { ...b, books: b.books.map((bk) => bk.id === bookId ? { ...bk, hidden: !bk.hidden } : bk) }
       : b);
-    await persistBusinesses(next);
+    await persistLedgers(next);
   };
 
-  // First time in the Expenses Manager (no business created yet) — this is where the
+  // First time in the Expenses Manager (no ledger created yet) — this is where the
   // "what will you manage?" question belongs, not on the app's very first screen.
-  if (businesses.length === 0) {
+  if (ledgers.length === 0) {
     return (
-      <ChooseBusinessType t={ctx.t} onDone={async () => {
-        await createBusiness(ctx.t("books.defaultBusinessName"));
+      <ChooseLedgerType t={ctx.t} onDone={async () => {
+        await createLedger(ctx.t("books.defaultLedgerName"));
       }} />
     );
   }
 
-  // Returning user who hasn't confirmed a business yet this session (e.g. just
+  // Returning user who hasn't confirmed a ledger yet this session (e.g. just
   // unlocked the app) — show the picker instead of silently continuing in
-  // whichever business happened to be active last time. Shown even with just
-  // one business, so Expenses Manager always opens on Select Business first.
-  if (businesses.length >= 1 && !sessionBusinessConfirmed) {
-    return <SwitchBusinessScreen ctx={ctx} embedded onDone={confirmBusinessSelection} />;
+  // whichever ledger happened to be active last time. Shown even with just
+  // one ledger, so Expenses Manager always opens on Select Ledger first.
+  if (ledgers.length >= 1 && !sessionLedgerConfirmed) {
+    return <SwitchLedgerScreen ctx={ctx} embedded onDone={confirmLedgerSelection} />;
   }
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
       <div className="px-4 py-3 flex items-center justify-between border-b border-slate-200 bg-white">
-        <button onClick={() => push("switchBusiness")} className="flex items-center gap-2 min-w-0">
+        <button onClick={() => push("switchLedger")} className="flex items-center gap-2 min-w-0">
           <div className="w-9 h-9 rounded-lg bg-teal-50 flex items-center justify-center text-teal-700 shrink-0"><Building2 size={18} /></div>
           <div className="text-left min-w-0">
-            <div className="font-semibold text-slate-900 truncate max-w-[180px]">{activeBusiness?.name || t("books.selectBusiness")}</div>
-            {activeBusiness?.name === t("books.defaultBusinessName") && (
+            <div className="font-semibold text-slate-900 truncate max-w-[180px]">{activeLedger?.name || t("books.selectLedger")}</div>
+            {activeLedger?.name === t("books.defaultLedgerName") && (
               <div className="text-[11px] text-slate-400">{t("books.renameHint")}</div>
             )}
           </div>
           <ChevronDown size={16} className="text-slate-400 shrink-0" />
         </button>
-        <button onClick={() => push("businessTeam")} className="p-2 text-teal-700"><UserPlus size={20} /></button>
+        <button onClick={() => push("ledgerTeam")} className="p-2 text-teal-700"><UserPlus size={20} /></button>
         <button onClick={() => persistTheme(theme === "dark" ? "light" : "dark")}
           className="shrink-0 w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 active:scale-95 transition-transform"
           title={theme === "dark" ? "Switch to light" : "Switch to dark"}>
@@ -1802,12 +1802,12 @@ function BooksScreen({ ctx }) {
           <Search size={18} className="text-slate-400" />
         </div>
 
-        {(!activeBusiness || activeBusiness.books.length === 0) && (
+        {(!activeLedger || activeLedger.books.length === 0) && (
           <EmptyState icon={BookMarked} title={t("books.noBooksTitle")} hint={t("books.noBooksHint")} />
         )}
 
         <div className="divide-y divide-slate-200 bg-white rounded-xl border border-slate-200">
-          {activeBusiness?.books.map((bk) => {
+          {activeLedger?.books.map((bk) => {
             const net = balances[bk.id] || 0;
             const c = bookCurrency(bk, appSettings);
             return (
@@ -1866,47 +1866,47 @@ function BooksScreen({ ctx }) {
 // `embedded` + `onDone` let this screen double as the Cashbooks/Expenses
 // Manager landing screen itself (rather than only a modal pushed on top of
 // it) — used by BooksScreen to force a fresh pick each login when there's
-// more than one business. In that mode there's no screen underneath to
-// `pop()` back to, so selecting/creating a business (or dismissing) calls
+// more than one ledger. In that mode there's no screen underneath to
+// `pop()` back to, so selecting/creating a ledger (or dismissing) calls
 // `onDone` instead, which just marks the session as confirmed.
-function SwitchBusinessScreen({ ctx, embedded, onDone }) {
-  const { businesses, session, persistSession, pop, createBusiness, t } = ctx;
+function SwitchLedgerScreen({ ctx, embedded, onDone }) {
+  const { ledgers, session, persistSession, pop, createLedger, t } = ctx;
   const [creating, setCreating] = useState(false);
   const [name, setName] = useState("");
   const finish = () => { if (embedded) onDone?.(); else pop(); };
   return (
     <div className="flex-1 flex flex-col min-h-0">
-      <TopHeader ctx={ctx} title={t("switchBusiness.title")} right={<button onClick={finish}><X size={20} className="text-slate-500" /></button>} />
+      <TopHeader ctx={ctx} title={t("switchLedger.title")} right={<button onClick={finish}><X size={20} className="text-slate-500" /></button>} />
       <div className="p-4 space-y-2 flex-1 overflow-y-auto">
         {embedded && (
           <p className="text-xs text-slate-500 mb-1">
-            {businesses.length > 1 ? t("switchBusiness.hintMultiple") : t("switchBusiness.hintSingle")}
+            {ledgers.length > 1 ? t("switchLedger.hintMultiple") : t("switchLedger.hintSingle")}
           </p>
         )}
-        <div className="text-xs font-medium text-slate-400 uppercase mb-1">{t("switchBusiness.yourBusinesses")}</div>
-        {businesses.map((b) => (
-          <button key={b.id} onClick={async () => { await persistSession({ ...session, activeBusinessId: b.id, viewingAs: null }); finish(); }}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border ${session.activeBusinessId === b.id ? "border-teal-600 bg-teal-50" : "border-slate-200 bg-white"}`}>
+        <div className="text-xs font-medium text-slate-400 uppercase mb-1">{t("switchLedger.yourLedgers")}</div>
+        {ledgers.map((b) => (
+          <button key={b.id} onClick={async () => { await persistSession({ ...session, activeLedgerId: b.id, viewingAs: null }); finish(); }}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border ${session.activeLedgerId === b.id ? "border-teal-600 bg-teal-50" : "border-slate-200 bg-white"}`}>
             <div className="w-9 h-9 rounded-lg bg-teal-50 flex items-center justify-center text-teal-700"><Building2 size={16} /></div>
             <div className="flex-1 text-left">
               <div className="font-medium text-slate-900">{b.name}</div>
               <div className="text-xs text-slate-500">
-                {b.books.length === 1 ? t("switchBusiness.bookCountOne", { count: b.books.length }) : t("switchBusiness.bookCountOther", { count: b.books.length })}
+                {b.books.length === 1 ? t("switchLedger.bookCountOne", { count: b.books.length }) : t("switchLedger.bookCountOther", { count: b.books.length })}
               </div>
             </div>
-            {session.activeBusinessId === b.id && <Check size={18} className="text-teal-700" />}
+            {session.activeLedgerId === b.id && <Check size={18} className="text-teal-700" />}
           </button>
         ))}
         {creating ? (
           <div className="flex gap-2 pt-2">
-            <input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder={t("switchBusiness.businessNamePlaceholder")}
+            <input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder={t("switchLedger.ledgerNamePlaceholder")}
               className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm" />
-            <button onClick={async () => { if (name.trim()) { await createBusiness(name.trim()); finish(); } }}
+            <button onClick={async () => { if (name.trim()) { await createLedger(name.trim()); finish(); } }}
               className="bg-teal-700 text-white px-3 rounded-lg text-sm font-medium">{t("common.add")}</button>
           </div>
         ) : (
           <button onClick={() => setCreating(true)} className="w-full flex items-center justify-center gap-1 bg-teal-700 text-white py-3 rounded-xl font-semibold mt-2">
-            <Plus size={18} /> {t("switchBusiness.addNewBusiness")}
+            <Plus size={18} /> {t("switchLedger.addNewLedger")}
           </button>
         )}
       </div>
@@ -1916,8 +1916,8 @@ function SwitchBusinessScreen({ ctx, embedded, onDone }) {
 
 // ---------- Book screen ----------
 function BookScreen({ ctx, bookId }) {
-  const { activeBusiness, businesses, push, pop, getEntries, saveEntries, appSettings, canAddEntries, viewer, logActivity, setBackHandler, t } = ctx;
-  const book = activeBusiness?.books.find((b) => b.id === bookId);
+  const { activeLedger, ledgers, push, pop, getEntries, saveEntries, appSettings, canAddEntries, viewer, logActivity, setBackHandler, t } = ctx;
+  const book = activeLedger?.books.find((b) => b.id === bookId);
   const [entries, setEntries] = useState(null);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
@@ -1942,11 +1942,11 @@ function BookScreen({ ctx, bookId }) {
 
   if (!book) return <EmptyState icon={BookMarked} title={t("bookScreen.bookNotFound")} />;
 
-  // Move/copy targets span every business the user has, not just the active one —
-  // each book is tagged with which business it belongs to so the picker can group
-  // them and doMoveOrCopy can find it regardless of which business is "active".
-  const otherBooks = (businesses || [])
-    .flatMap((biz) => biz.books.map((b) => ({ ...b, businessId: biz.id, businessName: biz.name })))
+  // Move/copy targets span every ledger the user has, not just the active one —
+  // each book is tagged with which ledger it belongs to so the picker can group
+  // them and doMoveOrCopy can find it regardless of which ledger is "active".
+  const otherBooks = (ledgers || [])
+    .flatMap((biz) => biz.books.map((b) => ({ ...b, ledgerId: biz.id, ledgerName: biz.name })))
     .filter((b) => b.id !== bookId);
 
   const toggleSelect = (id) => {
@@ -1972,11 +1972,11 @@ function BookScreen({ ctx, bookId }) {
     if (!selected || selected.length === 0) return;
     const selectedIdSet = new Set(selected.map((e) => e.id));
     const targetBook = otherBooks.find((b) => b.id === targetBookId);
-    // Include the source business name in the stamp when the move/copy crosses into a
-    // different business, so the entry's transfer history stays legible from either side.
-    const crossBusiness = targetBook && targetBook.businessId !== activeBusiness?.id;
+    // Include the source ledger name in the stamp when the move/copy crosses into a
+    // different ledger, so the entry's transfer history stays legible from either side.
+    const crossLedger = targetBook && targetBook.ledgerId !== activeLedger?.id;
     const stamp = {
-      transferredFrom: crossBusiness ? `${book?.name} (${activeBusiness?.name})` : book?.name,
+      transferredFrom: crossLedger ? `${book?.name} (${activeLedger?.name})` : book?.name,
       transferredAt: new Date().toISOString(),
     };
     const sourceEntries = await getEntries(bookId);
@@ -2154,7 +2154,7 @@ function BookScreen({ ctx, bookId }) {
       )}
 
       {moveCopyEntries && (
-        <MoveCopyModal entries={moveCopyEntries} otherBooks={otherBooks} cur={cur} activeBusinessId={activeBusiness?.id}
+        <MoveCopyModal entries={moveCopyEntries} otherBooks={otherBooks} cur={cur} activeLedgerId={activeLedger?.id}
           onClose={() => setMoveCopyEntries(null)} onAction={doMoveOrCopy} t={ctx.t} />
       )}
 
@@ -2229,23 +2229,23 @@ function ConfirmModal({ title, message, confirmLabel = "Yes", cancelLabel = "No"
   );
 }
 
-function MoveCopyModal({ entries, otherBooks, cur, activeBusinessId, onClose, onAction, t }) {
+function MoveCopyModal({ entries, otherBooks, cur, activeLedgerId, onClose, onAction, t }) {
   const single = entries.length === 1 ? entries[0] : null;
   const totalAmount = entries.reduce((s, e) => s + (e.type === "in" ? e.amount : -e.amount), 0);
 
-  // Group targets by business — current business first (unlabeled, since that's the
-  // common case), then every other business under its own header, so it's always clear
-  // which business a book belongs to before moving/copying money into it.
+  // Group targets by ledger — current ledger first (unlabeled, since that's the
+  // common case), then every other ledger under its own header, so it's always clear
+  // which ledger a book belongs to before moving/copying money into it.
   const grouped = [];
   const byBiz = new Map();
   for (const b of otherBooks) {
-    if (!byBiz.has(b.businessId)) byBiz.set(b.businessId, []);
-    byBiz.get(b.businessId).push(b);
+    if (!byBiz.has(b.ledgerId)) byBiz.set(b.ledgerId, []);
+    byBiz.get(b.ledgerId).push(b);
   }
-  if (byBiz.has(activeBusinessId)) grouped.push({ businessId: activeBusinessId, businessName: null, books: byBiz.get(activeBusinessId) });
-  for (const [businessId, books] of byBiz) {
-    if (businessId === activeBusinessId) continue;
-    grouped.push({ businessId, businessName: books[0]?.businessName, books });
+  if (byBiz.has(activeLedgerId)) grouped.push({ ledgerId: activeLedgerId, ledgerName: null, books: byBiz.get(activeLedgerId) });
+  for (const [ledgerId, books] of byBiz) {
+    if (ledgerId === activeLedgerId) continue;
+    grouped.push({ ledgerId, ledgerName: books[0]?.ledgerName, books });
   }
 
   return (
@@ -2268,10 +2268,10 @@ function MoveCopyModal({ entries, otherBooks, cur, activeBusinessId, onClose, on
           ) : (
             <div className="divide-y divide-slate-100">
               {grouped.map((g) => (
-                <div key={g.businessId}>
-                  {g.businessName && (
+                <div key={g.ledgerId}>
+                  {g.ledgerName && (
                     <div className="px-4 pt-3 pb-1 flex items-center gap-1.5 text-xs font-medium text-slate-400 uppercase bg-slate-50">
-                      <Building2 size={12} /> {g.businessName}
+                      <Building2 size={12} /> {g.ledgerName}
                     </div>
                   )}
                   {g.books.map((b) => (
@@ -2294,8 +2294,8 @@ function MoveCopyModal({ entries, otherBooks, cur, activeBusinessId, onClose, on
 }
 // ---------- Entry detail ----------
 function EntryDetailScreen({ ctx, bookId, entryId }) {
-  const { pop, push, getEntries, appSettings, activeBusiness, canAddEntries, t } = ctx;
-  const book = activeBusiness?.books.find((b) => b.id === bookId);
+  const { pop, push, getEntries, appSettings, activeLedger, canAddEntries, t } = ctx;
+  const book = activeLedger?.books.find((b) => b.id === bookId);
   const cur = bookCurrency(book, appSettings);
   const [entry, setEntry] = useState(null);
 
@@ -2386,9 +2386,9 @@ function EntryDetailScreen({ ctx, bookId, entryId }) {
 
 // ---------- Add / Edit entry ----------
 function AddEntryScreen({ ctx, bookId, type, editEntry }) {
-  const { pop, getEntries, saveEntries, appSettings, logActivity, viewer, activeBusiness, setBackHandler, t } = ctx;
+  const { pop, getEntries, saveEntries, appSettings, logActivity, viewer, activeLedger, setBackHandler, t } = ctx;
   const isEdit = !!editEntry;
-  const book = activeBusiness?.books.find((b) => b.id === bookId);
+  const book = activeLedger?.books.find((b) => b.id === bookId);
   const bookCur = bookCurrency(book, appSettings);
   const [form, setForm] = useState(() => editEntry
     ? { ...editEntry, time: to24h(editEntry.time) }
@@ -2566,8 +2566,8 @@ function AddEntryScreen({ ctx, bookId, type, editEntry }) {
 
 // ---------- Book settings ----------
 function BookSettingsScreen({ ctx, bookId }) {
-  const { activeBusiness, pop, push, persistBusinesses, businesses, canManage, canAddEntries, session, persistSession, appSettings, getEntries, saveEntries, logActivity, viewer, t } = ctx;
-  const book = activeBusiness?.books.find((b) => b.id === bookId);
+  const { activeLedger, pop, push, persistLedgers, ledgers, canManage, canAddEntries, session, persistSession, appSettings, getEntries, saveEntries, logActivity, viewer, t } = ctx;
+  const book = activeLedger?.books.find((b) => b.id === bookId);
   const [renaming, setRenaming] = useState(false);
   const [name, setName] = useState(book?.name || "");
   const [confirmDeleteBook, setConfirmDeleteBook] = useState(false);
@@ -2601,23 +2601,23 @@ function BookSettingsScreen({ ctx, bookId }) {
   };
 
   const doRename = async () => {
-    const next = businesses.map((b) => b.id === activeBusiness.id ? { ...b, books: b.books.map(bk => bk.id === bookId ? { ...bk, name } : bk) } : b);
-    await persistBusinesses(next);
+    const next = ledgers.map((b) => b.id === activeLedger.id ? { ...b, books: b.books.map(bk => bk.id === bookId ? { ...bk, name } : bk) } : b);
+    await persistLedgers(next);
     setRenaming(false);
   };
 
   const setBookCurrency = async (c) => {
-    const next = businesses.map((b) => b.id === activeBusiness.id ? { ...b, books: b.books.map(bk => bk.id === bookId ? { ...bk, currency: c } : bk) } : b);
-    await persistBusinesses(next);
+    const next = ledgers.map((b) => b.id === activeLedger.id ? { ...b, books: b.books.map(bk => bk.id === bookId ? { ...bk, currency: c } : bk) } : b);
+    await persistLedgers(next);
   };
 
   const deleteBook = async () => {
-    const next = businesses.map((b) => b.id === activeBusiness.id ? { ...b, books: b.books.filter(bk => bk.id !== bookId) } : b);
-    await persistBusinesses(next);
+    const next = ledgers.map((b) => b.id === activeLedger.id ? { ...b, books: b.books.filter(bk => bk.id !== bookId) } : b);
+    await persistLedgers(next);
     ctx.resetTo("books");
   };
 
-  const members = activeBusiness?.members || [];
+  const members = activeLedger?.members || [];
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
@@ -2708,7 +2708,7 @@ function BookSettingsScreen({ ctx, bookId }) {
         <ConfirmModal
           title={t("bookSettings.deleteConfirmTitle")}
           message={t("bookSettings.deleteConfirmMessage", { name: book?.name })}
-          confirmLabel={t("businessSettings.deleteConfirmYes")} cancelLabel={t("common.no")}
+          confirmLabel={t("ledgerSettings.deleteConfirmYes")} cancelLabel={t("common.no")}
           onCancel={() => setConfirmDeleteBook(false)}
           onConfirm={() => { setConfirmDeleteBook(false); deleteBook(); }} />
       )}
@@ -2761,30 +2761,30 @@ function ActivityScreen({ ctx, bookId }) {
 
 // ---------- Add member ----------
 function AddMemberScreen({ ctx, bookId }) {
-  const { activeBusiness, businesses, persistBusinesses, pop, logActivity, viewer, t } = ctx;
+  const { activeLedger, ledgers, persistLedgers, pop, logActivity, viewer, t } = ctx;
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [role, setRole] = useState("Data Operator");
 
-  const members = activeBusiness?.members || [];
+  const members = activeLedger?.members || [];
 
   const addMember = async () => {
     if (!name.trim()) return;
     const m = { id: uid(), name: name.trim(), phone: phone.trim(), role, status: "pending" };
-    const next = businesses.map((b) => b.id === activeBusiness.id ? { ...b, members: [...b.members, m] } : b);
-    await persistBusinesses(next);
+    const next = ledgers.map((b) => b.id === activeLedger.id ? { ...b, members: [...b.members, m] } : b);
+    await persistLedgers(next);
     await logActivity(bookId, "activity.invitedMember", { name: viewer.name, member: m.name, role });
     setName(""); setPhone("");
   };
 
   const changeRole = async (memberId, newRole) => {
-    const next = businesses.map((b) => b.id === activeBusiness.id ? { ...b, members: b.members.map(m => m.id === memberId ? { ...m, role: newRole } : m) } : b);
-    await persistBusinesses(next);
+    const next = ledgers.map((b) => b.id === activeLedger.id ? { ...b, members: b.members.map(m => m.id === memberId ? { ...m, role: newRole } : m) } : b);
+    await persistLedgers(next);
   };
 
   const removeMember = async (memberId) => {
-    const next = businesses.map((b) => b.id === activeBusiness.id ? { ...b, members: b.members.filter(m => m.id !== memberId) } : b);
-    await persistBusinesses(next);
+    const next = ledgers.map((b) => b.id === activeLedger.id ? { ...b, members: b.members.filter(m => m.id !== memberId) } : b);
+    await persistLedgers(next);
   };
 
   return (
@@ -2828,9 +2828,9 @@ function AddMemberScreen({ ctx, bookId }) {
 
 // ---------- Reports ----------
 function ReportsScreen({ ctx, bookId }) {
-  const { pop, push, activeBusiness, appSettings, t } = ctx;
-  const book = activeBusiness?.books.find((b) => b.id === bookId);
-  const members = activeBusiness?.members || [];
+  const { pop, push, activeLedger, appSettings, t } = ctx;
+  const book = activeLedger?.books.find((b) => b.id === bookId);
+  const members = activeLedger?.members || [];
   const [duration, setDuration] = useState("allTime");
   const [entryType, setEntryType] = useState("all");
   const [member, setMember] = useState("All");
@@ -3001,7 +3001,7 @@ function applyFilters(entries, f) {
 }
 
 function ReportViewScreen({ ctx, bookId, filters }) {
-  const { pop, getEntries, appSettings, activeBusiness, t } = ctx;
+  const { pop, getEntries, appSettings, activeLedger, t } = ctx;
   const [entries, setEntries] = useState(null);
   useEffect(() => { getEntries(bookId).then(setEntries); }, [bookId]);
 
@@ -3010,7 +3010,7 @@ function ReportViewScreen({ ctx, bookId, filters }) {
     return applyFilters(entries, filters);
   }, [entries, filters]);
 
-  const book = activeBusiness?.books.find((b) => b.id === bookId);
+  const book = activeLedger?.books.find((b) => b.id === bookId);
   const cur = bookCurrency(book, appSettings);
   const totalIn = filtered.filter(e => e.type === "in").reduce((s, e) => s + e.amount, 0);
   const totalOut = filtered.filter(e => e.type === "out").reduce((s, e) => s + e.amount, 0);
@@ -3189,8 +3189,8 @@ function ReportViewScreen({ ctx, bookId, filters }) {
 
 // ---------- Charts ----------
 function ChartsScreen({ ctx, bookId }) {
-  const { pop, getEntries, appSettings, activeBusiness, t } = ctx;
-  const book = activeBusiness?.books.find((b) => b.id === bookId);
+  const { pop, getEntries, appSettings, activeLedger, t } = ctx;
+  const book = activeLedger?.books.find((b) => b.id === bookId);
   const cur = bookCurrency(book, appSettings);
   const [entries, setEntries] = useState(null);
   const [groupBy, setGroupBy] = useState("category"); // "category" | "month"
@@ -3588,9 +3588,9 @@ function SettingsScreen({ ctx }) {
       <div className="flex-1 overflow-y-auto pb-28">
         {(IS_BUNDLE || APP_VARIANT === "expenses-manager") && (
           <div className="divide-y divide-slate-100 bg-white">
-            <Item icon={Users} title={t("settings.businessTeamTitle")} sub={t("settings.businessTeamSub")} onClick={() => push("businessTeam")} />
+            <Item icon={Users} title={t("settings.ledgerTeamTitle")} sub={t("settings.ledgerTeamSub")} onClick={() => push("ledgerTeam")} />
             <Item icon={ArrowRightLeft} title={t("settings.moveRequestsTitle")} sub={t("settings.moveRequestsSub")} onClick={() => push("moveRequests")} />
-            <Item icon={Building2} title={t("settings.businessSettingsTitle")} sub={t("settings.businessSettingsSub")} onClick={() => push("businessSettings")} />
+            <Item icon={Building2} title={t("settings.ledgerSettingsTitle")} sub={t("settings.ledgerSettingsSub")} onClick={() => push("ledgerSettings")} />
           </div>
         )}
         <div className="px-4 py-2 text-xs font-medium text-slate-400 uppercase bg-slate-100">{t("settings.generalSettings")}</div>
@@ -3608,25 +3608,25 @@ function SettingsScreen({ ctx }) {
   );
 }
 
-function BusinessTeamScreen({ ctx }) {
-  const { activeBusiness, businesses, persistBusinesses, pop, t } = ctx;
-  const members = activeBusiness?.members || [];
+function LedgerTeamScreen({ ctx }) {
+  const { activeLedger, ledgers, persistLedgers, pop, t } = ctx;
+  const members = activeLedger?.members || [];
   const [adding, setAdding] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [role, setRole] = useState("Data Operator");
 
   const addMember = async () => {
-    if (!name.trim() || !activeBusiness) return;
+    if (!name.trim() || !activeLedger) return;
     const m = { id: uid(), name: name.trim(), phone: phone.trim(), role, status: "pending" };
-    const next = businesses.map((b) => b.id === activeBusiness.id ? { ...b, members: [...b.members, m] } : b);
-    await persistBusinesses(next);
+    const next = ledgers.map((b) => b.id === activeLedger.id ? { ...b, members: [...b.members, m] } : b);
+    await persistLedgers(next);
     setName(""); setPhone(""); setRole("Data Operator"); setAdding(false);
   };
 
   const removeMember = async (memberId) => {
-    const next = businesses.map((b) => b.id === activeBusiness.id ? { ...b, members: b.members.filter(m => m.id !== memberId) } : b);
-    await persistBusinesses(next);
+    const next = ledgers.map((b) => b.id === activeLedger.id ? { ...b, members: b.members.filter(m => m.id !== memberId) } : b);
+    await persistLedgers(next);
   };
 
   return (
@@ -3670,8 +3670,8 @@ function BusinessTeamScreen({ ctx }) {
 }
 
 function MoveRequestsScreen({ ctx }) {
-  const { activeBusiness, businesses, persistBusinesses, pop, getEntries, saveEntries, logActivity, t } = ctx;
-  const requests = (activeBusiness?.moveRequests || []);
+  const { activeLedger, ledgers, persistLedgers, pop, getEntries, saveEntries, logActivity, t } = ctx;
+  const requests = (activeLedger?.moveRequests || []);
 
   const respond = async (reqId, approve) => {
     const req = requests.find(r => r.id === reqId);
@@ -3679,35 +3679,35 @@ function MoveRequestsScreen({ ctx }) {
     const isCopy = req.mode === "copy";
 
     if (approve) {
-      const fromBiz = businesses.find(b => b.id === req.fromBusinessId);
+      const fromBiz = ledgers.find(b => b.id === req.fromLedgerId);
       const sourceBook = fromBiz?.books.find(bk => bk.id === req.bookId);
       if (sourceBook) {
         if (isCopy) {
-          // Copy: source business keeps its book untouched; target gets an
+          // Copy: source ledger keeps its book untouched; target gets an
           // independent book (new id) with its own duplicated entries, so
           // editing one copy never affects the other.
           const newBook = { ...sourceBook, id: uid(), createdAt: new Date().toISOString() };
           const sourceEntries = await getEntries(req.bookId);
           await saveEntries(newBook.id, sourceEntries.map(e => ({ ...e })));
-          await logActivity(newBook.id, "activity.copiedFromBusiness", { business: req.fromBusinessName });
-          const next = businesses.map((b) => b.id === activeBusiness.id
+          await logActivity(newBook.id, "activity.copiedFromLedger", { ledger: req.fromLedgerName });
+          const next = ledgers.map((b) => b.id === activeLedger.id
             ? { ...b, books: [...b.books, newBook], moveRequests: b.moveRequests.filter(r => r.id !== reqId) }
             : b);
-          await persistBusinesses(next);
+          await persistLedgers(next);
         } else {
           // Move: book (and its entries, unmodified under the same id) leaves
-          // the source business entirely and exists only in the target.
-          const next = businesses.map((b) => {
-            if (b.id === req.fromBusinessId) return { ...b, books: b.books.filter(bk => bk.id !== req.bookId) };
-            if (b.id === activeBusiness.id) return { ...b, books: [...b.books, sourceBook], moveRequests: b.moveRequests.filter(r => r.id !== reqId) };
+          // the source ledger entirely and exists only in the target.
+          const next = ledgers.map((b) => {
+            if (b.id === req.fromLedgerId) return { ...b, books: b.books.filter(bk => bk.id !== req.bookId) };
+            if (b.id === activeLedger.id) return { ...b, books: [...b.books, sourceBook], moveRequests: b.moveRequests.filter(r => r.id !== reqId) };
             return b;
           });
-          await persistBusinesses(next);
+          await persistLedgers(next);
         }
       }
     } else {
-      const next = businesses.map((b) => b.id === activeBusiness.id ? { ...b, moveRequests: b.moveRequests.filter(r => r.id !== reqId) } : b);
-      await persistBusinesses(next);
+      const next = ledgers.map((b) => b.id === activeLedger.id ? { ...b, moveRequests: b.moveRequests.filter(r => r.id !== reqId) } : b);
+      await persistLedgers(next);
     }
   };
 
@@ -3726,7 +3726,7 @@ function MoveRequestsScreen({ ctx }) {
               </span>
             </div>
             <div className="text-xs text-slate-500 mb-3">
-              {r.mode === "copy" ? t("moveRequests.fromPrefixCopy", { business: r.fromBusinessName }) : t("moveRequests.fromPrefixMove", { business: r.fromBusinessName })}
+              {r.mode === "copy" ? t("moveRequests.fromPrefixCopy", { ledger: r.fromLedgerName }) : t("moveRequests.fromPrefixMove", { ledger: r.fromLedgerName })}
             </div>
             <div className="flex gap-2">
               <button onClick={() => respond(r.id, true)} className="flex-1 bg-teal-700 text-white py-2 rounded-lg text-sm font-medium">{t("moveRequests.approve")}</button>
@@ -3739,45 +3739,45 @@ function MoveRequestsScreen({ ctx }) {
   );
 }
 
-function BusinessSettingsScreen({ ctx }) {
-  const { activeBusiness, businesses, persistBusinesses, pop, session, resetTo, t } = ctx;
-  const [name, setName] = useState(activeBusiness?.name || "");
+function LedgerSettingsScreen({ ctx }) {
+  const { activeLedger, ledgers, persistLedgers, pop, session, resetTo, t } = ctx;
+  const [name, setName] = useState(activeLedger?.name || "");
   const [moveTarget, setMoveTarget] = useState("");
   const [moveBook, setMoveBook] = useState("");
   const [moveMode, setMoveMode] = useState("move"); // "move" | "copy"
-  const [confirmDeleteBusiness, setConfirmDeleteBusiness] = useState(false);
+  const [confirmDeleteLedger, setConfirmDeleteLedger] = useState(false);
 
   const rename = async () => {
-    const next = businesses.map((b) => b.id === activeBusiness.id ? { ...b, name } : b);
-    await persistBusinesses(next);
+    const next = ledgers.map((b) => b.id === activeLedger.id ? { ...b, name } : b);
+    await persistLedgers(next);
   };
 
   const requestMove = async () => {
     if (!moveTarget || !moveBook) return;
-    const book = activeBusiness.books.find(b => b.id === moveBook);
-    const req = { id: uid(), bookId: moveBook, bookName: book.name, fromBusinessId: activeBusiness.id, fromBusinessName: activeBusiness.name, mode: moveMode };
-    const next = businesses.map((b) => b.id === moveTarget ? { ...b, moveRequests: [...(b.moveRequests || []), req] } : b);
-    await persistBusinesses(next);
+    const book = activeLedger.books.find(b => b.id === moveBook);
+    const req = { id: uid(), bookId: moveBook, bookName: book.name, fromLedgerId: activeLedger.id, fromLedgerName: activeLedger.name, mode: moveMode };
+    const next = ledgers.map((b) => b.id === moveTarget ? { ...b, moveRequests: [...(b.moveRequests || []), req] } : b);
+    await persistLedgers(next);
     setMoveBook(""); setMoveTarget(""); setMoveMode("move");
   };
 
-  const deleteBusiness = async () => {
-    const next = businesses.filter((b) => b.id !== activeBusiness.id);
-    await persistBusinesses(next);
+  const deleteLedger = async () => {
+    const next = ledgers.filter((b) => b.id !== activeLedger.id);
+    await persistLedgers(next);
     resetTo("books");
   };
 
-  const bookCount = activeBusiness?.books?.length || 0;
-  const deleteBusinessMessage = bookCount > 0
-    ? t(bookCount === 1 ? "businessSettings.deleteConfirmMessageWithBooksOne" : "businessSettings.deleteConfirmMessageWithBooksOther", { name: activeBusiness.name, count: bookCount })
-    : t("businessSettings.deleteConfirmMessageNoBooks", { name: activeBusiness?.name });
+  const bookCount = activeLedger?.books?.length || 0;
+  const deleteLedgerMessage = bookCount > 0
+    ? t(bookCount === 1 ? "ledgerSettings.deleteConfirmMessageWithBooksOne" : "ledgerSettings.deleteConfirmMessageWithBooksOther", { name: activeLedger.name, count: bookCount })
+    : t("ledgerSettings.deleteConfirmMessageNoBooks", { name: activeLedger?.name });
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
-      <TopHeader ctx={ctx} title={t("settings.businessSettingsTitle")} onBack={pop} />
+      <TopHeader ctx={ctx} title={t("settings.ledgerSettingsTitle")} onBack={pop} />
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         <div className="bg-white border border-slate-200 rounded-xl p-4">
-          <div className="text-xs text-slate-500 mb-1">{t("businessSettings.nameLabel")}</div>
+          <div className="text-xs text-slate-500 mb-1">{t("ledgerSettings.nameLabel")}</div>
           <div className="flex gap-2">
             <input value={name} onChange={(e) => setName(e.target.value)} className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm" />
             <button onClick={rename} className="bg-teal-700 text-white px-3 rounded-lg text-sm font-medium">{t("common.save")}</button>
@@ -3785,56 +3785,56 @@ function BusinessSettingsScreen({ ctx }) {
         </div>
 
         <div className="bg-white border border-slate-200 rounded-xl p-4 space-y-3">
-          <div className="font-medium text-slate-800 flex items-center gap-2"><ArrowRightLeft size={16} className="text-teal-700" /> {t("businessSettings.moveCopyTitle")}</div>
-          {businesses.length <= 1 ? (
-            <div className="text-xs text-slate-500">{t("businessSettings.addBusinessFirstHint")}</div>
-          ) : activeBusiness.books.length === 0 ? (
-            <div className="text-xs text-slate-500">{t("businessSettings.noBooksHint")}</div>
+          <div className="font-medium text-slate-800 flex items-center gap-2"><ArrowRightLeft size={16} className="text-teal-700" /> {t("ledgerSettings.moveCopyTitle")}</div>
+          {ledgers.length <= 1 ? (
+            <div className="text-xs text-slate-500">{t("ledgerSettings.addLedgerFirstHint")}</div>
+          ) : activeLedger.books.length === 0 ? (
+            <div className="text-xs text-slate-500">{t("ledgerSettings.noBooksHint")}</div>
           ) : (
             <>
               <div className="flex gap-2">
                 <button type="button" onClick={() => setMoveMode("move")}
                   className={`flex-1 py-2 rounded-lg text-sm font-medium border ${moveMode === "move" ? "bg-teal-700 text-white border-teal-700" : "bg-white text-slate-600 border-slate-300"}`}>
-                  {t("businessSettings.moveButton")}
+                  {t("ledgerSettings.moveButton")}
                 </button>
                 <button type="button" onClick={() => setMoveMode("copy")}
                   className={`flex-1 py-2 rounded-lg text-sm font-medium border ${moveMode === "copy" ? "bg-teal-700 text-white border-teal-700" : "bg-white text-slate-600 border-slate-300"}`}>
-                  {t("businessSettings.copyButton")}
+                  {t("ledgerSettings.copyButton")}
                 </button>
               </div>
               <div className="text-xs text-slate-500">
                 {moveMode === "copy"
-                  ? t("businessSettings.copyModeHint")
-                  : t("businessSettings.moveModeHint")}
+                  ? t("ledgerSettings.copyModeHint")
+                  : t("ledgerSettings.moveModeHint")}
               </div>
               <select value={moveBook} onChange={(e) => setMoveBook(e.target.value)} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white">
-                <option value="">{t("businessSettings.selectBookPlaceholder")}</option>
-                {activeBusiness.books.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+                <option value="">{t("ledgerSettings.selectBookPlaceholder")}</option>
+                {activeLedger.books.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
               </select>
               <select value={moveTarget} onChange={(e) => setMoveTarget(e.target.value)} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white">
-                <option value="">{t("businessSettings.selectTargetPlaceholder")}</option>
-                {businesses.filter(b => b.id !== activeBusiness.id).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+                <option value="">{t("ledgerSettings.selectTargetPlaceholder")}</option>
+                {ledgers.filter(b => b.id !== activeLedger.id).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
               </select>
               <button onClick={requestMove} disabled={!moveTarget || !moveBook}
                 className={`w-full py-2.5 rounded-xl font-semibold text-sm ${(!moveTarget || !moveBook) ? "bg-slate-200 text-slate-400" : "bg-teal-700 text-white"}`}>
-                {moveMode === "copy" ? t("businessSettings.sendCopyRequest") : t("businessSettings.sendMoveRequest")}
+                {moveMode === "copy" ? t("ledgerSettings.sendCopyRequest") : t("ledgerSettings.sendMoveRequest")}
               </button>
             </>
           )}
         </div>
 
-        <button onClick={() => setConfirmDeleteBusiness(true)} className="w-full flex items-center justify-center gap-2 text-rose-700 border border-rose-200 rounded-xl py-3 font-medium">
-          <Trash2 size={16} /> {t("businessSettings.deleteButton")}
+        <button onClick={() => setConfirmDeleteLedger(true)} className="w-full flex items-center justify-center gap-2 text-rose-700 border border-rose-200 rounded-xl py-3 font-medium">
+          <Trash2 size={16} /> {t("ledgerSettings.deleteButton")}
         </button>
       </div>
 
-      {confirmDeleteBusiness && (
+      {confirmDeleteLedger && (
         <ConfirmModal
-          title={t("businessSettings.deleteConfirmTitle")}
-          message={deleteBusinessMessage}
-          confirmLabel={t("businessSettings.deleteConfirmYes")} cancelLabel={t("common.no")}
-          onCancel={() => setConfirmDeleteBusiness(false)}
-          onConfirm={() => { setConfirmDeleteBusiness(false); deleteBusiness(); }} />
+          title={t("ledgerSettings.deleteConfirmTitle")}
+          message={deleteLedgerMessage}
+          confirmLabel={t("ledgerSettings.deleteConfirmYes")} cancelLabel={t("common.no")}
+          onCancel={() => setConfirmDeleteLedger(false)}
+          onConfirm={() => { setConfirmDeleteLedger(false); deleteLedger(); }} />
       )}
     </div>
   );

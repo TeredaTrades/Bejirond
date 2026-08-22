@@ -11,10 +11,10 @@ import { Share } from "@capacitor/share";
 // Which storage keys belong to each single-tool product. Used to scope
 // exactly what an individual app's export contains, so importing e.g. an
 // Expenses Manager export into the bundle only ever touches the bundle's
-// "businesses"/"entries:*"/"activity:*" keys — never its Budget or Trip
+// "ledgers"/"entries:*"/"activity:*" keys — never its Budget or Trip
 // Organizer data.
 export const PRODUCT_DATA_SCOPES = {
-  "expenses-manager": { exactKeys: ["businesses"], prefixes: ["entries:", "activity:"] },
+  "expenses-manager": { exactKeys: ["ledgers"], prefixes: ["entries:", "activity:"] },
   "budget": { exactKeys: ["budget-plan"], prefixes: [] },
   "trip-organizer": { exactKeys: ["trips"], prefixes: [] },
   // Loan Calculator doesn't persist anything between sessions today, so
@@ -73,7 +73,7 @@ export function readExportFile(file) {
   });
 }
 
-// Merge is last-write-wins per top-level key (e.g. replaces "businesses"
+// Merge is last-write-wins per top-level key (e.g. replaces "ledgers"
 // wholesale) rather than a deep merge — good enough for the common case of
 // bringing data into a bundle install that doesn't have any of that
 // product's data yet. If the bundle already has data for that product,

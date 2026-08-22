@@ -424,9 +424,9 @@ export default {
     widgetTitle: "Widget ya skrini ya nyumbani",
     widgetDesc: "Kijitile kidogo kwenye skrini yako ya nyumbani kinachoonyesha salio lako halisi katika biashara zote — kigusa wakati wowote ili kuingia moja kwa moja kwenye programu.",
     addWidgetButton: "Ongeza widget kwenye Skrini ya Nyumbani",
-    widgetUnsupported: "Kifaa chako hakiwezi kuongeza widget kutoka ndani ya programu — badala yake, bonyeza kwa muda mahali tupu kwenye skrini yako ya nyumbani, chagua Widgets, kisha tafuta \"TallyBook\".",
+    widgetUnsupported: "Kifaa chako hakiwezi kuongeza widget kutoka ndani ya programu — badala yake, bonyeza kwa muda mahali tupu kwenye skrini yako ya nyumbani, chagua Widgets, kisha tafuta \"Bejirond\".",
     bubbleTitle: "Aikoni inayoelea",
-    bubbleDesc: "Kiputo kidogo kinachoweza kuburutwa na kinachoelea juu ya programu nyingine — kigusa ili kufungua TallyBook papo hapo. Inahitaji ruhusa ya \"kuonyesha juu ya programu nyingine\", inayotolewa mara moja kutoka Mipangilio ya mfumo.",
+    bubbleDesc: "Kiputo kidogo kinachoweza kuburutwa na kinachoelea juu ya programu nyingine — kigusa ili kufungua Bejirond papo hapo. Inahitaji ruhusa ya \"kuonyesha juu ya programu nyingine\", inayotolewa mara moja kutoka Mipangilio ya mfumo.",
     overlayHint: "Kugusa kitufe hiki kutafungua Mipangilio ya kifaa chako ili kutoa ruhusa ya \"kuonyesha juu ya programu nyingine\" — rudi hapa na ugusa tena mara ikiruhusiwa.",
   },
   help: {

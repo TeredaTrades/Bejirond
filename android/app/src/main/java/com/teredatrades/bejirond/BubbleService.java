@@ -21,7 +21,7 @@ import androidx.core.app.NotificationCompat;
 
 /**
  * Foreground service that draws a small draggable bubble over other apps and opens
- * TallyBook (MainActivity) on tap. Only ever started from TallyWidgetPlugin#startBubble
+ * Bejirond (MainActivity) on tap. Only ever started from TallyWidgetPlugin#startBubble
  * after confirming the "display over other apps" permission is granted — this class
  * doesn't check that itself, since WindowManager.addView will simply fail/throw if it
  * isn't, and the try/catch below turns that into a graceful stop rather than a crash.
@@ -141,7 +141,7 @@ public class BubbleService extends Service {
             NotificationManager nm = getSystemService(NotificationManager.class);
             NotificationChannel channel = new NotificationChannel(
                     CHANNEL_ID, "Floating icon", NotificationManager.IMPORTANCE_MIN);
-            channel.setDescription("Keeps the TallyBook floating icon visible over other apps");
+            channel.setDescription("Keeps the Bejirond floating icon visible over other apps");
             nm.createNotificationChannel(channel);
         }
 
@@ -151,7 +151,7 @@ public class BubbleService extends Service {
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, stopIntent, flags);
 
         return new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("TallyBook floating icon is on")
+                .setContentTitle("Bejirond floating icon is on")
                 .setContentText("Turn it off from Settings > Quick Access")
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentIntent(contentIntent)

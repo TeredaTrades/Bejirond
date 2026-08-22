@@ -296,9 +296,9 @@ export default {
     widgetTitle: "Widget Screen Manaa",
     widgetDesc: "Suuraa xiqqaa screen manaa keessan irratti hafbalbala waliigalaa daldala hunda agarsiisu — yeroo barbaadetti tuqxee kallattiin app seenta.",
     addWidgetButton: "Widget Screen Manaatti Dabali",
-    widgetUnsupported: "Meeshaan keessan app keessaa widget dabaluu hin danda'u — qooda kanaa, bakka duwwaa screen manaa keessanii dheeraa tuqaa, Widgets filadhaa, \"TallyBook\" barbaadaa.",
+    widgetUnsupported: "Meeshaan keessan app keessaa widget dabaluu hin danda'u — qooda kanaa, bakka duwwaa screen manaa keessanii dheeraa tuqaa, Widgets filadhaa, \"Bejirond\" barbaadaa.",
     bubbleTitle: "Mallattoo Barrisaa",
-    bubbleDesc: "Kuruphee xiqqoo apps biroo irra barriftu — tuqxee TallyBook battalumatti banta. Hayyama \"display over other apps\" barbaada, kan Qindaa'ina sirna irraa yeroo tokko kennamu.",
+    bubbleDesc: "Kuruphee xiqqoo apps biroo irra barriftu — tuqxee Bejirond battalumatti banta. Hayyama \"display over other apps\" barbaada, kan Qindaa'ina sirna irraa yeroo tokko kennamu.",
     overlayHint: "Cuqaasuun kun Qindaa'ina meeshaa keessanii banee hayyama \"display over other apps\" kennuuf — erga hayyamamee booda deebi'aa asitti irra deebi'aa tuqaa.",
   },
   moveRequests: {

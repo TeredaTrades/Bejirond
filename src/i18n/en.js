@@ -403,9 +403,9 @@ export default {
     widgetTitle: "Home screen widget",
     widgetDesc: "A small tile on your home screen showing your net balance across every business — tap it any time to jump straight into the app.",
     addWidgetButton: "Add widget to Home screen",
-    widgetUnsupported: "Your device doesn't support adding widgets from inside the app — instead, long-press an empty spot on your home screen, choose Widgets, and find \"TallyBook\".",
+    widgetUnsupported: "Your device doesn't support adding widgets from inside the app — instead, long-press an empty spot on your home screen, choose Widgets, and find \"Bejirond\".",
     bubbleTitle: "Floating icon",
-    bubbleDesc: "A small draggable bubble that floats over other apps — tap it to open TallyBook instantly. Requires the \"display over other apps\" permission, granted once from system Settings.",
+    bubbleDesc: "A small draggable bubble that floats over other apps — tap it to open Bejirond instantly. Requires the \"display over other apps\" permission, granted once from system Settings.",
     overlayHint: "Tapping the toggle will open your device's Settings to grant \"display over other apps\" — come back here and tap it again once it's allowed.",
   },
   moveRequests: {

@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="widget_default_balance">Ouvrir Bejirond</string>
+    <string name="widget_description">Affiche votre solde net et ouvre Bejirond</string>
+</resources>

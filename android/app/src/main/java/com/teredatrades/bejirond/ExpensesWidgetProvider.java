@@ -11,7 +11,7 @@ import android.widget.RemoteViews;
 
 /**
  * Small Home screen widget: shows the last balance pushed from the app (see
- * TallyWidgetPlugin#updateBalance) and opens TallyBook when tapped anywhere on it.
+ * TallyWidgetPlugin#updateBalance) and opens Bejirond when tapped anywhere on it.
  * Purely a shortcut + glanceable summary — it does not read app storage directly,
  * since that would require duplicating the entries/business data model natively.
  */
@@ -27,7 +27,9 @@ public class ExpensesWidgetProvider extends AppWidgetProvider {
     static void updateWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
         SharedPreferences prefs = context.getSharedPreferences(
                 TallyWidgetPlugin.PREFS_NAME, Context.MODE_PRIVATE);
-        String balanceText = prefs.getString(TallyWidgetPlugin.KEY_BALANCE_TEXT, "Open TallyBook");
+        String balanceText = prefs.getString(
+                TallyWidgetPlugin.KEY_BALANCE_TEXT,
+                context.getString(R.string.widget_default_balance));
 
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_expenses);
         views.setTextViewText(R.id.widget_balance, balanceText);

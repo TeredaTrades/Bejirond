@@ -401,9 +401,9 @@ export default {
     widgetTitle: "Widget d'écran d'accueil",
     widgetDesc: "Une petite tuile sur votre écran d'accueil affichant votre solde net sur tous vos commerces — appuyez dessus à tout moment pour accéder directement à l'application.",
     addWidgetButton: "Ajouter le widget à l'écran d'accueil",
-    widgetUnsupported: "Votre appareil ne permet pas d'ajouter des widgets depuis l'application — faites plutôt un appui long sur un espace vide de votre écran d'accueil, choisissez Widgets, puis trouvez « TallyBook ».",
+    widgetUnsupported: "Votre appareil ne permet pas d'ajouter des widgets depuis l'application — faites plutôt un appui long sur un espace vide de votre écran d'accueil, choisissez Widgets, puis trouvez « Bejirond ».",
     bubbleTitle: "Icône flottante",
-    bubbleDesc: "Une petite bulle déplaçable qui flotte au-dessus des autres applications — appuyez dessus pour ouvrir TallyBook instantanément. Nécessite l'autorisation « afficher par-dessus les autres applications », accordée une fois depuis les paramètres système.",
+    bubbleDesc: "Une petite bulle déplaçable qui flotte au-dessus des autres applications — appuyez dessus pour ouvrir Bejirond instantanément. Nécessite l'autorisation « afficher par-dessus les autres applications », accordée une fois depuis les paramètres système.",
     overlayHint: "Appuyer sur ce bouton ouvrira les paramètres de votre appareil pour accorder l'autorisation « afficher par-dessus les autres applications » — revenez ici et appuyez de nouveau une fois autorisé.",
   },
   moveRequests: {

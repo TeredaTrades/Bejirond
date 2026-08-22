@@ -212,10 +212,11 @@ export default {
   },
   bookSettings: {
     importCsvTitle: "Importer des entrées depuis un CSV",
-    importCsvHint: "Importez des entrées depuis un fichier CSV exporté depuis cette installation de በጅሮንድ ou une autre (Rapports → Exporter en CSV, avec le type de rapport \"Toutes les entrées\"). Elles seront ajoutées à ce livre, en plus de ce qui s'y trouve déjà.",
+    importCsvHint: "Importez des entrées depuis un fichier CSV exporté depuis cette installation de በጅሮንድ ou une autre (Rapports → Exporter en CSV, avec le type de rapport \"Toutes les entrées\"). Elles seront ajoutées à ce livre, en plus de ce qui s'y trouve déjà. Un tableau créé à la main avec seulement quelques-unes des colonnes (ou sans aucun en-tête) fonctionne aussi — l'application essaiera de deviner à quoi correspond chaque colonne.",
     importCsvButton: "Choisir un fichier CSV",
     importCsvBusy: "Importation…",
     importCsvSuccess: "{count} entrées importées.",
+    importCsvSuccessGuessed: "{count} entrées importées. {guessed} d'entre elles avaient des détails manquants (comme la date ou entrée/sortie) qui ont été devinés — à vérifier.",
     importCsvErrorEmpty: "Ce fichier est vide.",
     importCsvErrorFormat: "Ce fichier ne ressemble pas à un export CSV d'entrées በጅሮንድ. Utilisez Rapports → Exporter en CSV avec le type de rapport \"Toutes les entrées\".",
     importCsvErrorNoRows: "Aucune entrée valide trouvée dans ce fichier.",

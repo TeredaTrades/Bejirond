@@ -218,10 +218,11 @@ export default {
   },
   bookSettings: {
     importCsvTitle: "Import Entries from CSV",
-    importCsvHint: "Bring in entries from a CSV file exported from this or another በጅሮንድ install (Reports → Export CSV, with report type set to \"All Entries\"). They'll be added to this book alongside what's already here.",
+    importCsvHint: "Bring in entries from a CSV file exported from this or another በጅሮንድ install (Reports → Export CSV, with report type set to \"All Entries\"). They'll be added to this book alongside what's already here. A hand-made spreadsheet with only some of the columns (or none labeled at all) works too — the app will do its best to figure out which column is which.",
     importCsvButton: "Choose CSV file",
     importCsvBusy: "Importing…",
     importCsvSuccess: "Imported {count} entries.",
+    importCsvSuccessGuessed: "Imported {count} entries. {guessed} were missing details (like the date or in/out) that got filled in with a guess — worth checking.",
     importCsvErrorEmpty: "That file is empty.",
     importCsvErrorFormat: "That doesn't look like a በጅሮንድ entries CSV export. Use Reports → Export CSV with report type \"All Entries\".",
     importCsvErrorNoRows: "No valid entries found in that file.",

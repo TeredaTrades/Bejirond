@@ -3,6 +3,35 @@
 A running log of what's been built or changed, so we both have a shared
 record without needing to scroll back through chat history.
 
+## 2026-08-22 — Lenient CSV import for partial/hand-made spreadsheets
+CSV import (`bookSettings.importCsvButton`) previously accepted only the
+exact 9-column header this app itself writes, byte for byte — anything a
+person built by hand in a spreadsheet (only an Amount column, 2-3 columns
+in a different order, no header row at all, dates typed "15/01/2024"
+instead of ISO) was rejected outright with the format error.
+
+Added `src/flexibleImport.js` as a fallback the strict importer now tries
+before giving up:
+- Header aliasing — recognizes common alternate names for each of the 9
+  fields (`amount`/`amt`/`total`, `date`/`day`, `mode`/`payment method`,
+  etc.) in any order, any subset.
+- Content sniffing — if no header row is recognized at all, guesses each
+  column's meaning from the shape of its data (amount-shaped numbers,
+  date-shaped strings, in/out-shaped words, known payment-mode names).
+  Leftover unidentified columns fall back to contact → category → remark,
+  in that order.
+- Missing date defaults to today; missing type is inferred from the
+  amount's sign (negative → out) or defaults to "in". Both cases count
+  toward a new "guessed" tally.
+- New `importCsvSuccessGuessed` string reports how many imported rows had
+  a defaulted/guessed field, so a person importing an amount-only sheet
+  knows the dates aren't real and are worth checking.
+
+This only ever engages when the strict, lossless 9-column parser rejects
+the file — a normal app-to-app CSV export/import round trip is unaffected.
+The PDF importer's best-effort framing/comments were the model for this;
+same idea, applied to hand-made CSVs instead of the app's own PDF report.
+
 ## 2026-08-15 — Delete Book confirmation, discoverable move/copy-book section
 Two fixes to `BookSettingsScreen` / `BusinessSettingsScreen`:
 - Delete Book fired immediately on tap, no confirmation — added the same

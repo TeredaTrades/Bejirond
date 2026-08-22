@@ -2663,15 +2663,29 @@ function BookSettingsScreen({ ctx, bookId }) {
     setCsvMsg(null);
     try {
       const text = await file.text();
-      const { entries: parsed, error } = parseEntriesCsv(text, t);
+      let { entries: parsed, error } = parseEntriesCsv(text, t);
+      let guessed = 0;
       if (error) {
-        setCsvMsg({ ok: false, text: error });
-        return;
+        // Not this app's exact 9-column export — try the lenient importer
+        // before giving up, so a hand-made spreadsheet (any subset/order of
+        // the 9 fields, or no header row at all) can still come in.
+        const { parseEntriesCsvFlexible } = await import("./flexibleImport");
+        const flexible = parseEntriesCsvFlexible(text, t, { uid, knownPaymentModes: appSettings.paymentModes });
+        if (flexible.error) {
+          setCsvMsg({ ok: false, text: flexible.error });
+          return;
+        }
+        parsed = flexible.entries;
+        guessed = flexible.guessed;
+        error = null;
       }
       const existing = await getEntries(bookId);
       await saveEntries(bookId, [...existing, ...parsed]);
       await logActivity(bookId, parsed.length === 1 ? "activity.importedCsvOne" : "activity.importedCsvOther", { name: viewer.name, count: parsed.length });
-      setCsvMsg({ ok: true, text: t("bookSettings.importCsvSuccess", { count: parsed.length }) });
+      const successText = guessed > 0
+        ? t("bookSettings.importCsvSuccessGuessed", { count: parsed.length, guessed })
+        : t("bookSettings.importCsvSuccess", { count: parsed.length });
+      setCsvMsg({ ok: true, text: successText });
     } catch (err) {
       console.error("CSV import failed", err);
       setCsvMsg({ ok: false, text: t("bookSettings.importCsvErrorFormat") });

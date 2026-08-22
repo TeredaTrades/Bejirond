@@ -216,10 +216,11 @@ export default {
   },
   bookSettings: {
     importCsvTitle: "Leta Kumbukumbu kutoka CSV",
-    importCsvHint: "Leta kumbukumbu kutoka faili la CSV lililotolewa kutoka usakinishaji huu au mwingine wa በጅሮንድ (Ripoti → Toa CSV, ukiwa na aina ya ripoti \"Kumbukumbu Zote\"). Zitaongezwa kwenye kitabu hiki pamoja na zilizopo tayari.",
+    importCsvHint: "Leta kumbukumbu kutoka faili la CSV lililotolewa kutoka usakinishaji huu au mwingine wa በጅሮንድ (Ripoti → Toa CSV, ukiwa na aina ya ripoti \"Kumbukumbu Zote\"). Zitaongezwa kwenye kitabu hiki pamoja na zilizopo tayari. Lahajedwali lililoandaliwa kwa mkono lenye baadhi tu ya safu (au bila majina kabisa) pia linafanya kazi — programu itajaribu kubaini safu ni ipi.",
     importCsvButton: "Chagua faili la CSV",
     importCsvBusy: "Inaleta…",
     importCsvSuccess: "Kumbukumbu {count} zimeletwa.",
+    importCsvSuccessGuessed: "Kumbukumbu {count} zimeletwa. Kati yake {guessed} zilikosa maelezo (kama tarehe au ndani/nje) yaliyokisiwa — ni vyema kuyakagua.",
     importCsvErrorEmpty: "Faili hilo ni tupu.",
     importCsvErrorFormat: "Hili halionekani kama faili la CSV la kumbukumbu za በጅሮንድ. Tumia Ripoti → Toa CSV ukiwa na aina ya ripoti \"Kumbukumbu Zote\".",
     importCsvErrorNoRows: "Hakuna kumbukumbu sahihi zilizopatikana kwenye faili hilo.",

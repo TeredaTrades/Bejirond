@@ -213,10 +213,11 @@ export default {
   },
   bookSettings: {
     importCsvTitle: "ግቤቶችን ከ CSV ያስመጡ",
-    importCsvHint: "ከዚህ ወይም ከሌላ የበጅሮንድ መተግበሪያ ከተላከ CSV ፋይል ግቤቶችን ያስመጡ (ሪፖርቶች ← CSV ላክ፣ የሪፖርት ዓይነት 'ሁሉም ግቤቶች' ተደርጎ)። ከነባሮቹ ግቤቶች ጋር ወደዚህ ደብተር ይታከላሉ።",
+    importCsvHint: "ከዚህ ወይም ከሌላ የበጅሮንድ መተግበሪያ ከተላከ CSV ፋይል ግቤቶችን ያስመጡ (ሪፖርቶች ← CSV ላክ፣ የሪፖርት ዓይነት 'ሁሉም ግቤቶች' ተደርጎ)። ከነባሮቹ ግቤቶች ጋር ወደዚህ ደብተር ይታከላሉ። በእጅ የተዘጋጀ ሰንጠረዥ ከፊል አምዶች ብቻ ቢኖረውም (ወይም ርዕስ ጨርሶ ባይኖረውም) ይሰራል — መተግበሪያው የትኛው አምድ ምን እንደሆነ ለመገመት ይሞክራል።",
     importCsvButton: "የCSV ፋይል ይምረጡ",
     importCsvBusy: "በማስመጣት ላይ…",
     importCsvSuccess: "{count} ግቤቶች ገብተዋል።",
+    importCsvSuccessGuessed: "{count} ግቤቶች ገብተዋል። ከነዚህ ውስጥ {guessed} ዝርዝሮች (እንደ ቀን ወይም ገቢ/ወጪ ያሉ) ስለጎደሏቸው በግምት ተሞልተዋል — ማረጋገጥ ይመከራል።",
     importCsvErrorEmpty: "ያ ፋይል ባዶ ነው።",
     importCsvErrorFormat: "ይህ የበጅሮንድ ግቤቶች CSV አይመስልም። ሪፖርቶች ← CSV ላክ በ'ሁሉም ግቤቶች' ተጠቀሙ።",
     importCsvErrorNoRows: "በዚያ ፋይል ውስጥ ትክክለኛ ግቤቶች አልተገኙም።",

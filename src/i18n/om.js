@@ -215,10 +215,11 @@ export default {
   },
   bookSettings: {
     importCsvTitle: "Galmeewwan CSV irraa Galchi",
-    importCsvHint: "Faayilii CSV kitaaba በጅሮንድ kanaa ykn kan biraa irraa baafame irraa galmee galchi (Gabaasa → CSV Baasi, gosa gabaasaa \"Galmeewwan Hunda\" godhii). Isaan kun waan kitaaba kana keessa jiru waliin ni dabalamu.",
+    importCsvHint: "Faayilii CSV kitaaba በጅሮንድ kanaa ykn kan biraa irraa baafame irraa galmee galchi (Gabaasa → CSV Baasi, gosa gabaasaa \"Galmeewwan Hunda\" godhii). Isaan kun waan kitaaba kana keessa jiru waliin ni dabalamu. Sanadaan harkaan qophaa'e kan qaama muraasa qofa qabu (yookaan mataduree tokko illee hin qabne) ni hojjeta — appiin kun tarreen kamiin akka ta'e yaaduuf ni yaala.",
     importCsvButton: "Faayilii CSV filadhu",
     importCsvBusy: "Galchaa jira…",
     importCsvSuccess: "Galmeewwan {count} galfaman.",
+    importCsvSuccessGuessed: "Galmeewwan {count} galfaman. Isaan keessaa {guessed} ibsi hafe (fkn guyyaa yookaan galii/baasii) waan qabaniif tilmaamamanii guutamaniiru — mirkaneessuun gaarii dha.",
     importCsvErrorEmpty: "Faayliin kun duwwaa dha.",
     importCsvErrorFormat: "Kun faayilii CSV galmee በጅሮንድ hin fakkaatu. Gabaasa → CSV Baasi gosa gabaasaa \"Galmeewwan Hunda\" fayyadami.",
     importCsvErrorNoRows: "Faayilii kana keessatti galmeen sirrii hin argamne.",

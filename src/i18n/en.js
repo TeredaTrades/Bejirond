@@ -27,7 +27,6 @@ export default {
     themeDark: "Dark",
     currencyLabel: "Choose your currency",
     changeLaterNote: "You can change any of these later from Settings.",
-    selectAllHint: "Tap an option in each section above to continue.",
     continueButton: "Continue",
     aboutMessage: "Bejirond is a traditional title meaning a keeper, manager, and overseer of money and property — in short, a treasurer.",
   },

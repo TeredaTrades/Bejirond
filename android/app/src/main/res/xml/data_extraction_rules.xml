@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   Android 12+ (API 31+) equivalent of backup_rules.xml — see that file's
-  comment for the full explanation of why onboarding.xml is excluded.
+  comment for the full explanation of why onboarding-state.json is
+  excluded, and why this uses a Filesystem-backed file (domain="file")
+  rather than a Preferences "group" (which doesn't actually isolate data
+  per-call — see the note in backup_rules.xml for details).
 
   Excluded from both cloud-backup (Google Drive) and device-transfer (the
   direct phone-to-phone migration flow) so switching phones also gets a
@@ -11,9 +14,9 @@
 -->
 <data-extraction-rules>
     <cloud-backup>
-        <exclude domain="sharedpref" path="onboarding.xml" />
+        <exclude domain="file" path="onboarding-state.json" />
     </cloud-backup>
     <device-transfer>
-        <exclude domain="sharedpref" path="onboarding.xml" />
+        <exclude domain="file" path="onboarding-state.json" />
     </device-transfer>
 </data-extraction-rules>

@@ -15,10 +15,11 @@ import { Share } from "@capacitor/share";
 // Organizer data.
 export const PRODUCT_DATA_SCOPES = {
   // Deliberately excludes "account" and "first-run-done" — those are the
-  // per-device onboarding/PIN state (see ONBOARDING_GROUP in App.jsx), and
-  // silently carrying one device's PIN onto another via a restored file
-  // would be a surprise, not a convenience. Restoring a backup re-creates
-  // everything else and leaves the person to set up (or skip) a PIN fresh.
+  // per-device onboarding/PIN state (stored via onboardingGet/onboardingSet
+  // in App.jsx, not Preferences), and silently carrying one device's PIN
+  // onto another via a restored file would be a surprise, not a
+  // convenience. Restoring a backup re-creates everything else and leaves
+  // the person to set up (or skip) a PIN fresh.
   "expenses-manager": {
     exactKeys: ["ledgers", "app-settings", "profile", "planned-items", "app-theme", "app-language", "quick-access-bubble-on"],
     prefixes: ["entries:", "activity:"],

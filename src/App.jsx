@@ -293,22 +293,53 @@ function parseEntriesCsv(text, t) {
 
 // On-device storage only — Capacitor Preferences persists to the phone's
 // local app storage. Nothing is sent over a network; the app works fully offline.
-//
-// `group` puts a key in a separate underlying SharedPreferences file (see
-// PreferencesConfiguration.group in the Android plugin). Used to split off
-// "account" / "first-run-done" into the ONBOARDING_GROUP so Android's backup
-// rules (android/app/src/main/res/xml/*.xml) can exclude just that file —
-// real data (ledgers, entries, settings) still gets Android's normal
-// auto-backup/restore, but a fresh install always sees a genuine first run.
-const ONBOARDING_GROUP = "onboarding";
-async function storeGet(key, fallback, group) {
+async function storeGet(key, fallback) {
   try {
-    const r = await Preferences.get(group ? { key, group } : { key });
+    const r = await Preferences.get({ key });
     return r && r.value != null ? JSON.parse(r.value) : fallback;
   } catch { return fallback; }
 }
-async function storeSet(key, value, group) {
-  try { await Preferences.set(group ? { key, value: JSON.stringify(value), group } : { key, value: JSON.stringify(value) }); } catch (e) { console.error("storage set failed", key, e); }
+async function storeSet(key, value) {
+  try { await Preferences.set({ key, value: JSON.stringify(value) }); } catch (e) { console.error("storage set failed", key, e); }
+}
+
+// ---------- onboarding state (account / first-run-done) ----------
+// IMPORTANT: this deliberately does NOT use Capacitor Preferences' `group`
+// option. That option is only applied via a separate, plugin-instance-wide
+// `Preferences.configure({ group })` call — it is NOT a per-call parameter
+// on get()/set(), even though the JS types on those methods don't stop you
+// from passing one. Passing `group` directly to get()/set() is silently
+// ignored on Android (confirmed against the plugin's native source and the
+// official GetOptions/SetOptions type defs, which only declare `key`/
+// `value` — no `group` field). An earlier attempt at this fix did exactly
+// that and looked correct in review, but never actually isolated onboarding
+// data into a separate file — account/first-run-done kept landing in the
+// same default file as everything else, so Android's Auto Backup kept
+// silently restoring them on reinstall and skipping onboarding entirely,
+// same as before that "fix" ever landed.
+//
+// Real fix: store onboarding state in its own file via Filesystem instead
+// of Preferences, so it can be excluded from Android's backup rules by file
+// path (domain="file") rather than by a Preferences group that doesn't
+// actually create a separate file per call.
+const ONBOARDING_FILE = "onboarding-state.json";
+async function onboardingGet(key, fallback) {
+  try {
+    const { data } = await Filesystem.readFile({ path: ONBOARDING_FILE, directory: Directory.Data, encoding: Encoding.UTF8 });
+    const all = JSON.parse(data);
+    return key in all ? all[key] : fallback;
+  } catch { return fallback; }
+}
+async function onboardingSet(key, value) {
+  let all = {};
+  try {
+    const { data } = await Filesystem.readFile({ path: ONBOARDING_FILE, directory: Directory.Data, encoding: Encoding.UTF8 });
+    all = JSON.parse(data);
+  } catch { /* file doesn't exist yet — start fresh */ }
+  all[key] = value;
+  try {
+    await Filesystem.writeFile({ path: ONBOARDING_FILE, directory: Directory.Data, data: JSON.stringify(all), encoding: Encoding.UTF8 });
+  } catch (e) { console.error("onboarding storage set failed", key, e); }
 }
 
 // ---------- reminders (things to buy / to pay for) ----------
@@ -963,7 +994,7 @@ export default function TallyBookApp() {
   // ---- initial load ----
   useEffect(() => {
     (async () => {
-      const acct = await storeGet("account", null, ONBOARDING_GROUP);
+      const acct = await onboardingGet("account", null);
       const biz = await storeGet("ledgers", []);
       const sess = await storeGet("session", { activeLedgerId: null, viewingAs: null });
       let settings = { ...DEFAULT_APP_SETTINGS, ...(await storeGet("app-settings", DEFAULT_APP_SETTINGS)) };
@@ -981,7 +1012,7 @@ export default function TallyBookApp() {
       setTheme(savedTheme);
       const savedLanguage = await storeGet("app-language", DEFAULT_LANGUAGE);
       setLanguage(savedLanguage);
-      const savedFirstRunDone = await storeGet("first-run-done", false, ONBOARDING_GROUP);
+      const savedFirstRunDone = await onboardingGet("first-run-done", false);
       setFirstRunDone(savedFirstRunDone);
       const planned = await storeGet("planned-items", []);
       setAccount(acct);
@@ -1050,7 +1081,7 @@ export default function TallyBookApp() {
   }, []);
   const completeFirstRun = useCallback(async () => {
     setFirstRunDone(true);
-    await storeSet("first-run-done", true, ONBOARDING_GROUP);
+    await onboardingSet("first-run-done", true);
   }, []);
   // Mirror the theme onto <html> too, so backgrounds outside the app's root wrapper
   // (e.g. iOS overscroll/bounce edges) match instead of flashing white/black.
@@ -1215,7 +1246,7 @@ export default function TallyBookApp() {
         persistTheme={persistTheme}
         t={t}
         onDone={async (acct) => {
-          await storeSet("account", acct, ONBOARDING_GROUP);
+          await onboardingSet("account", acct);
           setAccount(acct);
           setUnlocked(true);
         }}
@@ -1232,7 +1263,7 @@ export default function TallyBookApp() {
         account={account}
         onUnlock={() => setUnlocked(true)}
         onResetAccount={async () => {
-          await storeSet("account", null, ONBOARDING_GROUP);
+          await onboardingSet("account", null);
           setAccount(null);
         }}
       />

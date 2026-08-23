@@ -2,20 +2,30 @@
 <!--
   Auto Backup rules for Android <12 (API < 31).
 
-  The "onboarding" Capacitor Preferences group (the "account" and
-  "first-run-done" keys — see ONBOARDING_GROUP in src/App.jsx) is stored in
-  its own SharedPreferences file, onboarding.xml, specifically so it can be
-  excluded here. Without this exclusion, Android's Auto Backup for Apps
-  silently restores that file on reinstall/new-device whenever the app is
-  signed with the same key, which makes a "fresh" install skip the welcome
-  flow, first-run language/theme/currency picker, and about-splash because
-  it isn't actually fresh as far as storage is concerned.
+  Onboarding state (the "account" and "first-run-done" keys — see
+  onboardingGet/onboardingSet in src/App.jsx) is stored in its own file,
+  onboarding-state.json, in the app's internal files directory
+  (Directory.Data / Context.getFilesDir(), Android backup domain "file") —
+  specifically so it can be excluded here. Without this exclusion,
+  Android's Auto Backup for Apps silently restores that file on
+  reinstall/new-device whenever the app is signed with the same key,
+  which makes a "fresh" install skip the welcome flow, first-run
+  language/theme/currency picker, and about-splash because it isn't
+  actually fresh as far as storage is concerned.
+
+  NOTE: an earlier version of this fix tried to achieve the same isolation
+  using a Capacitor Preferences "group" passed per-call to get()/set().
+  That doesn't work — Preferences' group is only honored via a separate,
+  plugin-instance-wide configure() call, not as a per-call option, so
+  every key was still landing in the same default SharedPreferences file
+  regardless of what group was passed. Using a dedicated Filesystem-backed
+  file (excluded by domain="file") sidesteps that entirely.
 
   Everything else — ledgers, entries, app-settings, profile, planned items —
-  stays in the default CapacitorStorage.xml file and is NOT excluded, so
-  real data still benefits from Android's normal backup/restore across
-  reinstalls and device changes.
+  stays in the default CapacitorStorage.xml Preferences file and is NOT
+  excluded, so real data still benefits from Android's normal
+  backup/restore across reinstalls and device changes.
 -->
 <full-backup-content>
-    <exclude domain="sharedpref" path="onboarding.xml" />
+    <exclude domain="file" path="onboarding-state.json" />
 </full-backup-content>

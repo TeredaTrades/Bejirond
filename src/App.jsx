@@ -1370,6 +1370,18 @@ function AboutSplashScreen({ theme, t, onDone }) {
 // App). Both choices can be changed later from Settings — this just sets a sensible
 // starting point instead of forcing English/light on everyone by default.
 function FirstRunScreen({ theme, persistTheme, language, persistLanguage, appSettings, persistSettings, t, onDone }) {
+  // Each field starts as a preset default (language=en, theme=light, currency=Br) so the
+  // underlying state is always valid — but we don't want that default to visually read as
+  // "already chosen" or to let someone tap Continue without deliberately picking anything.
+  // These flags track whether the user has actually tapped an option in each section;
+  // Continue stays disabled, and no chip/button shows as active, until all three are touched.
+  const [touched, setTouched] = useState({ language: false, theme: false, currency: false });
+  const allTouched = touched.language && touched.theme && touched.currency;
+
+  const chooseLanguage = (code) => { persistLanguage(code); setTouched((tt) => ({ ...tt, language: true })); };
+  const chooseTheme = (val) => { persistTheme(val); setTouched((tt) => ({ ...tt, theme: true })); };
+  const chooseCurrency = (c) => { persistSettings({ ...appSettings, currency: c }); setTouched((tt) => ({ ...tt, currency: true })); };
+
   return (
     <div data-theme={theme} className="w-full h-screen bg-white overflow-hidden flex flex-col">
       <div className="flex-1 overflow-y-auto flex flex-col items-center px-6 pt-14">
@@ -1381,27 +1393,25 @@ function FirstRunScreen({ theme, persistTheme, language, persistLanguage, appSet
 
         <div className="w-full mb-6">
           <div className="text-xs font-medium text-slate-400 uppercase mb-2 px-1">{t("firstRun.languageLabel")}</div>
-          <div className="relative">
-            <select value={language} onChange={(e) => persistLanguage(e.target.value)}
-              className="w-full appearance-none border border-slate-200 rounded-xl px-4 py-3.5 bg-white font-medium text-slate-800">
-              {LANGUAGES.map((l) => (
-                <option key={l.code} value={l.code}>{l.nativeName}</option>
-              ))}
-            </select>
-            <ChevronDown size={18} className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" />
+          <div className="flex items-center gap-2 flex-wrap">
+            {LANGUAGES.map((l) => (
+              <Chip key={l.code} active={touched.language && language === l.code} onClick={() => chooseLanguage(l.code)}>
+                {l.nativeName}
+              </Chip>
+            ))}
           </div>
         </div>
 
         <div className="w-full mb-6">
           <div className="text-xs font-medium text-slate-400 uppercase mb-2 px-1">{t("firstRun.themeLabel")}</div>
           <div className="grid grid-cols-2 gap-3">
-            <button onClick={() => persistTheme("light")}
-              className={`flex flex-col items-center gap-2 rounded-xl border p-4 ${theme === "light" ? "border-teal-600 ring-1 ring-teal-600" : "border-slate-200"}`}>
+            <button onClick={() => chooseTheme("light")}
+              className={`flex flex-col items-center gap-2 rounded-xl border p-4 ${touched.theme && theme === "light" ? "border-teal-600 ring-1 ring-teal-600" : "border-slate-200"}`}>
               <Sun size={22} className="text-amber-500" />
               <span className="text-sm font-medium text-slate-800">{t("firstRun.themeLight")}</span>
             </button>
-            <button onClick={() => persistTheme("dark")}
-              className={`flex flex-col items-center gap-2 rounded-xl border p-4 ${theme === "dark" ? "border-teal-600 ring-1 ring-teal-600" : "border-slate-200"}`}>
+            <button onClick={() => chooseTheme("dark")}
+              className={`flex flex-col items-center gap-2 rounded-xl border p-4 ${touched.theme && theme === "dark" ? "border-teal-600 ring-1 ring-teal-600" : "border-slate-200"}`}>
               <Moon size={22} className="text-indigo-500" />
               <span className="text-sm font-medium text-slate-800">{t("firstRun.themeDark")}</span>
             </button>
@@ -1412,7 +1422,7 @@ function FirstRunScreen({ theme, persistTheme, language, persistLanguage, appSet
           <div className="text-xs font-medium text-slate-400 uppercase mb-2 px-1">{t("firstRun.currencyLabel")}</div>
           <div className="flex items-center gap-2 flex-wrap">
             {Object.keys(CURRENCIES).map((c) => (
-              <Chip key={c} active={appSettings.currency === c} onClick={() => persistSettings({ ...appSettings, currency: c })}>
+              <Chip key={c} active={touched.currency && appSettings.currency === c} onClick={() => chooseCurrency(c)}>
                 {c} {CURRENCIES[c]}
               </Chip>
             ))}
@@ -1420,9 +1430,13 @@ function FirstRunScreen({ theme, persistTheme, language, persistLanguage, appSet
         </div>
 
         <p className="text-xs text-slate-400 text-center mb-2">{t("firstRun.changeLaterNote")}</p>
+        {!allTouched && (
+          <p className="text-xs text-amber-600 text-center mb-2">{t("firstRun.selectAllHint")}</p>
+        )}
       </div>
       <div className="p-4">
-        <button onClick={onDone} className="w-full bg-teal-700 text-white py-3 rounded-xl font-semibold">
+        <button onClick={onDone} disabled={!allTouched}
+          className={`w-full py-3 rounded-xl font-semibold transition-colors ${allTouched ? "bg-teal-700 text-white" : "bg-slate-200 text-slate-400 cursor-not-allowed"}`}>
           {t("firstRun.continueButton")}
         </button>
       </div>

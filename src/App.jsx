@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import {
   Plus, Minus, ChevronRight, ChevronDown, ArrowLeft, X, Settings as SettingsIcon,
   Users, FileText, Search, MoreVertical, Building2, UserPlus, Info, Smartphone,
-  Share2, HelpCircle, BookMarked, Wallet, TrendingUp, TrendingDown, Calendar,
+  Share2, HelpCircle, Wallet, TrendingUp, TrendingDown, Calendar,
   Clock, Trash2, Download, Printer, Eye, EyeOff, ShieldCheck, Check, ArrowRightLeft,
   Loader2, Inbox, ChevronLeft, PieChart as PieChartIcon, SlidersHorizontal, Camera, Paperclip,
   CheckSquare, CheckCircle2, Circle, ClipboardList, Bell, BellOff, BellRing, Calculator,
@@ -727,7 +727,7 @@ function BottomNav({ tab, setTab, t }) {
     // Only the bundle (or the Expenses Manager standalone build) has a
     // dedicated Cashbooks tab — other single-tool builds reach their one
     // tool from the Home card instead.
-    (IS_BUNDLE || APP_VARIANT === "expenses-manager") && { id: "books", label: t("nav.cashbooks"), icon: BookMarked },
+    (IS_BUNDLE || APP_VARIANT === "expenses-manager") && { id: "books", label: t("nav.cashbooks"), icon: Wallet },
     { id: "help", label: t("nav.help"), icon: HelpCircle },
     { id: "more", label: IS_BUNDLE ? t("nav.import") : t("nav.moreApps"), icon: LayoutGrid },
     { id: "settings", label: t("nav.settings"), icon: SettingsIcon },
@@ -1348,7 +1348,7 @@ function AboutSplashScreen({ theme, t, onDone }) {
       <div style={{ opacity: visible ? 1 : 0, transition: "opacity 450ms ease" }} className="flex flex-col items-center">
         <div className="w-16 h-16 rounded-2xl bg-teal-50 border border-teal-100 flex items-center justify-center mb-3"
           style={{ animation: "bejirondIconPulse 2.2s ease-in-out infinite" }}>
-          <BookMarked size={30} className="text-teal-700" />
+          <Wallet size={30} className="text-teal-700" />
         </div>
         <div className="flex items-center gap-1.5 mb-7">
           {[0, 1, 2].map((i) => (
@@ -1386,7 +1386,7 @@ function FirstRunScreen({ theme, persistTheme, language, persistLanguage, appSet
     <div data-theme={theme} className="w-full h-screen bg-white overflow-hidden flex flex-col">
       <div className="flex-1 overflow-y-auto flex flex-col items-center px-6 pt-14">
         <div className="w-20 h-20 rounded-2xl bg-teal-50 border border-teal-100 flex items-center justify-center mb-6">
-          <BookMarked size={36} className="text-teal-700" />
+          <Wallet size={36} className="text-teal-700" />
         </div>
         <h1 className="text-xl font-bold text-slate-900 text-center">{t("firstRun.title")}</h1>
         <p className="text-sm text-slate-500 text-center mt-1 mb-8 max-w-[280px]">{t("firstRun.subtitle")}</p>
@@ -1481,7 +1481,7 @@ function WelcomeScreen({ onDone, theme, persistTheme, t }) {
       )}
       <div className="flex-1 flex flex-col items-center justify-center px-6">
         <div className="w-20 h-20 rounded-2xl bg-teal-50 border border-teal-100 flex items-center justify-center mb-8">
-          <BookMarked size={36} className="text-teal-700" />
+          <Wallet size={36} className="text-teal-700" />
         </div>
         <p className="text-sm text-slate-500 text-center mt-1 mb-8 max-w-[280px]">
           {mode === "create" ? t("welcome.subtitleCreate") : t("welcome.subtitleDefault")}
@@ -1539,7 +1539,7 @@ function WelcomeBackScreen({ account, onUnlock, onResetAccount, theme, persistTh
       )}
       <div className="flex-1 flex flex-col items-center justify-center px-6">
         <div className="w-20 h-20 rounded-2xl bg-teal-50 border border-teal-100 flex items-center justify-center mb-8">
-          <BookMarked size={36} className="text-teal-700" />
+          <Wallet size={36} className="text-teal-700" />
         </div>
         <h1 className="text-xl font-bold text-slate-900 text-center">
           {account.name ? t("welcomeBack.titleWithName", { name: account.name }) : t("welcomeBack.title")}
@@ -1572,7 +1572,7 @@ function ChooseLedgerType({ onDone, t }) {
     <div className="w-full h-full bg-white overflow-hidden flex flex-col">
       <div className="flex-1 flex flex-col items-center px-6 pt-10">
         <div className="w-20 h-20 rounded-2xl bg-teal-50 border border-teal-100 flex items-center justify-center mb-8">
-          <BookMarked size={36} className="text-teal-700" />
+          <Wallet size={36} className="text-teal-700" />
         </div>
         <h1 className="text-xl font-bold text-slate-900 text-center">{t("chooseLedgerType.title")}</h1>
         <p className="text-xs text-slate-400 text-center mt-1 mb-8">{t("chooseLedgerType.note")}</p>
@@ -1862,7 +1862,7 @@ function BooksScreen({ ctx }) {
         </div>
 
         {(!activeLedger || activeLedger.books.length === 0) && (
-          <EmptyState icon={BookMarked} title={t("books.noBooksTitle")} hint={t("books.noBooksHint")} />
+          <EmptyState icon={Wallet} title={t("books.noBooksTitle")} hint={t("books.noBooksHint")} />
         )}
 
         <div className="divide-y divide-slate-200 bg-white rounded-xl border border-slate-200">
@@ -1872,7 +1872,7 @@ function BooksScreen({ ctx }) {
             return (
               <div key={bk.id} className="w-full flex items-center gap-3 px-4 py-3.5">
                 <button onClick={() => push("book", { bookId: bk.id })} className="flex-1 min-w-0 flex items-center gap-3 text-left">
-                  <div className="w-9 h-9 rounded-lg bg-teal-50 flex items-center justify-center text-teal-700 shrink-0"><BookMarked size={16} /></div>
+                  <div className="w-9 h-9 rounded-lg bg-teal-50 flex items-center justify-center text-teal-700 shrink-0"><Wallet size={16} /></div>
                   <div className="flex-1 min-w-0">
                     <div className="font-medium text-slate-900 truncate">{bk.name}</div>
                     <div className="text-xs text-slate-500">{t("books.created", { date: ctx.fmtDate(bk.createdAt.slice(0,10)) })}</div>
@@ -2070,7 +2070,7 @@ function BookScreen({ ctx, bookId }) {
     return () => setBackHandler?.(null);
   }, [deleteConfirmEntries, moveCopyEntries, selectMode, setBackHandler]);
 
-  if (!book) return <EmptyState icon={BookMarked} title={t("bookScreen.bookNotFound")} />;
+  if (!book) return <EmptyState icon={Wallet} title={t("bookScreen.bookNotFound")} />;
 
   // Move/copy targets span every ledger the user has, not just the active one —
   // each book is tagged with which ledger it belongs to so the picker can group

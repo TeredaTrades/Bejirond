@@ -1402,6 +1402,8 @@ function FirstRunScreen({ theme, persistTheme, language, persistLanguage, appSet
           </div>
         </div>
 
+        <div className="w-full border-t border-slate-200 mb-6" />
+
         <div className="w-full mb-6">
           <div className="text-xs font-medium text-slate-400 uppercase mb-2 px-1">{t("firstRun.themeLabel")}</div>
           <div className="grid grid-cols-2 gap-3">
@@ -1418,6 +1420,8 @@ function FirstRunScreen({ theme, persistTheme, language, persistLanguage, appSet
           </div>
         </div>
 
+        <div className="w-full border-t border-slate-200 mb-6" />
+
         <div className="w-full mb-6">
           <div className="text-xs font-medium text-slate-400 uppercase mb-2 px-1">{t("firstRun.currencyLabel")}</div>
           <div className="flex items-center gap-2 flex-wrap">
@@ -1430,9 +1434,6 @@ function FirstRunScreen({ theme, persistTheme, language, persistLanguage, appSet
         </div>
 
         <p className="text-xs text-slate-400 text-center mb-2">{t("firstRun.changeLaterNote")}</p>
-        {!allTouched && (
-          <p className="text-xs text-amber-600 text-center mb-2">{t("firstRun.selectAllHint")}</p>
-        )}
       </div>
       <div className="p-4">
         <button onClick={onDone} disabled={!allTouched}

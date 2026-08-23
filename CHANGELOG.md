@@ -3,6 +3,49 @@
 A running log of what's been built or changed, so we both have a shared
 record without needing to scroll back through chat history.
 
+## 2026-08-23 (very early) — Actually fix the Auto Backup onboarding-skip bug (today's earlier fix was a no-op)
+User re-tested with today's `build-main-65` (which included the "surgical
+backup fix" below), cleared app data, reinstalled — same bug still there:
+skipped straight to the ledger-type picker, Amharic + dark theme carried
+over from before. Root-caused properly this time instead of assuming the
+environment was at fault.
+
+**What was actually wrong:** the "surgical fix" passed a `group` option
+directly to `Preferences.get({ key, group })` / `Preferences.set({ key,
+value, group })`, expecting it to isolate `account`/`first-run-done` into
+their own SharedPreferences file. That option does nothing when passed
+per-call — confirmed against both the official Capacitor Preferences type
+defs (`GetOptions`/`SetOptions` only declare `key`/`value`, no `group`
+field at all) and the native Android plugin source directly (`get()`/
+`set()`/`remove()` never read a `group` field from the call; `group` is
+only consumed by a separate, plugin-instance-wide `configure()` method).
+So `account` and `first-run-done` kept landing in the exact same default
+file as everything else the whole time — the backup-rules exclusion was
+protecting an onboarding.xml file that nothing ever wrote to, while the
+real data stayed fully backed up and kept getting silently restored on
+every reinstall, same as before that fix ever landed. It looked correct
+in code review; it just didn't do anything.
+
+**Real fix:** `account`/`first-run-done` now live in a small JSON file
+(`onboarding-state.json`) written via `@capacitor/filesystem`
+(`Directory.Data` / `Context.getFilesDir()`, already a dependency for
+CSV/PDF export) instead of Preferences. Excluded from Android backup by
+file path (`domain="file"`) in both `backup_rules.xml` (API<31) and
+`data_extraction_rules.xml` (API 31+) — this sidesteps the Preferences
+`group` limitation entirely rather than depending on it. Real data
+(ledgers, entries, settings, profile) untouched, still on Preferences,
+still normally backed up as before.
+
+Verified: full local build (`npm run build`) passes clean. New APK:
+`build-main-66`.
+
+**For anyone with a device still showing the skip on an older build:**
+uninstall completely before installing `build-main-66` — a stale cloud
+backup snapshot taken before this fix existed can't be retroactively
+cleaned up, but the new code doesn't read from wherever that old snapshot
+would restore to, so a clean install of this build should resolve it
+regardless of backup history.
+
 ## 2026-08-22 (cont.) — Explicit, optional user-triggered backup/restore
 Added a dedicated "Backup & Restore" item in Settings (`BackupRestoreScreen`),
 separate from the existing cross-product export/import buried in "More Apps"

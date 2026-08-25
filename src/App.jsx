@@ -469,7 +469,7 @@ function TopHeader({ title, subtitle, onBack, right, ctx }) {
 // the app's teal accents, instead of a generic bookmark/wallet line icon.
 // Accepts the same size/className shape as a lucide icon so it drops into
 // icon={...} slots (e.g. EmptyState, nav config) without special-casing.
-function AppLogoIcon({ size = 24, className = "" }) {
+function AppLogoIcon({ size = 24, className = "", style = {} }) {
   return (
     <img
       src="/logo-tinted.png"
@@ -477,7 +477,7 @@ function AppLogoIcon({ size = 24, className = "" }) {
       width={size}
       height={size}
       className={className}
-      style={{ objectFit: "contain", display: "inline-block", borderRadius: "22%" }}
+      style={{ objectFit: "contain", display: "inline-block", borderRadius: "22%", ...style }}
     />
   );
 }
@@ -1365,10 +1365,7 @@ function AboutSplashScreen({ theme, t, onDone }) {
         @keyframes bejirondIconPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
       `}</style>
       <div style={{ opacity: visible ? 1 : 0, transition: "opacity 450ms ease" }} className="flex flex-col items-center">
-        <div className="w-20 h-20 rounded-2xl bg-teal-50 border border-teal-100 flex items-center justify-center mb-3"
-          style={{ animation: "bejirondIconPulse 2.2s ease-in-out infinite" }}>
-          <AppLogoIcon size={40} />
-        </div>
+        <AppLogoIcon size={80} className="mb-3" style={{ animation: "bejirondIconPulse 2.2s ease-in-out infinite" }} />
         <div className="flex items-center gap-1.5 mb-7">
           {[0, 1, 2].map((i) => (
             <span key={i} className="w-2 h-2 rounded-full bg-teal-700"
@@ -1404,9 +1401,7 @@ function FirstRunScreen({ theme, persistTheme, language, persistLanguage, appSet
   return (
     <div data-theme={theme} className="w-full h-screen bg-white overflow-hidden flex flex-col">
       <div className="flex-1 overflow-y-auto flex flex-col items-center px-6 pt-14">
-        <div className="w-24 h-24 rounded-2xl bg-teal-50 border border-teal-100 flex items-center justify-center mb-6">
-          <AppLogoIcon size={44} />
-        </div>
+        <AppLogoIcon size={96} className="mb-6" />
         <h1 className="text-xl font-bold text-slate-900 text-center">{t("firstRun.title")}</h1>
         <p className="text-sm text-slate-500 text-center mt-1 mb-8 max-w-[280px]">{t("firstRun.subtitle")}</p>
 
@@ -1499,9 +1494,7 @@ function WelcomeScreen({ onDone, theme, persistTheme, t }) {
         </button>
       )}
       <div className="flex-1 flex flex-col items-center justify-center px-6">
-        <div className="w-24 h-24 rounded-2xl bg-teal-50 border border-teal-100 flex items-center justify-center mb-8">
-          <AppLogoIcon size={44} />
-        </div>
+        <AppLogoIcon size={96} className="mb-8" />
         <p className="text-sm text-slate-500 text-center mt-1 mb-8 max-w-[280px]">
           {mode === "create" ? t("welcome.subtitleCreate") : t("welcome.subtitleDefault")}
         </p>
@@ -1590,9 +1583,7 @@ function ChooseLedgerType({ onDone, t }) {
   return (
     <div className="w-full h-full bg-white overflow-hidden flex flex-col">
       <div className="flex-1 flex flex-col items-center px-6 pt-10">
-        <div className="w-24 h-24 rounded-2xl bg-teal-50 border border-teal-100 flex items-center justify-center mb-8">
-          <AppLogoIcon size={44} />
-        </div>
+        <AppLogoIcon size={96} className="mb-8" />
         <h1 className="text-xl font-bold text-slate-900 text-center">{t("chooseLedgerType.title")}</h1>
         <p className="text-xs text-slate-400 text-center mt-1 mb-8">{t("chooseLedgerType.note")}</p>
         <div className="w-full border border-slate-200 rounded-xl divide-y divide-slate-200">

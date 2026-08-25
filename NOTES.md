@@ -55,11 +55,7 @@ that once and scoping all three together rather than separately.
 - Simpler ways to add members
 
 ## To change
-- First-run screen (language/theme/currency picker): the Continue button
-  is currently a plain white tile even while disabled, so it reads as
-  tappable/selectable before all 3 selections are made. Give it a greyed-
-  out (disabled) look until language, theme, and currency have all been
-  chosen.
+-
 
 ## To remove
 -

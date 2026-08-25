@@ -1451,7 +1451,7 @@ function FirstRunScreen({ theme, persistTheme, language, persistLanguage, appSet
       </div>
       <div className="p-4">
         <button onClick={onDone} disabled={!allTouched}
-          className={`w-full py-3 rounded-xl font-semibold transition-colors ${allTouched ? "bg-teal-700 text-white" : "bg-slate-200 text-slate-400 cursor-not-allowed"}`}>
+          className="w-full py-3 rounded-xl font-semibold transition-colors bg-teal-700 text-white disabled:opacity-40 disabled:cursor-not-allowed">
           {t("firstRun.continueButton")}
         </button>
       </div>

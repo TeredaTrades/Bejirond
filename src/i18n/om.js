@@ -145,6 +145,10 @@ export default {
       "holiday-enkutatash": { label: "Enkutatash", sub: "Baraa Haaraa Itoophiyaa — daraaraa Adaay bildiimaa fi magariisaa" },
       "holiday-meskel": { label: "Masqal", sub: "Daraaraa Masqalaa dhiilgee fi warqee" },
       "holiday-christmas": { label: "Kirismaasii", sub: "Diimaa, magariisaa fi cabbii xiqqoo" },
+      maasai: { label: "Masaayii", sub: "Hidhaa diimaa, gurraacha fi cuquliisaa" },
+      "holiday-madaraka": { label: "Guyyaa Madaraka", sub: "Of-bulchuu — diimaa, gurraacha fi magariisa baʼa aduu" },
+      "holiday-mashujaa": { label: "Guyyaa Mashuujaa", sub: "Guyyaa Gootota — gaachana fi eeboo, diimaa gadi fagoo" },
+      "holiday-jamhuri": { label: "Guyyaa Jamhurii", sub: "Guyyaa Rippaabiliikaa — gurraacha, diimaa fi magariisa, ibidda qabsiisaa" },
     },
   },
   language: {

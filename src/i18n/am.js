@@ -143,6 +143,10 @@ export default {
       "holiday-enkutatash": { label: "እንቁጣጣሽ", sub: "የኢትዮጵያ አዲስ ዓመት — የአደይ አበባ ቢጫ እና አረንጓዴ" },
       "holiday-meskel": { label: "መስቀል", sub: "የመስቀል አበባ ወይን ጠጅ እና ወርቅ" },
       "holiday-christmas": { label: "ክሪስማስ", sub: "ቀይ፣ አረንጓዴ እና የበረዶ ንክኪ" },
+      maasai: { label: "ማሳይ", sub: "ዶቃ ስራ ቀይ፣ ጥቁር እና ሰማያዊ ጭረቶች" },
+      "holiday-madaraka": { label: "የማዳራካ ቀን", sub: "ራስን በራስ ማስተዳደር — ቀይ፣ ጥቁር እና አረንጓዴ ጸሐይ መውጫ" },
+      "holiday-mashujaa": { label: "የማሹጃ ቀን", sub: "የጀግኖች ቀን — ጋሻ እና ጦር፣ ጥልቅ ቀይ" },
+      "holiday-jamhuri": { label: "የጃምሁሪ ቀን", sub: "የሪፐብሊክ ቀን — ጥቁር፣ ቀይ እና አረንጓዴ ችቦ" },
     },
   },
   language: {

@@ -143,6 +143,10 @@ export default {
       "holiday-enkutatash": { label: "إنقوطاطاش", sub: "رأس السنة الإثيوبية — أصفر وأخضر زهرة أداي" },
       "holiday-meskel": { label: "مسقل", sub: "أرجواني وذهبي، زهرة مسقل" },
       "holiday-christmas": { label: "عيد الميلاد", sub: "أحمر وأخضر ولمسة من الثلج" },
+      maasai: { label: "ماساي", sub: "خرز أحمر وأسود وأزرق" },
+      "holiday-madaraka": { label: "يوم مادراكا", sub: "الحكم الذاتي — شروق أحمر وأسود وأخضر" },
+      "holiday-mashujaa": { label: "يوم ماشوجا", sub: "يوم الأبطال — درع ورمح، أحمر داكن" },
+      "holiday-jamhuri": { label: "يوم جمهوري", sub: "يوم الجمهورية — مشعل أسود وأحمر وأخضر" },
     },
   },
   language: {

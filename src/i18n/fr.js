@@ -142,6 +142,10 @@ export default {
       "holiday-enkutatash": { label: "Enkutatash", sub: "Nouvel An éthiopien — jaune et vert fleur d'Adey" },
       "holiday-meskel": { label: "Meskel", sub: "Violet et or, fleur de Meskel" },
       "holiday-christmas": { label: "Noël", sub: "Rouge, vert et une touche de neige" },
+      maasai: { label: "Maasaï", sub: "Perles rouge, noir et bleu" },
+      "holiday-madaraka": { label: "Madaraka Day", sub: "Autonomie — lever de soleil rouge, noir et vert" },
+      "holiday-mashujaa": { label: "Mashujaa Day", sub: "Jour des héros — bouclier et lance, rouge profond" },
+      "holiday-jamhuri": { label: "Jamhuri Day", sub: "Jour de la République — flambeau noir, rouge et vert" },
     },
   },
   language: {

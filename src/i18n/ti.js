@@ -142,6 +142,10 @@ export default {
       "holiday-enkutatash": { label: "እንቁጣጣሽ", sub: "ሓድሽ ዓመት ኢትዮጵያ — ጫጉራት ዐደይ ብጫን ቀጠልያን" },
       "holiday-meskel": { label: "መስቀል", sub: "ዕንባባ መስቀል ወይናይን ወርቅን" },
       "holiday-christmas": { label: "ልደት", sub: "ቀይሕ፡ ቀጠልያን ቁሩብ በረድን" },
+      maasai: { label: "ማሳይ", sub: "ዶቃ ስራሕ ቀይሕ፡ ጸሊምን ሰማያዊን ሓረጋት" },
+      "holiday-madaraka": { label: "መዓልቲ ማዳራካ", sub: "ርእሰ-ምምሕዳር — ቀይሕ፡ ጸሊምን ቀጠልያን ጸሓይ ምብራቕ" },
+      "holiday-mashujaa": { label: "መዓልቲ ማሹጃ", sub: "መዓልቲ ጀጋኑ — ዋልታን ኲናትን፡ ጥልቀት ዘለዎ ቀይሕ" },
+      "holiday-jamhuri": { label: "መዓልቲ ጃምሁሪ", sub: "መዓልቲ ሪፐብሊክ — ጸሊም፡ ቀይሕን ቀጠልያን ችቦ" },
     },
   },
   language: {

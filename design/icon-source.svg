@@ -9,14 +9,21 @@
   <rect x="0" y="0" width="512" height="512" rx="112" ry="112" fill="#FFFFFF"/>
 
   <g clip-path="url(#bgClip)">
-    <!-- Cash notes peeking behind wallet -->
+    <!-- Cards peeking behind wallet -->
     <g>
-      <rect x="178" y="86" width="188" height="118" rx="10"
-            fill="#FFFFFF" stroke="#127A3F" stroke-width="7"
-            transform="rotate(-9 272 145)"/>
-      <rect x="150" y="98" width="188" height="118" rx="10"
-            fill="#FFFFFF" stroke="#127A3F" stroke-width="7"
-            transform="rotate(6 244 157)"/>
+      <!-- back card -->
+      <g transform="rotate(-9 272 145)">
+        <rect x="178" y="86" width="188" height="118" rx="10"
+              fill="#FFFFFF" stroke="#127A3F" stroke-width="7"/>
+        <rect x="178" y="112" width="188" height="20" fill="#2B2E33"/>
+      </g>
+      <!-- front card -->
+      <g transform="rotate(6 244 157)">
+        <rect x="150" y="98" width="188" height="118" rx="10"
+              fill="#FFFFFF" stroke="#127A3F" stroke-width="7"/>
+        <rect x="150" y="124" width="188" height="20" fill="#2B2E33"/>
+        <rect x="165" y="152" width="30" height="22" rx="4" fill="#D3A94D"/>
+      </g>
     </g>
 
     <!-- Wallet body -->

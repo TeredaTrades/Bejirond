@@ -9,6 +9,102 @@
   <rect x="0" y="0" width="512" height="512" rx="112" ry="112" fill="#FFFFFF"/>
 
   <g clip-path="url(#bgClip)">
+    <!-- Coins scattered around the wallet base (drawn first so the wallet overlaps/tucks the innermost ones) -->
+    <g>
+      <!-- ===== left pile ===== -->
+      <!-- near-perfect stack -->
+      <circle cx="55" cy="478" r="30" fill="#E8C877" stroke="#127A3F" stroke-width="7"/>
+      <circle cx="55" cy="478" r="16" fill="none" stroke="#127A3F" stroke-width="3" opacity="0.5"/>
+      <circle cx="62" cy="469" r="30" fill="#FFFFFF" stroke="#127A3F" stroke-width="7"/>
+      <circle cx="62" cy="469" r="16" fill="none" stroke="#127A3F" stroke-width="3" opacity="0.5"/>
+      <circle cx="69" cy="460" r="30" fill="#D3A94D" stroke="#127A3F" stroke-width="7"/>
+      <circle cx="69" cy="460" r="16" fill="none" stroke="#127A3F" stroke-width="3" opacity="0.5"/>
+
+      <!-- small stack pair, further out -->
+      <circle cx="-25" cy="450" r="22" fill="#FFFFFF" stroke="#127A3F" stroke-width="6"/>
+      <circle cx="-19" cy="443" r="22" fill="#D3A94D" stroke="#127A3F" stroke-width="6"/>
+
+      <!-- loose scatter, wide spread, some tucked under the wallet's lower edge -->
+      <circle cx="8" cy="405" r="27" fill="#FFFFFF" stroke="#127A3F" stroke-width="7"/>
+      <circle cx="8" cy="405" r="14" fill="none" stroke="#127A3F" stroke-width="3" opacity="0.5"/>
+
+      <circle cx="118" cy="435" r="24" fill="#E8C877" stroke="#127A3F" stroke-width="6"/>
+
+      <circle cx="150" cy="405" r="19" fill="#FFFFFF" stroke="#127A3F" stroke-width="6"/>
+
+      <circle cx="100" cy="518" r="19" fill="#D3A94D" stroke="#127A3F" stroke-width="6"/>
+
+      <circle cx="20" cy="490" r="15" fill="#E8C877" stroke="#127A3F" stroke-width="5"/>
+
+      <circle cx="-40" cy="490" r="16" fill="#D3A94D" stroke="#127A3F" stroke-width="6"/>
+
+      <circle cx="80" cy="515" r="21" fill="#FFFFFF" stroke="#127A3F" stroke-width="6"/>
+
+      <circle cx="133" cy="470" r="14" fill="#D3A94D" stroke="#127A3F" stroke-width="5"/>
+
+      <circle cx="-5" cy="475" r="12" fill="#E8C877" stroke="#127A3F" stroke-width="5"/>
+
+      <circle cx="170" cy="440" r="12" fill="#FFFFFF" stroke="#127A3F" stroke-width="5"/>
+
+      <circle cx="35" cy="518" r="13" fill="#D3A94D" stroke="#127A3F" stroke-width="5"/>
+
+      <!-- ===== center-bottom fill, between the two piles ===== -->
+      <circle cx="248" cy="408" r="17" fill="#D3A94D" stroke="#127A3F" stroke-width="6"/>
+
+      <circle cx="300" cy="414" r="15" fill="#FFFFFF" stroke="#127A3F" stroke-width="6"/>
+
+      <circle cx="198" cy="446" r="21" fill="#E8C877" stroke="#127A3F" stroke-width="6"/>
+
+      <circle cx="232" cy="466" r="16" fill="#FFFFFF" stroke="#127A3F" stroke-width="6"/>
+
+      <circle cx="272" cy="452" r="23" fill="#D3A94D" stroke="#127A3F" stroke-width="6"/>
+
+      <circle cx="260" cy="480" r="13" fill="#FFFFFF" stroke="#127A3F" stroke-width="5"/>
+
+      <circle cx="315" cy="443" r="18" fill="#E8C877" stroke="#127A3F" stroke-width="6"/>
+
+      <circle cx="335" cy="468" r="15" fill="#D3A94D" stroke="#127A3F" stroke-width="5"/>
+
+      <circle cx="178" cy="475" r="12" fill="#FFFFFF" stroke="#127A3F" stroke-width="5"/>
+
+      <circle cx="215" cy="490" r="11" fill="#E8C877" stroke="#127A3F" stroke-width="5"/>
+
+      <!-- ===== right pile ===== -->
+      <!-- near-perfect stack -->
+      <circle cx="457" cy="479" r="28" fill="#FFFFFF" stroke="#127A3F" stroke-width="7"/>
+      <circle cx="457" cy="479" r="15" fill="none" stroke="#127A3F" stroke-width="3" opacity="0.5"/>
+      <circle cx="450" cy="469" r="28" fill="#E8C877" stroke="#127A3F" stroke-width="7"/>
+      <circle cx="450" cy="469" r="15" fill="none" stroke="#127A3F" stroke-width="3" opacity="0.5"/>
+      <circle cx="443" cy="459" r="28" fill="#FFFFFF" stroke="#127A3F" stroke-width="7"/>
+      <circle cx="443" cy="459" r="15" fill="none" stroke="#127A3F" stroke-width="3" opacity="0.5"/>
+
+      <!-- small stack pair, further out -->
+      <circle cx="537" cy="448" r="21" fill="#D3A94D" stroke="#127A3F" stroke-width="6"/>
+      <circle cx="531" cy="441" r="21" fill="#FFFFFF" stroke="#127A3F" stroke-width="6"/>
+
+      <circle cx="512" cy="404" r="26" fill="#D3A94D" stroke="#127A3F" stroke-width="7"/>
+      <circle cx="512" cy="404" r="13" fill="none" stroke="#127A3F" stroke-width="3" opacity="0.5"/>
+
+      <!-- loose scatter, wide spread, some tucked under the wallet's lower edge -->
+      <circle cx="392" cy="437" r="23" fill="#FFFFFF" stroke="#127A3F" stroke-width="6"/>
+
+      <circle cx="362" cy="406" r="18" fill="#E8C877" stroke="#127A3F" stroke-width="6"/>
+
+      <circle cx="416" cy="519" r="19" fill="#D3A94D" stroke="#127A3F" stroke-width="6"/>
+
+      <circle cx="493" cy="482" r="16" fill="#FFFFFF" stroke="#127A3F" stroke-width="5"/>
+
+      <circle cx="480" cy="518" r="21" fill="#E8C877" stroke="#127A3F" stroke-width="6"/>
+
+      <circle cx="386" cy="472" r="13" fill="#D3A94D" stroke="#127A3F" stroke-width="5"/>
+
+      <circle cx="345" cy="440" r="13" fill="#FFFFFF" stroke="#127A3F" stroke-width="5"/>
+
+      <circle cx="500" cy="518" r="13" fill="#D3A94D" stroke="#127A3F" stroke-width="5"/>
+
+      <circle cx="518" cy="470" r="12" fill="#E8C877" stroke="#127A3F" stroke-width="5"/>
+    </g>
+
     <!-- Cards peeking behind wallet -->
     <g>
       <!-- back card -->

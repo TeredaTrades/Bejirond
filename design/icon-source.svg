@@ -6,30 +6,30 @@
   </defs>
 
   <!-- Background -->
-  <rect x="0" y="0" width="512" height="512" rx="112" ry="112" fill="#127A3F"/>
+  <rect x="0" y="0" width="512" height="512" rx="112" ry="112" fill="#FFFFFF"/>
 
   <g clip-path="url(#bgClip)">
     <!-- Cash notes peeking behind wallet -->
     <g>
       <rect x="178" y="86" width="188" height="118" rx="10"
-            fill="#127A3F" stroke="#FFFFFF" stroke-width="7"
+            fill="#FFFFFF" stroke="#127A3F" stroke-width="7"
             transform="rotate(-9 272 145)"/>
       <rect x="150" y="98" width="188" height="118" rx="10"
-            fill="#127A3F" stroke="#FFFFFF" stroke-width="7"
+            fill="#FFFFFF" stroke="#127A3F" stroke-width="7"
             transform="rotate(6 244 157)"/>
     </g>
 
     <!-- Wallet body -->
     <g>
-      <rect x="96" y="176" width="320" height="248" rx="26" fill="#FFFFFF"/>
+      <rect x="96" y="176" width="320" height="248" rx="26" fill="#127A3F"/>
       <!-- wallet fold line -->
-      <path d="M96 226 H416" stroke="#127A3F" stroke-width="6" stroke-linecap="round"/>
+      <path d="M96 226 H416" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round"/>
       <!-- wallet flap / clasp -->
-      <rect x="374" y="248" width="46" height="70" rx="12" fill="#127A3F"/>
-      <circle cx="397" cy="283" r="7" fill="#FFFFFF"/>
+      <rect x="374" y="248" width="46" height="70" rx="12" fill="#FFFFFF"/>
+      <circle cx="397" cy="283" r="7" fill="#127A3F"/>
       <!-- stitching -->
       <rect x="112" y="192" width="288" height="216" rx="18"
-            fill="none" stroke="#127A3F" stroke-width="3" stroke-dasharray="8 8" opacity="0.55"/>
+            fill="none" stroke="#FFFFFF" stroke-width="3" stroke-dasharray="8 8" opacity="0.55"/>
     </g>
 
     <!-- Shield -->
@@ -41,23 +41,23 @@
                C206 372 168 336 168 276
                V182
                Z"
-            fill="#127A3F" stroke="#FFFFFF" stroke-width="12" stroke-linejoin="round"/>
+            fill="#FFFFFF" stroke="#127A3F" stroke-width="12" stroke-linejoin="round"/>
 
       <!-- Growth arrow through shield -->
       <path d="M196 298 L228 254 L254 276 L312 202"
-            fill="none" stroke="#FFFFFF" stroke-width="13"
+            fill="none" stroke="#127A3F" stroke-width="13"
             stroke-linecap="round" stroke-linejoin="round"/>
       <path d="M280 196 L316 200 L312 236"
-            fill="none" stroke="#FFFFFF" stroke-width="13"
+            fill="none" stroke="#127A3F" stroke-width="13"
             stroke-linecap="round" stroke-linejoin="round"/>
 
       <!-- Lock -->
       <g transform="translate(256 338)">
-        <rect x="-32" y="-4" width="64" height="48" rx="11" fill="#FFFFFF"/>
+        <rect x="-32" y="-4" width="64" height="48" rx="11" fill="#127A3F"/>
         <path d="M-19 -4 V-21 A19 19 0 0 1 19 -21 V-4"
-              fill="none" stroke="#FFFFFF" stroke-width="13"/>
-        <circle cx="0" cy="19" r="7.5" fill="#127A3F"/>
-        <rect x="-4" y="19" width="8" height="15" rx="3" fill="#127A3F"/>
+              fill="none" stroke="#127A3F" stroke-width="13"/>
+        <circle cx="0" cy="19" r="7.5" fill="#FFFFFF"/>
+        <rect x="-4" y="19" width="8" height="15" rx="3" fill="#FFFFFF"/>
       </g>
     </g>
   </g>

@@ -36,7 +36,10 @@ async function keysForScope(scope) {
   return keys.filter((k) => scope.exactKeys.includes(k) || scope.prefixes.some((p) => k.startsWith(p)));
 }
 
-export async function exportProductData(productId) {
+// dialogTitle is optional so any existing caller that doesn't pass one still
+// works, but every in-app caller should pass t("share.exportDialogTitle") —
+// this module has no access to the active language/t() itself.
+export async function exportProductData(productId, dialogTitle = "Save or share your export") {
   const scope = PRODUCT_DATA_SCOPES[productId];
   if (!scope) throw new Error(`Unknown product: ${productId}`);
   const keys = await keysForScope(scope);
@@ -55,7 +58,7 @@ export async function exportProductData(productId) {
   const json = JSON.stringify(bundle, null, 2);
   await Filesystem.writeFile({ path: filename, data: json, directory: Directory.Cache, encoding: Encoding.UTF8 });
   const { uri } = await Filesystem.getUri({ path: filename, directory: Directory.Cache });
-  await Share.share({ title: filename, url: uri, dialogTitle: "Save or share your export" });
+  await Share.share({ title: filename, url: uri, dialogTitle });
   return bundle;
 }
 

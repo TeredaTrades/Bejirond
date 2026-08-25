@@ -325,6 +325,10 @@ export default {
     mobileLabel: "ቁጽሪ ሞባይል",
     emailLabel: "ኢመይል",
   },
+  share: {
+    exportDialogTitle: "ናይ ምውጻእካ ፋይል ኣቐምጥ ወይ ኣካፍል",
+    fileDialogTitle: "ኣቐምጥ ወይ ኣካፍል",
+  },
   backupRestore: {
     title: "ምዕቃብን ምምላስን",
     optionalNote: "ፈጺሙ ምርጫ እዩ — በጅሮንድ ንዳታኹም ባዕሉ ኣይሰቅልን ኣይዕቅብን። ኣብ ውሑስ ቦታ (ጉግል ድራይቭ፡ ንገዛእ ርእስኹም ብኢመይል፡ ኮምፒተር) ንምዕቃብ ወይ ኣብ ሓድሽ ሞባይል ንምእታው ጥራይ ንዚደልዩ ተጠቐሙሉ።",

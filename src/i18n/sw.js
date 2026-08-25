@@ -353,6 +353,10 @@ export default {
     mobileLabel: "Namba ya Simu",
     emailLabel: "Barua Pepe",
   },
+  share: {
+    exportDialogTitle: "Hifadhi au shiriki hamisho lako",
+    fileDialogTitle: "Hifadhi au shiriki",
+  },
   backupRestore: {
     title: "Hifadhi Nakala na Kurejesha",
     optionalNote: "Ni hiari kabisa — በጅሮንድ hapakiwi wala kuhifadhi data yako popote peke yake. Tumia hii tu ikiwa unataka faili la kuhifadhi mahali salama (Google Drive, barua pepe kwako mwenyewe, kompyuta) au kulileta kwenye simu mpya.",

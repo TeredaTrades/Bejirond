@@ -144,14 +144,16 @@ const CHART_COLORS = ["#0f766e", "#0891b2", "#059669", "#d97706", "#dc2626", "#7
 // a native build we write the file to cache and hand it to the OS share sheet
 // (the user can then save to Downloads, Drive, WhatsApp, etc). In a plain browser
 // (npm run dev / preview) we fall back to a normal blob download, which still works.
-async function saveAndShareFile({ filename, data, mimeType, base64 = false }) {
+// dialogTitle is optional (defaults to English) so any caller that hasn't
+// been updated to pass t("share.fileDialogTitle") still works.
+async function saveAndShareFile({ filename, data, mimeType, base64 = false, dialogTitle = "Save or share" }) {
   if (Capacitor.isNativePlatform()) {
     const writeOpts = base64
       ? { path: filename, data, directory: Directory.Cache }
       : { path: filename, data, directory: Directory.Cache, encoding: Encoding.UTF8 };
     await Filesystem.writeFile(writeOpts);
     const { uri } = await Filesystem.getUri({ path: filename, directory: Directory.Cache });
-    await Share.share({ title: filename, url: uri, dialogTitle: "Save or share" });
+    await Share.share({ title: filename, url: uri, dialogTitle });
   } else {
     const blob = base64
       ? new Blob([Uint8Array.from(atob(data), (c) => c.charCodeAt(0))], { type: mimeType })
@@ -1745,7 +1747,7 @@ function MoreAppsScreen({ ctx }) {
                 <div className="font-medium text-slate-900 text-sm">{t("moreApps.exportDataTitle", { name: t(`moreApps.products.${self.id}.name`) })}</div>
                 <div className="text-xs text-slate-500">{t("moreApps.exportDataHint")}</div>
               </div>
-              <button onClick={() => exportProductData(APP_VARIANT).catch((e) => alert(e.message))}
+              <button onClick={() => exportProductData(APP_VARIANT, t("share.exportDialogTitle")).catch((e) => alert(e.message))}
                 className="shrink-0 text-xs font-medium bg-teal-700 text-white rounded-lg px-3 py-2">
                 {t("moreApps.exportButton")}
               </button>
@@ -3277,7 +3279,7 @@ function ReportViewScreen({ ctx, bookId, filters }) {
     const csv = rows.map(r => r.map(v => `"${String(v ?? "").replace(/"/g, '""')}"`).join(",")).join("\n");
     setExporting(true);
     try {
-      await saveAndShareFile({ filename: `${filters.bookName || "report"}.csv`, data: csv, mimeType: "text/csv", base64: false });
+      await saveAndShareFile({ filename: `${filters.bookName || "report"}.csv`, data: csv, mimeType: "text/csv", base64: false, dialogTitle: t("share.fileDialogTitle") });
     } catch (err) {
       console.error("CSV export failed", err);
       alert(t("reportView.csvExportFailed"));
@@ -3295,7 +3297,7 @@ function ReportViewScreen({ ctx, bookId, filters }) {
         subtitle: reportSubtitle,
         totalIn, totalOut, cur, headers, rows,
       });
-      await saveAndShareFile({ filename: `${filters.bookName || "report"}.pdf`, data: base64, mimeType: "application/pdf", base64: true });
+      await saveAndShareFile({ filename: `${filters.bookName || "report"}.pdf`, data: base64, mimeType: "application/pdf", base64: true, dialogTitle: t("share.fileDialogTitle") });
     } catch (err) {
       console.error("PDF export failed", err);
       alert(t("reportView.pdfExportFailed"));
@@ -4233,7 +4235,7 @@ function BackupRestoreScreen({ ctx }) {
   const doExport = async () => {
     setBusy(true); setMsg(null);
     try {
-      await exportProductData(APP_VARIANT);
+      await exportProductData(APP_VARIANT, t("share.exportDialogTitle"));
     } catch (e) {
       setMsg({ ok: false, text: e.message || t("backupRestore.exportFailed") });
     } finally {

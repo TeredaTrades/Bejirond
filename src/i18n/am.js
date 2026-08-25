@@ -326,6 +326,10 @@ export default {
     mobileLabel: "ስልክ ቁጥር",
     emailLabel: "ኢሜይል",
   },
+  share: {
+    exportDialogTitle: "ወደ ውጭ የላኩትን ያስቀምጡ ወይም ያጋሩ",
+    fileDialogTitle: "ያስቀምጡ ወይም ያጋሩ",
+  },
   backupRestore: {
     title: "መጠባበቂያ እና መልስ",
     optionalNote: "ሙሉ በሙሉ አማራጭ ነው — በጅሮንድ የእርስዎን ውሂብ በራሱ አይሰቅልም ወይም አያስቀምጥም። ደህንነቱ በተጠበቀ ቦታ (ጉግል ድራይቭ፣ ለራስዎ በኢሜይል፣ ኮምፒውተር) ማስቀመጥ ወይም በአዲስ ስልክ ላይ ማምጣት ከፈለጉ ብቻ ይህን ይጠቀሙ።",

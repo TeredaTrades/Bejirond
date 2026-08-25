@@ -407,6 +407,10 @@ export default {
     mobileLabel: "Lakkoofsa Bilbilaa",
     emailLabel: "Imeelii",
   },
+  share: {
+    exportDialogTitle: "Baasii kee olkaa'i ykn qoodi",
+    fileDialogTitle: "Olkaa'i ykn qoodi",
+  },
   backupRestore: {
     title: "Baakiappii fi Deebisuu",
     optionalNote: "Guutummaatti filannoo qofa — በጅሮንድ daataa kee ofumaan hin ol'kaawwatu yookaan hin baakiappessu. Kana kan fayyadamtu yoo faayilii bakka nagaa (Google Drive, imeelii ofii keetiitti, kompiitara) keessa kaa'uu barbaadde ykn bilbila haaraatti galchuu barbaadde qofa.",

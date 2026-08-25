@@ -325,6 +325,10 @@ export default {
     mobileLabel: "Numéro de mobile",
     emailLabel: "E-mail",
   },
+  share: {
+    exportDialogTitle: "Enregistrer ou partager votre export",
+    fileDialogTitle: "Enregistrer ou partager",
+  },
   backupRestore: {
     title: "Sauvegarde et restauration",
     optionalNote: "Entièrement facultatif — በጅሮንድ ne télécharge ni ne sauvegarde jamais vos données de lui-même. N'utilisez ceci que si vous voulez un fichier à conserver en lieu sûr (Google Drive, par e-mail à vous-même, sur un ordinateur) ou à ramener sur un nouveau téléphone.",

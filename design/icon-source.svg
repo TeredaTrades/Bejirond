@@ -33,7 +33,7 @@
     </g>
 
     <!-- Shield -->
-    <g>
+    <g transform="translate(256 396) scale(0.85) translate(-256 -396)">
       <path d="M256 150
                L344 182
                V276

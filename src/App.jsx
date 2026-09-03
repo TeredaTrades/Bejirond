@@ -549,7 +549,7 @@ function CustomDatePicker({ value, onChange, language = "en", className }) {
       </button>
       {open && (
         <>
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} onPointerDown={() => setOpen(false)} />
           <div className="absolute z-50 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg p-3 w-64">
             <div className="flex items-center justify-between mb-2">
               <button type="button" onClick={prevMonth} className="p-1 text-slate-500 hover:bg-slate-100 rounded-full"><ChevronLeft size={16} /></button>
@@ -611,7 +611,7 @@ function CustomTimePicker({ value, onChange, language = "en", timeFormat = "12h"
       </button>
       {open && (
         <>
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} onPointerDown={() => setOpen(false)} />
           <div className="absolute z-50 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg p-3 flex items-center gap-2 right-0">
             <select value={timeFormat === "24h" ? hh24 : hour12} onChange={(e) => setHour(parseInt(e.target.value, 10))}
               className="border border-slate-300 rounded-lg px-2 py-1.5 text-sm bg-white">
@@ -832,7 +832,7 @@ function PlannedSidebar({ ctx, open, onClose }) {
 
   return (
     <>
-      {open && <div className="fixed inset-0 bg-black/30 z-40" onClick={onClose} />}
+      {open && <div className="fixed inset-0 bg-black/30 z-40" onClick={onClose} onPointerDown={onClose} />}
       <div
         className={`fixed top-0 right-0 h-full w-[86%] max-w-sm bg-white z-50 shadow-2xl flex flex-col transition-transform duration-200 ${open ? "translate-x-0" : "translate-x-full"}`}
       >
@@ -2360,8 +2360,8 @@ function EntryRow({ e, cur, balanceText, t, fmtDate, fmtTime, selectMode, select
 // entries) so an accidental tap doesn't lose data.
 function ConfirmModal({ title, message, confirmLabel = "Yes", cancelLabel = "No", danger = true, onConfirm, onCancel }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onCancel}>
-      <div className="w-full max-w-sm bg-white rounded-2xl p-5" onClick={(ev) => ev.stopPropagation()}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onCancel} onPointerDown={onCancel}>
+      <div className="w-full max-w-sm bg-white rounded-2xl p-5" onClick={(ev) => ev.stopPropagation()} onPointerDown={(ev) => ev.stopPropagation()}>
         <div className="font-semibold text-slate-900 text-base">{title}</div>
         {message && <div className="text-sm text-slate-500 mt-1.5">{message}</div>}
         <div className="flex gap-2 mt-5">
@@ -2393,8 +2393,8 @@ function MoveCopyModal({ entries, otherBooks, cur, activeLedgerId, onClose, onAc
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40" onClick={onClose}>
-      <div className="w-full max-w-md bg-white rounded-t-2xl max-h-[75vh] flex flex-col" onClick={(ev) => ev.stopPropagation()}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40" onClick={onClose} onPointerDown={onClose}>
+      <div className="w-full max-w-md bg-white rounded-t-2xl max-h-[75vh] flex flex-col" onClick={(ev) => ev.stopPropagation()} onPointerDown={(ev) => ev.stopPropagation()}>
         <div className="p-4 border-b border-slate-100">
           <div className="flex items-center justify-between">
             <div className="font-semibold text-slate-900">{single ? t("moveCopyModal.titleSingle") : t("moveCopyModal.titleMultiple", { count: entries.length })}</div>

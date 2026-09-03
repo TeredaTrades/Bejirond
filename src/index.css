@@ -9,3 +9,14 @@ html, body, #root {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Some Android WebView versions delay or occasionally drop synthetic click
+   events on plain (non-button) elements, most noticeably on the invisible
+   full-screen "tap outside to close" overlays used by modals and custom
+   pickers. touch-action: manipulation removes the double-tap-to-zoom delay
+   and speeds up click synthesis app-wide; paired with the onPointerDown
+   fallback added directly to those overlays, this should prevent the
+   "overlay stuck open, nothing clickable" failure mode. */
+* {
+  touch-action: manipulation;
+}
+

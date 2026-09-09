@@ -13,7 +13,7 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600&family=Noto+Sans+Ethiopic:wght@400;500;600&family=Noto+Serif:wght@600;700&family=Noto+Serif+Ethiopic:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600&family=Noto+Sans+Ethiopic:wght@400;500;600&family=Noto+Sans+Arabic:wght@400;500;600&family=Noto+Serif:wght@600;700&family=Noto+Serif+Ethiopic:wght@600;700&family=Noto+Naskh+Arabic:wght@600;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --ink: #16241c;
@@ -31,11 +31,12 @@
     margin:0;
     background:var(--paper);
     color:var(--ink);
-    font-family:"Noto Sans","Noto Sans Ethiopic",sans-serif;
+    font-family:"Noto Sans","Noto Sans Ethiopic","Noto Sans Arabic",sans-serif;
     font-size:17px;
     line-height:1.55;
   }
-  [lang="am"]{ font-family:"Noto Sans Ethiopic","Noto Sans",sans-serif; }
+  [lang="am"], [lang="ti"]{ font-family:"Noto Sans Ethiopic","Noto Sans",sans-serif; }
+  html[dir="rtl"] body{ font-family:"Noto Sans Arabic","Noto Sans",sans-serif; }
 
   a{ color:var(--green-deep); }
 
@@ -44,18 +45,43 @@
   header.top{
     display:flex; align-items:center; justify-content:space-between;
     padding:20px 24px; max-width:var(--max); margin:0 auto;
+    gap:12px; flex-wrap:wrap;
   }
+  html[dir="rtl"] header.top{ flex-direction:row-reverse; }
   header.top .brand{
     display:flex; align-items:center; gap:10px;
     font-weight:600; font-size:15px; color:var(--ink);
   }
+  html[dir="rtl"] header.top .brand{ flex-direction:row-reverse; }
   header.top .brand img{ width:28px; height:28px; border-radius:7px; }
-  header.top a.src{ font-size:14px; color:var(--ink); opacity:.6; text-decoration:none; }
+  header.top a.src{ font-size:13px; color:var(--ink); opacity:.6; text-decoration:none; }
   header.top a.src:hover{ opacity:1; }
+
+  .langbar{
+    display:flex; gap:6px; flex-wrap:wrap; justify-content:center;
+    padding:0 24px 8px;
+  }
+  .langbar button{
+    font-family:inherit;
+    border:1px solid var(--line);
+    background:#fff;
+    color:var(--ink);
+    opacity:.65;
+    font-size:12.5px;
+    padding:5px 11px;
+    border-radius:999px;
+    cursor:pointer;
+  }
+  .langbar button.active{
+    opacity:1;
+    border-color:var(--green);
+    color:var(--green-deep);
+    font-weight:600;
+  }
 
   .hero{
     text-align:center;
-    padding:36px 24px 44px;
+    padding:20px 24px 44px;
   }
   .hero img.icon{
     width:88px; height:88px; border-radius:22px;
@@ -84,9 +110,7 @@
     font-size:17px; color:var(--ink); opacity:.82;
   }
 
-  .cta{
-    margin-top:28px;
-  }
+  .cta{ margin-top:28px; }
   .btn{
     display:inline-block;
     background:var(--green);
@@ -97,16 +121,22 @@
     padding:14px 30px;
     border-radius:10px;
     transition:background .15s ease;
+    border:none;
+    cursor:pointer;
   }
   .btn:hover{ background:var(--green-deep); }
-  .fineprint{
-    margin-top:12px; font-size:13px; color:var(--ink); opacity:.55;
-  }
+  .btn:disabled{ opacity:.5; cursor:default; }
+  .fineprint{ margin-top:12px; font-size:13px; color:var(--ink); opacity:.55; }
   .dl-count{
     margin-top:6px; font-size:13px; color:var(--green-deep); opacity:0;
     transition:opacity .3s ease;
   }
   .dl-count.show{ opacity:.8; }
+
+  .try-browser{
+    display:block; margin-top:14px; font-size:14px;
+    color:var(--ink); opacity:.6; text-decoration:underline;
+  }
 
   section{ padding:38px 0; }
   .rule{ border:none; border-top:1px solid var(--line); margin:0; }
@@ -115,33 +145,24 @@
     font-family:"Noto Serif",serif;
     font-weight:600;
     font-size:15px;
-    text-transform:none;
     color:var(--ink);
     margin:0 0 18px;
     opacity:.65;
   }
 
-  .feature{
-    padding:18px 0;
-    border-top:1px solid var(--line);
-  }
+  .feature{ padding:18px 0; border-top:1px solid var(--line); }
   .feature:last-child{ border-bottom:1px solid var(--line); }
-  .feature .f-title{
-    font-weight:600; font-size:16px; margin:0 0 4px;
-  }
-  .feature .f-body{
-    margin:0; font-size:15.5px; opacity:.78;
-  }
+  .feature .f-title{ font-weight:600; font-size:16px; margin:0 0 4px; }
+  .feature .f-body{ margin:0; font-size:15.5px; opacity:.78; }
 
-  ol.steps{
-    list-style:none; counter-reset:step; margin:0; padding:0;
-  }
+  ol.steps{ list-style:none; counter-reset:step; margin:0; padding:0; }
   ol.steps li{
     counter-increment:step;
     display:flex; gap:14px;
     padding:14px 0;
     border-top:1px solid var(--line);
   }
+  html[dir="rtl"] ol.steps li{ flex-direction:row-reverse; }
   ol.steps li:last-child{ border-bottom:1px solid var(--line); }
   ol.steps li::before{
     content:counter(step);
@@ -157,23 +178,30 @@
   ol.steps li .s-title{ font-weight:600; margin:0 0 3px; }
   ol.steps li .s-body{ margin:0; opacity:.78; font-size:15.5px; }
 
-  .note{
-    background:var(--sage);
-    border-radius:12px;
-    padding:20px 22px;
-    font-size:15px;
-    line-height:1.6;
-  }
+  .note{ background:var(--sage); border-radius:12px; padding:20px 22px; font-size:15px; line-height:1.6; }
   .note p{ margin:0 0 10px; }
   .note p:last-child{ margin-bottom:0; }
 
-  footer{
-    padding:30px 24px 50px;
-    text-align:center;
-    font-size:13px;
-    color:var(--ink);
-    opacity:.55;
+  .review-box{
+    background:#fff; border:1px solid var(--line); border-radius:12px; padding:22px;
   }
+  .review-intro{ margin:0 0 14px; font-size:15px; opacity:.8; }
+  .stars{ display:flex; gap:6px; margin-bottom:14px; }
+  .stars button{
+    background:none; border:none; cursor:pointer; padding:0;
+    font-size:30px; line-height:1; color:var(--line);
+  }
+  .stars button.filled{ color:var(--gold); }
+  .review-box textarea{
+    width:100%; min-height:70px; resize:vertical;
+    font-family:inherit; font-size:15px; color:var(--ink);
+    border:1px solid var(--line); border-radius:8px; padding:10px 12px;
+    margin-bottom:14px;
+  }
+  .review-msg{ font-size:14px; margin-top:12px; opacity:.75; }
+  .review-msg.thanks{ color:var(--green-deep); }
+
+  footer{ padding:30px 24px 50px; text-align:center; font-size:13px; color:var(--ink); opacity:.55; }
   footer a{ color:inherit; }
 </style>
 </head>
@@ -184,53 +212,47 @@
     <img src="icon-192.png" alt="">
     Bejirond
   </div>
-  <a class="src" href="https://github.com/TeredaTrades/Bejirond">Source on GitHub</a>
+  <a class="src" href="https://github.com/TeredaTrades/Bejirond" data-i18n="nav_source">Source on GitHub</a>
 </header>
+
+<nav class="langbar" id="langbar" aria-label="Language">
+  <button data-lang="en">English</button>
+  <button data-lang="am">አማርኛ</button>
+  <button data-lang="om">Afaan Oromoo</button>
+  <button data-lang="ti">ትግርኛ</button>
+  <button data-lang="fr">Français</button>
+  <button data-lang="ar">العربية</button>
+  <button data-lang="sw">Kiswahili</button>
+</nav>
 
 <div class="hero">
   <img class="icon" src="icon-512.png" alt="Bejirond app icon">
   <p class="wordmark" lang="am">በጅሮንድ</p>
   <p class="latin-name">Bejirond<span class="dot">·</span>Expense Manager</p>
-  <p class="tagline">Track spending across several businesses, on your own phone, in the language you actually think in.</p>
+  <p class="tagline" data-i18n="tagline">Track spending across several businesses, on your own phone, in the language you actually think in.</p>
   <div class="cta">
-    <a class="btn" href="https://github.com/TeredaTrades/Bejirond/releases/latest/download/Bejirond.apk">Download for Android</a>
-    <p class="fineprint">Free · Works fully offline · Android 8.0 and up</p>
+    <a class="btn" id="download-btn" href="https://github.com/TeredaTrades/Bejirond/releases/latest/download/Bejirond.apk" data-i18n="download_btn">Download for Android</a>
+    <p class="fineprint" data-i18n="download_fine">Free · Works fully offline · Android 8.0 and up</p>
     <p class="dl-count" id="dl-count"></p>
   </div>
 </div>
 
 <script>
-// Lifetime download count, built from GitHub's own per-release asset stats
-// (no separate analytics service — same data GitHub already tracks for free).
-// Each build publishes a fresh release with an asset named "Bejirond.apk",
-// so the total is the sum of that asset's download_count across every release.
 (async function () {
   const el = document.getElementById('dl-count');
   try {
-    let total = 0;
-    let page = 1;
+    let total = 0, page = 1;
     while (true) {
-      const res = await fetch(
-        `https://api.github.com/repos/TeredaTrades/Bejirond/releases?per_page=100&page=${page}`
-      );
+      const res = await fetch(`https://api.github.com/repos/TeredaTrades/Bejirond/releases?per_page=100&page=${page}`);
       if (!res.ok) break;
       const releases = await res.json();
       if (!releases.length) break;
-      for (const rel of releases) {
-        for (const asset of rel.assets) {
-          if (asset.name === 'Bejirond.apk') total += asset.download_count;
-        }
-      }
+      for (const rel of releases) for (const asset of rel.assets) if (asset.name === 'Bejirond.apk') total += asset.download_count;
       if (releases.length < 100) break;
       page++;
     }
-    if (total > 0) {
-      el.textContent = `Downloaded ${total.toLocaleString()} times so far`;
-      el.classList.add('show');
-    }
-  } catch (e) {
-    // Fails silently — the download button still works without this.
-  }
+    if (total > 0) { el.dataset.count = total; window.__renderDlCount && window.__renderDlCount(); }
+  } catch (e) {}
 })();
 </script>
 
@@ -238,61 +260,401 @@
   <hr class="rule">
 
   <section>
-    <h2>What it does</h2>
+    <h2 data-i18n="section_features">What it does</h2>
     <div class="feature">
-      <p class="f-title">Multiple businesses, one app</p>
-      <p class="f-body">Keep separate books for each business, with team roles and reports for every one of them.</p>
+      <p class="f-title" data-i18n="f1_title">Multiple businesses, one app</p>
+      <p class="f-body" data-i18n="f1_body">Keep separate books for each business, with team roles and reports for every one of them.</p>
     </div>
     <div class="feature">
-      <p class="f-title">Seven languages</p>
-      <p class="f-body">English, Amharic, Afaan Oromoo, Tigrinya, French, Arabic, and Swahili — switch anytime in Settings.</p>
+      <p class="f-title" data-i18n="f2_title">Seven languages</p>
+      <p class="f-body" data-i18n="f2_body">English, Amharic, Afaan Oromoo, Tigrinya, French, Arabic, and Swahili — switch anytime in Settings.</p>
     </div>
     <div class="feature">
-      <p class="f-title">Nothing leaves your phone</p>
-      <p class="f-body">Every book, entry, and setting is stored only on your device. No account, no server, no internet required to use it.</p>
+      <p class="f-title" data-i18n="f3_title">Nothing leaves your phone</p>
+      <p class="f-body" data-i18n="f3_body">Every book, entry, and setting is stored only on your device. No account, no server, no internet required to use it.</p>
     </div>
     <div class="feature">
-      <p class="f-title">Built for how you already track money</p>
-      <p class="f-body">Ethiopian or Gregorian calendar, Birr-first exchange rates, Telebirr/CBE Birr/M-Pesa as payment methods, and a loan calculator built in.</p>
+      <p class="f-title" data-i18n="f4_title">Built for how you already track money</p>
+      <p class="f-body" data-i18n="f4_body">Ethiopian or Gregorian calendar, Birr-first exchange rates, Telebirr/CBE Birr/M-Pesa as payment methods, and a loan calculator built in.</p>
     </div>
   </section>
 
   <section>
-    <h2>Installing it</h2>
+    <h2 data-i18n="section_install">Installing it</h2>
     <ol class="steps">
-      <li>
-        <div>
-          <p class="s-title">Download the file above</p>
-          <p class="s-body">It downloads straight from GitHub, where the app is built.</p>
-        </div>
-      </li>
-      <li>
-        <div>
-          <p class="s-title">Allow this install</p>
-          <p class="s-body">Android will ask permission to install from this source the first time. Approve it — this is normal for apps installed outside the Play Store.</p>
-        </div>
-      </li>
-      <li>
-        <div>
-          <p class="s-title">Open Bejirond and set up your first book</p>
-          <p class="s-body">Pick a language and currency, then you're in.</p>
-        </div>
-      </li>
+      <li><div><p class="s-title" data-i18n="s1_title">Download the file above</p><p class="s-body" data-i18n="s1_body">It downloads straight from GitHub, where the app is built.</p></div></li>
+      <li><div><p class="s-title" data-i18n="s2_title">Allow this install</p><p class="s-body" data-i18n="s2_body">Android will ask permission to install from this source the first time. Approve it — this is normal for apps installed outside the Play Store.</p></div></li>
+      <li><div><p class="s-title" data-i18n="s3_title">Open Bejirond and set up your first book</p><p class="s-body" data-i18n="s3_body">Pick a language and currency, then you're in.</p></div></li>
     </ol>
   </section>
 
   <section>
-    <h2>About this download</h2>
+    <h2 data-i18n="section_about">About this download</h2>
     <div class="note">
-      <p>Bejirond isn't on the Play Store yet, so this page is the way to get it for now. The app is built automatically from its source code every time it's updated, and this link always points to the newest build.</p>
-      <p>Because it's outside the Play Store, your phone may show a general warning about installing unrecognized apps — that's Android being cautious about any app from outside the Store, not a problem specific to Bejirond. The <a href="https://github.com/TeredaTrades/Bejirond">source code is public</a> if you'd like to see exactly what's in it.</p>
+      <p data-i18n="about_p1">Bejirond isn't on the Play Store yet, so this page is the way to get it for now. The app is built automatically from its source code every time it's updated, and this link always points to the newest build.</p>
+      <p data-i18n="about_p2">Because it's outside the Play Store, your phone may show a general warning about installing unrecognized apps — that's Android being cautious about any app from outside the Store, not a problem specific to Bejirond. The <a href="https://github.com/TeredaTrades/Bejirond">source code is public</a> if you'd like to see exactly what's in it.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2 data-i18n="section_reviews">Rate Bejirond</h2>
+    <div class="review-box">
+      <p class="review-intro" data-i18n="review_intro">Used the app? Tell us what you think.</p>
+      <div class="stars" id="stars" role="radiogroup" aria-label="Rating">
+        <button type="button" data-value="1" aria-label="1 star">★</button>
+        <button type="button" data-value="2" aria-label="2 stars">★</button>
+        <button type="button" data-value="3" aria-label="3 stars">★</button>
+        <button type="button" data-value="4" aria-label="4 stars">★</button>
+        <button type="button" data-value="5" aria-label="5 stars">★</button>
+      </div>
+      <textarea id="review-comment" data-i18n-placeholder="review_placeholder" placeholder="Anything you'd add? (optional)"></textarea>
+      <button class="btn" id="review-submit" type="button" data-i18n="review_submit">Send feedback</button>
+      <p class="review-msg" id="review-msg"></p>
     </div>
   </section>
 </div>
 
-<footer>
-  Bejirond is made by <a href="https://teredatrades.com">TeredaTrades</a>.
-</footer>
+<footer data-i18n="footer_line">Bejirond is made by <a href="https://teredatrades.com">TeredaTrades</a>.</footer>
+
+<script>
+// ---- Review widget ----
+// PASTE your Google Apps Script Web App URL here once deployed (see
+// docs/REVIEWS_SETUP.md in this repo for the exact script + steps).
+const REVIEW_ENDPOINT = "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
+
+(function () {
+  let rating = 0;
+  const starsEl = document.getElementById('stars');
+  const msgEl = document.getElementById('review-msg');
+  starsEl.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-value]');
+    if (!btn) return;
+    rating = Number(btn.dataset.value);
+    [...starsEl.children].forEach((b) => b.classList.toggle('filled', Number(b.dataset.value) <= rating));
+  });
+
+  document.getElementById('review-submit').addEventListener('click', async () => {
+    const comment = document.getElementById('review-comment').value.trim();
+    if (!rating) {
+      msgEl.textContent = t('review_pick_stars', 'Pick a star rating first.');
+      msgEl.classList.remove('thanks');
+      return;
+    }
+    if (REVIEW_ENDPOINT.indexOf('PASTE_YOUR') === 0) {
+      msgEl.textContent = t('review_not_connected', "Feedback isn't connected yet — check back soon.");
+      msgEl.classList.remove('thanks');
+      return;
+    }
+    try {
+      await fetch(REVIEW_ENDPOINT, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ rating, comment, lang: currentLang }),
+      });
+      msgEl.textContent = t('review_thanks', 'Thanks — this helps.');
+      msgEl.classList.add('thanks');
+      document.getElementById('review-comment').value = '';
+    } catch (e) {
+      msgEl.textContent = t('review_not_connected', "Feedback isn't connected yet — check back soon.");
+      msgEl.classList.remove('thanks');
+    }
+  });
+})();
+
+// ---- i18n ----
+const TRANSLATIONS = {
+  "en": {
+    "nav_source": "Source on GitHub",
+    "tagline": "Track spending across several businesses, on your own phone, in the language you actually think in.",
+    "download_btn": "Download for Android",
+    "download_fine": "Free · Works fully offline · Android 8.0 and up",
+    "section_features": "What it does",
+    "f1_title": "Multiple businesses, one app",
+    "f1_body": "Keep separate books for each business, with team roles and reports for every one of them.",
+    "f2_title": "Seven languages",
+    "f2_body": "English, Amharic, Afaan Oromoo, Tigrinya, French, Arabic, and Swahili — switch anytime in Settings.",
+    "f3_title": "Nothing leaves your phone",
+    "f3_body": "Every book, entry, and setting is stored only on your device. No account, no server, no internet required to use it.",
+    "f4_title": "Built for how you already track money",
+    "f4_body": "Ethiopian or Gregorian calendar, Birr-first exchange rates, Telebirr/CBE Birr/M-Pesa as payment methods, and a loan calculator built in.",
+    "section_install": "Installing it",
+    "s1_title": "Download the file above",
+    "s1_body": "It downloads straight from GitHub, where the app is built.",
+    "s2_title": "Allow this install",
+    "s2_body": "Android will ask permission to install from this source the first time. Approve it — this is normal for apps installed outside the Play Store.",
+    "s3_title": "Open Bejirond and set up your first book",
+    "s3_body": "Pick a language and currency, then you're in.",
+    "section_about": "About this download",
+    "about_p1": "Bejirond isn't on the Play Store yet, so this page is the way to get it for now. The app is built automatically from its source code every time it's updated, and this link always points to the newest build.",
+    "about_p2": "Because it's outside the Play Store, your phone may show a general warning about installing unrecognized apps — that's Android being cautious about any app from outside the Store, not a problem specific to Bejirond. The <a href=\"https://github.com/TeredaTrades/Bejirond\">source code is public</a> if you'd like to see exactly what's in it.",
+    "section_reviews": "Rate Bejirond",
+    "review_intro": "Used the app? Tell us what you think.",
+    "review_placeholder": "Anything you'd add? (optional)",
+    "review_submit": "Send feedback",
+    "review_thanks": "Thanks — this helps.",
+    "review_not_connected": "Feedback isn't connected yet — check back soon.",
+    "review_pick_stars": "Pick a star rating first.",
+    "footer_line": "Bejirond is made by <a href=\"https://teredatrades.com\">TeredaTrades</a>."
+  },
+  "am": {
+    "nav_source": "ምንጭ በGitHub",
+    "tagline": "በስልክዎ ላይ፣ በሚያውቁት ቋንቋ፣ የብዙ ንግዶችዎን ወጪ ይከታተሉ።",
+    "download_btn": "ለAndroid አውርድ",
+    "download_fine": "ነጻ · ሙሉ በሙሉ ከመስመር ውጪ ይሰራል · Android 8.0 እና ከዚያ በላይ",
+    "section_features": "ምን እንደሚሰራ",
+    "f1_title": "ብዙ ንግዶች፣ አንድ መተግበሪያ",
+    "f1_body": "ለእያንዳንዱ ንግድ የተለየ ደብተር፣ የቡድን ሚናዎች እና ሪፖርቶች ይያዙ።",
+    "f2_title": "ሰባት ቋንቋዎች",
+    "f2_body": "እንግሊዝኛ፣ አማርኛ፣ አፋን ኦሮሞ፣ ትግርኛ፣ ፈረንሳይኛ፣ ዓረብኛ እና ስዋሂሊ — በቅንብሮች ውስጥ በማንኛውም ጊዜ ይቀይሩ።",
+    "f3_title": "ምንም ነገር ከስልክዎ አይወጣም",
+    "f3_body": "እያንዳንዱ ደብተር፣ ግቤት እና ቅንብር የሚቀመጠው በመሳሪያዎ ላይ ብቻ ነው። መለያ፣ አገልጋይ ወይም ኢንተርኔት አያስፈልግም።",
+    "f4_title": "ገንዘብዎን አስቀድመው በሚከታተሉበት መንገድ የተሰራ",
+    "f4_body": "የኢትዮጵያ ወይም የግሪጎሪያን ቀን መቁጠሪያ፣ በብር ላይ የተመሰረተ የምንዛሪ ተመን፣ ቴሌብር/ሲቢኢ ብር/ኤም-ፔሳ የክፍያ ዘዴዎች፣ እና የተካተተ የብድር ማስያ።",
+    "section_install": "አጫጫን",
+    "s1_title": "ከላይ ያለውን ፋይል አውርድ",
+    "s1_body": "መተግበሪያው ከሚገነባበት GitHub በቀጥታ ይወርዳል።",
+    "s2_title": "ይህን መጫኛ ፍቀድ",
+    "s2_body": "Android ለመጀመሪያ ጊዜ ከዚህ ምንጭ ለመጫን ፈቃድ ይጠይቃል። ይፍቀዱ — ይህ ከPlay Store ውጪ ለሚጫኑ መተግበሪያዎች የተለመደ ነው።",
+    "s3_title": "በጅሮንድን ይክፈቱ እና የመጀመሪያ ደብተርዎን ያዘጋጁ",
+    "s3_body": "ቋንቋ እና ገንዘብ ይምረጡ፣ ከዚያ ተጠናቀቀ።",
+    "section_about": "ስለዚህ ውርድ",
+    "about_p1": "በጅሮንድ እስካሁን በPlay Store የለም፣ ስለዚህ ለጊዜው የሚገኝበት መንገድ ይህ ገጽ ነው። መተግበሪያው በተዘመነ ቁጥር ከምንጭ ኮዱ በራስ-ሰር ይገነባል፣ እና ይህ አገናኝ ሁልጊዜ የቅርብ ጊዜውን ስሪት ያመለክታል።",
+    "about_p2": "ከPlay Store ውጪ ስለሆነ፣ ስልክዎ ያልታወቁ መተግበሪያዎችን ስለመጫን አጠቃላይ ማስጠንቀቂያ ሊያሳይ ይችላል — ይህ Android ከStore ውጪ ለሆኑ መተግበሪያዎች ጥንቃቄ የሚያደርግበት እንጂ የበጅሮንድ ብቻ ችግር አይደለም። <a href=\"https://github.com/TeredaTrades/Bejirond\">የምንጭ ኮዱ ክፍት ነው</a> በውስጡ ያለውን በትክክል ለማየት ከፈለጉ።",
+    "section_reviews": "በጅሮንድን ይገምግሙ",
+    "review_intro": "መተግበሪያውን ተጠቅመዋል? ሃሳብዎን ይንገሩን።",
+    "review_placeholder": "የሚጨምሩት ነገር አለ? (አማራጭ)",
+    "review_submit": "አስተያየት ላክ",
+    "review_thanks": "እናመሰግናለን — ይረዳናል።",
+    "review_not_connected": "አስተያየት እስካሁን አልተገናኘም — ቆይተው ይመልከቱ።",
+    "review_pick_stars": "መጀመሪያ የኮኮብ ደረጃ ይምረጡ።",
+    "footer_line": "በጅሮንድ የተሰራው በ<a href=\"https://teredatrades.com\">TeredaTrades</a> ነው።"
+  },
+  "om": {
+    "nav_source": "Madda GitHub irratti",
+    "tagline": "Baasii daldala kee hedduu, bilbila keetii irratti, afaan ati dhugumaan yaaddu keessatti hordofi.",
+    "download_btn": "Android'f Buufadhu",
+    "download_fine": "Bilisa · Offline guutumaan guutuutti ni hojjeta · Android 8.0 fi isaa ol",
+    "section_features": "Waan hojjetu",
+    "f1_title": "Daldalawwan hedduu, appii tokko",
+    "f1_body": "Daldala hunda keessaaf galmee adda addaa, gahee garee, fi gabaasa qabaadhu.",
+    "f2_title": "Afaanota Torba",
+    "f2_body": "Ingiliffa, Amaariffa, Afaan Oromoo, Tigrigna, Faransaayi, Arabiffa, fi Kiswahili — yeroo barbaadetti Settings keessatti jijjiiri.",
+    "f3_title": "Wanti tokko bilbila keerraa hin baane",
+    "f3_body": "Galmeen, seensi, fi qindaa'inni hundi meeshaa keerratti qofa kuufama. Akkaawuntii, sarveerii, yookaan interneetii hin barbaachisu.",
+    "f4_title": "Akkuma ati amma maallaqa keessan hordofaa jirtu ijaarame",
+    "f4_body": "Kalendarii Itoophiyaa yookaan Gregorian, sharafa dolaara Birrii irratti hundaa'e, mala kaffaltii Telebirr/CBE Birr/M-Pesa, fi meeshaa herrega liqii kan of keessaa qabu.",
+    "section_install": "Karaa Ittiin Fe'amu",
+    "s1_title": "Faayilii armaan olii buufadhu",
+    "s1_body": "Kallattiidhuma GitHub, iddoo appiin itti ijaaramu irraa buufama.",
+    "s2_title": "Fe'iinsa kana hayyamsiisi",
+    "s2_body": "Androidiin yeroo jalqabaaf madda kanarraa akka fe'amu hayyama gaafata. Hayyamsiisi — kun appilikeeshinota Play Store alaa fe'aman hundaaf kan baramee dha.",
+    "s3_title": "Bejirond baniitii galmee jalqabaa keessan qopheessaa",
+    "s3_body": "Afaanii fi maallaqa filadhaa, ergasii hojiirra oolchaa.",
+    "section_about": "Waa'ee Buufannaa Kanaa",
+    "about_p1": "Bejirond ammatti Play Store irra hin jiru, kanaafuu fuulli kun karaa yeroo ammaatti ittiin argamu dha. Appichi yeroo haaromfamu hundaa madda koodii isaa irraa ofumaan ijaarama; hidhannoon kun yeroo hunda ijaarsa haaraa isa dhumaa agarsiisa.",
+    "about_p2": "Play Store alaa waan ta'eef, bilbilli keessan akeekkachiisa waliigalaa appilikeeshinota hin beekamne fe'uu ilaalchisee agarsiisuu danda'a — kun of eeggannoo Androidiin appilikeeshinota Store alaa ta'an hundaaf godhu malee rakkoo addaa Bejirond miti. <a href=\"https://github.com/TeredaTrades/Bejirond\">Koodiin maddaa banaa dha</a> yoo waan isa keessa jiru sirriitti ilaaluu barbaaddan.",
+    "section_reviews": "Bejirond Madaali",
+    "review_intro": "Appicha fayyadamtee jirtaa? Yaada kee nuu himi.",
+    "review_placeholder": "Waan dabalu qabdu jiraa? (kan filatamu)",
+    "review_submit": "Yaada Ergi",
+    "review_thanks": "Galatoomaa — kun nu gargaara.",
+    "review_not_connected": "Yaadni ammatti hin hidhamne — booda deebi'ii ilaali.",
+    "review_pick_stars": "Duraan sadarkaa urjii filadhu.",
+    "footer_line": "Bejirond kan hojjetame <a href=\"https://teredatrades.com\">TeredaTrades</a>'iin."
+  },
+  "ti": {
+    "nav_source": "ምንጪ ኣብ GitHub",
+    "tagline": "ወጻኢታት ብዙሓት ትካላትካ፡ ኣብ ተሌፎንካ፡ ብቋንቋ እትሓስበሉ ተኸታተል።",
+    "download_btn": "ን Android ኣውርድ",
+    "download_fine": "ብነጻ · ብዘይ ኢንተርነት ምሉእ ብምሉእ ይሰርሕ · Android 8.0 ን ልዕሊኡ",
+    "section_features": "እንታይ ይገብር",
+    "f1_title": "ብዙሓት ትካላት፡ ሓደ መተግበሪ",
+    "f1_body": "ንነፍሲ ወከፍ ትካል ፍሉይ ደብተር፡ ግደ ጋንታን ጸብጻብን ሓዝ።",
+    "f2_title": "ሸውዓተ ቋንቋታት",
+    "f2_body": "እንግሊዝኛ፡ ኣምሓርኛ፡ ኦሮምኛ፡ ትግርኛ፡ ፈረንሳይኛ፡ ዓረብኛን ስዋሂልን — ኣብ ቅጥዕታት ኣብ ዝኾነ ግዜ ቀይር።",
+    "f3_title": "ገለ ኻብ ተሌፎንካ ኣይወጽእን",
+    "f3_body": "ነፍሲ ወከፍ ደብተር፡ መእተዊ፡ ቅጥዕታት ኣብ መሳርሒኻ ጥራይ ይቕመጥ። ሕሳብ፡ ሰርቨር ወይ ኢንተርነት ኣየድልን።",
+    "f4_title": "ብመንገዲ ድሮ ገንዘብካ እትከታተለሉ ተሰሪሑ",
+    "f4_body": "ካላንደር ኢትዮጵያ ወይ ግሪጎርያን፡ ናይ ብር ምንዛረ ዋጋ፡ ተለብር/ሲቢኢ ብር/ኤም-ፐሳ ከም መንገዲ ክፍሊት፡ ከምኡውን ናይ ልቓሕ መጋነኒ ተኻቲቱ ኣሎ።",
+    "section_install": "ኣገባብ ምጅማር",
+    "s1_title": "እቲ ፋይል ካብ ላዕሊ ኣውርድ",
+    "s1_body": "ብቐጥታ ካብ GitHub፡ እቲ መተግበሪ ዝስራሓሉ ቦታ ይወርድ።",
+    "s2_title": "እዚ ምጅማር ፍቀድ",
+    "s2_body": "Android ንመጀመርታ ግዜ ካብዚ ምንጪ ንኽትጅምር ፍቓድ ክሓትት እዩ። ፍቀድ — እዚ ንመተግበርታት ካብ Play Store ወጻኢ ዝጅምሩ ንቡር እዩ።",
+    "s3_title": "ቤጂሮንድ ክፈት ቀዳማይ ደብተርካ ኣዳሉ",
+    "s3_body": "ቋንቋን ገንዘብን ምረጽ፡ ድሕሪኡ ተዳሊኻ ኢኻ።",
+    "section_about": "ብዛዕባ እዚ ምውራድ",
+    "about_p1": "ቤጂሮንድ ገና ኣብ Play Store የለን፡ ስለዚህ እዚ ገጽ ንሕጂ መንገዲ ንምርካቡ እዩ። እቲ መተግበሪ ኩሉ ግዜ ምስ ተሓደሰ ካብ ምንጪ ኮዱ ብኣውቶማቲክ ይስራሕ፡ እዚ መላግቦ እዚ ድማ ኩሉ ግዜ ናብቲ ዝሓደሰ ስሪት እዩ ዝቐንዕ።",
+    "about_p2": "ካብ Play Store ወጻኢ ስለዝኾነ፡ ተሌፎንካ ብዛዕባ ዘይፍለጡ መተግበርታት ምጅማር ሓፈሻዊ መጠንቀቕታ ከርኢ ይኽእል እዩ — እዚ Android ንኹሎም ካብ Store ወጻኢ ዝኾኑ መተግበርታት ዝገብሮ ጥንቃቐ እዩ፡ ፍሉይ ጸገም ቤጂሮንድ ኣይኮነን። <a href=\"https://github.com/TeredaTrades/Bejirond\">እቲ ምንጪ ኮድ ክፉት እዩ</a> እንተድኣ ብልክዕ እንታይ ከምዘሎ ክትርኢ ደሊኻ።",
+    "section_reviews": "ንቤጂሮንድ ገምግም",
+    "review_intro": "እቲ መተግበሪ ተጠቒምካዮ? ሓሳብካ ንገረና።",
+    "review_placeholder": "እትውስኾ ነገር ኣሎ? (ኣማራጺ)",
+    "review_submit": "ርእይቶ ስደድ",
+    "review_thanks": "የቐንየልና — እዚ ይሕግዘና።",
+    "review_not_connected": "ርእይቶ ገና ኣይተታሓሓዘን — ደሓር ተመለስ።",
+    "review_pick_stars": "ቅድም ብዝሒ ኮኸብ ምረጽ።",
+    "footer_line": "ቤጂሮንድ ብ<a href=\"https://teredatrades.com\">TeredaTrades</a> እዩ ተሰሪሑ።"
+  },
+  "fr": {
+    "nav_source": "Code source sur GitHub",
+    "tagline": "Suivez les dépenses de plusieurs entreprises, sur votre téléphone, dans la langue que vous maîtrisez vraiment.",
+    "download_btn": "Télécharger pour Android",
+    "download_fine": "Gratuit · Fonctionne entièrement hors ligne · Android 8.0 et plus",
+    "section_features": "Ce que fait l'application",
+    "f1_title": "Plusieurs entreprises, une seule application",
+    "f1_body": "Gardez des comptes séparés pour chaque entreprise, avec des rôles d'équipe et des rapports pour chacune.",
+    "f2_title": "Sept langues",
+    "f2_body": "Anglais, amharique, afaan oromo, tigrigna, français, arabe et swahili — changez à tout moment dans les paramètres.",
+    "f3_title": "Rien ne quitte votre téléphone",
+    "f3_body": "Chaque compte, entrée et réglage est stocké uniquement sur votre appareil. Aucun compte, aucun serveur, aucune connexion internet requise.",
+    "f4_title": "Conçu pour la façon dont vous suivez déjà votre argent",
+    "f4_body": "Calendrier éthiopien ou grégorien, taux de change basés sur le birr, moyens de paiement Telebirr/CBE Birr/M-Pesa, et un calculateur de prêt intégré.",
+    "section_install": "Installation",
+    "s1_title": "Téléchargez le fichier ci-dessus",
+    "s1_body": "Le téléchargement se fait directement depuis GitHub, où l'application est construite.",
+    "s2_title": "Autorisez cette installation",
+    "s2_body": "Android vous demandera l'autorisation d'installer depuis cette source la première fois. Acceptez — c'est normal pour les applications installées en dehors du Play Store.",
+    "s3_title": "Ouvrez Bejirond et créez votre premier compte",
+    "s3_body": "Choisissez une langue et une devise, et c'est prêt.",
+    "section_about": "À propos de ce téléchargement",
+    "about_p1": "Bejirond n'est pas encore sur le Play Store, donc cette page est le moyen de l'obtenir pour l'instant. L'application est construite automatiquement à partir de son code source à chaque mise à jour, et ce lien pointe toujours vers la dernière version.",
+    "about_p2": "Comme elle est en dehors du Play Store, votre téléphone peut afficher un avertissement général sur l'installation d'applications non reconnues — c'est la prudence habituelle d'Android pour toute application venant d'ailleurs, pas un problème propre à Bejirond. <a href=\"https://github.com/TeredaTrades/Bejirond\">Le code source est public</a> si vous souhaitez voir exactement ce qu'il contient.",
+    "section_reviews": "Notez Bejirond",
+    "review_intro": "Vous avez utilisé l'application ? Dites-nous ce que vous en pensez.",
+    "review_placeholder": "Autre chose à ajouter ? (facultatif)",
+    "review_submit": "Envoyer",
+    "review_thanks": "Merci — cela nous aide.",
+    "review_not_connected": "Les avis ne sont pas encore connectés — revenez bientôt.",
+    "review_pick_stars": "Choisissez d'abord une note.",
+    "footer_line": "Bejirond est développé par <a href=\"https://teredatrades.com\">TeredaTrades</a>."
+  },
+  "ar": {
+    "nav_source": "المصدر على GitHub",
+    "tagline": "تتبّع مصاريف عدة أنشطة تجارية، على هاتفك، باللغة التي تفكر بها فعلًا.",
+    "download_btn": "تحميل لأندرويد",
+    "download_fine": "مجاني · يعمل بلا إنترنت بالكامل · أندرويد 8.0 فأعلى",
+    "section_features": "ما الذي يقدّمه",
+    "f1_title": "عدة أنشطة تجارية، تطبيق واحد",
+    "f1_body": "احتفظ بدفاتر منفصلة لكل نشاط تجاري، مع أدوار للفريق وتقارير لكل واحد منها.",
+    "f2_title": "سبع لغات",
+    "f2_body": "الإنجليزية والأمهرية والأورومو والتغرينية والفرنسية والعربية والسواحيلية — بدّل بينها في أي وقت من الإعدادات.",
+    "f3_title": "لا شيء يغادر هاتفك",
+    "f3_body": "كل دفتر وإدخال وإعداد يُخزَّن على جهازك فقط. لا حساب، ولا خادم، ولا حاجة إلى الإنترنت لاستخدامه.",
+    "f4_title": "مصمم بالطريقة التي تتبع بها أموالك بالفعل",
+    "f4_body": "التقويم الإثيوبي أو الغريغوري، أسعار صرف مرتكزة على البر، طرق دفع مثل تيليبر وسي بي إي بر وإم-بيسا، وحاسبة قروض مدمجة.",
+    "section_install": "طريقة التثبيت",
+    "s1_title": "حمّل الملف أعلاه",
+    "s1_body": "يُحمَّل مباشرة من GitHub، حيث يُبنى التطبيق.",
+    "s2_title": "اسمح بهذا التثبيت",
+    "s2_body": "سيطلب منك أندرويد إذنًا للتثبيت من هذا المصدر في أول مرة. وافق — هذا أمر طبيعي للتطبيقات المثبّتة خارج متجر Play.",
+    "s3_title": "افتح Bejirond وأنشئ دفترك الأول",
+    "s3_body": "اختر اللغة والعملة، وستكون جاهزًا.",
+    "section_about": "عن هذا التحميل",
+    "about_p1": "لم يصل Bejirond إلى متجر Play بعد، لذا هذه الصفحة هي وسيلة الحصول عليه حاليًا. يُبنى التطبيق تلقائيًا من الشيفرة المصدرية عند كل تحديث، ويشير هذا الرابط دائمًا إلى أحدث نسخة.",
+    "about_p2": "بما أنه خارج متجر Play، قد يُظهر هاتفك تحذيرًا عامًا بشأن تثبيت تطبيقات غير معروفة — هذا احتراس أندرويد المعتاد مع أي تطبيق من خارج المتجر، وليس مشكلة خاصة بـ Bejirond. <a href=\"https://github.com/TeredaTrades/Bejirond\">الشيفرة المصدرية متاحة للعامة</a> إذا أردت الاطلاع على محتواها بدقة.",
+    "section_reviews": "قيّم Bejirond",
+    "review_intro": "هل استخدمت التطبيق؟ أخبرنا برأيك.",
+    "review_placeholder": "أي شيء تود إضافته؟ (اختياري)",
+    "review_submit": "إرسال",
+    "review_thanks": "شكرًا — هذا يساعدنا.",
+    "review_not_connected": "التقييمات غير مفعّلة بعد — تحقق لاحقًا.",
+    "review_pick_stars": "اختر تقييمًا بالنجوم أولًا.",
+    "footer_line": "Bejirond من تطوير <a href=\"https://teredatrades.com\">TeredaTrades</a>."
+  },
+  "sw": {
+    "nav_source": "Chanzo kwenye GitHub",
+    "tagline": "Fuatilia matumizi ya biashara kadhaa, kwenye simu yako, kwa lugha unayoifahamu vizuri.",
+    "download_btn": "Pakua kwa Android",
+    "download_fine": "Bure · Inafanya kazi bila mtandao kabisa · Android 8.0 na zaidi",
+    "section_features": "Inachofanya",
+    "f1_title": "Biashara nyingi, programu moja",
+    "f1_body": "Weka vitabu tofauti kwa kila biashara, ukiwa na majukumu ya timu na ripoti kwa kila moja.",
+    "f2_title": "Lugha saba",
+    "f2_body": "Kiingereza, Kiamhari, Kioromo, Kitigrinya, Kifaransa, Kiarabu na Kiswahili — badilisha wakati wowote kwenye Mipangilio.",
+    "f3_title": "Hakuna kinachotoka kwenye simu yako",
+    "f3_body": "Kila kitabu, kiingizo, na mpangilio huhifadhiwa kwenye kifaa chako pekee. Hakuna akaunti, seva, au mtandao unaohitajika.",
+    "f4_title": "Imeundwa kulingana na jinsi unavyofuatilia pesa zako tayari",
+    "f4_body": "Kalenda ya Kiethiopia au ya Gregorian, viwango vya ubadilishaji vinavyoegemea Birr, njia za malipo za Telebirr/CBE Birr/M-Pesa, na kikokotoo cha mkopo kilichojengwa ndani.",
+    "section_install": "Jinsi ya kusakinisha",
+    "s1_title": "Pakua faili iliyo hapo juu",
+    "s1_body": "Inapakuliwa moja kwa moja kutoka GitHub, mahali programu inapojengwa.",
+    "s2_title": "Ruhusu usakinishaji huu",
+    "s2_body": "Android itaomba ruhusa ya kusakinisha kutoka chanzo hiki mara ya kwanza. Ruhusu — hii ni kawaida kwa programu zinazosakinishwa nje ya Play Store.",
+    "s3_title": "Fungua Bejirond na uweke kitabu chako cha kwanza",
+    "s3_body": "Chagua lugha na sarafu, kisha uko tayari.",
+    "section_about": "Kuhusu upakuaji huu",
+    "about_p1": "Bejirond bado haipo kwenye Play Store, hivyo ukurasa huu ndio njia ya kuipata kwa sasa. Programu hujengwa kiotomatiki kutoka kwenye msimbo wake chanzo kila inaposasishwa, na kiungo hiki huelekeza kila wakati kwenye toleo jipya zaidi.",
+    "about_p2": "Kwa sababu iko nje ya Play Store, simu yako inaweza kuonyesha onyo la jumla kuhusu kusakinisha programu zisizojulikana — huu ni uangalifu wa kawaida wa Android kwa programu yoyote inayotoka nje ya Duka, si tatizo mahususi la Bejirond. <a href=\"https://github.com/TeredaTrades/Bejirond\">Msimbo chanzo ni wa wazi</a> endapo ungependa kuona hasa kilichomo.",
+    "section_reviews": "Kadiria Bejirond",
+    "review_intro": "Umeitumia programu hii? Tuambie unavyoona.",
+    "review_placeholder": "Kuna kitu ungependa kuongeza? (si lazima)",
+    "review_submit": "Tuma maoni",
+    "review_thanks": "Asante — hii inatusaidia.",
+    "review_not_connected": "Maoni bado hayajaunganishwa — rudi tena hivi karibuni.",
+    "review_pick_stars": "Chagua nyota kwanza.",
+    "footer_line": "Bejirond imetengenezwa na <a href=\"https://teredatrades.com\">TeredaTrades</a>."
+  }
+};
+const DL_COUNT_FNS = {
+  "en": (n) => `Downloaded ${n} times so far`,
+  "am": (n) => `${n} ጊዜ ወርዷል`,
+  "om": (n) => `Yeroo ${n} buufameera`,
+  "ti": (n) => `${n} ግዜ ተወሪዱ`,
+  "fr": (n) => `Téléchargé ${n} fois jusqu'à présent`,
+  "ar": (n) => `تم التحميل ${n} مرة حتى الآن`,
+  "sw": (n) => `Imepakuliwa mara ${n} hadi sasa`,
+};
+Object.keys(TRANSLATIONS).forEach((l) => { TRANSLATIONS[l].dl_count = DL_COUNT_FNS[l] || DL_COUNT_FNS.en; });
+const RTL_LANGS = ['ar'];
+let currentLang = 'en';
+
+function t(key, fallback) {
+  return (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][key]) || fallback || key;
+}
+
+function dlCountText(n) {
+  const fn = (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang].dl_count) || TRANSLATIONS.en.dl_count;
+  return fn(n.toLocaleString());
+}
+window.__renderDlCount = function () {
+  const el = document.getElementById('dl-count');
+  const n = Number(el.dataset.count || 0);
+  if (n > 0) { el.textContent = dlCountText(n); el.classList.add('show'); }
+};
+
+function setLang(lang) {
+  if (!TRANSLATIONS[lang]) lang = 'en';
+  currentLang = lang;
+  const dict = TRANSLATIONS[lang];
+  document.querySelectorAll('[data-i18n]').forEach((elm) => {
+    const key = elm.dataset.i18n;
+    if (dict[key] !== undefined) elm.innerHTML = dict[key];
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach((elm) => {
+    const key = elm.dataset.i18nPlaceholder;
+    if (dict[key] !== undefined) elm.placeholder = dict[key];
+  });
+  document.documentElement.lang = lang;
+  document.documentElement.dir = RTL_LANGS.includes(lang) ? 'rtl' : 'ltr';
+  document.querySelectorAll('#langbar button').forEach((b) => b.classList.toggle('active', b.dataset.lang === lang));
+  window.__renderDlCount();
+  try { localStorage.setItem('bejirond_lang', lang); } catch (e) {}
+}
+
+document.getElementById('langbar').addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-lang]');
+  if (btn) setLang(btn.dataset.lang);
+});
+
+(function initLang() {
+  let saved = null;
+  try { saved = localStorage.getItem('bejirond_lang'); } catch (e) {}
+  const browser = (navigator.language || 'en').slice(0, 2);
+  const initial = saved || (TRANSLATIONS[browser] ? browser : 'en');
+  setLang(initial);
+})();
+</script>
 
 </body>
 </html>

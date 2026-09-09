@@ -7,13 +7,15 @@
 <meta name="description" content="Bejirond (በጅሮንድ) — a multi-business expense tracker for Android. Works fully offline, in 7 languages including Amharic, Oromiffa, and Tigrinya. Free download.">
 <meta property="og:title" content="Bejirond — Expense Manager for Android">
 <meta property="og:description" content="A multi-business expense tracker that works fully offline, in 7 languages including Amharic. Free download.">
-<meta property="og:image" content="icon-512.png">
+<meta property="og:image" content="https://bejirond.app/icon-512.png">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://bejirond.app/">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Bejirond — Expense Manager for Android">
 <meta name="twitter:description" content="A multi-business expense tracker that works fully offline, in 7 languages including Amharic. Free download.">
-<meta name="twitter:image" content="icon-512.png">
+<meta name="twitter:image" content="https://bejirond.app/icon-512.png">
+<meta name="theme-color" content="#fbfaf6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#10160f" media="(prefers-color-scheme: dark)">
 <link rel="canonical" href="https://bejirond.app/">
 <link rel="icon" href="icon-192.png">
 <script type="application/ld+json">
@@ -69,10 +71,26 @@
     --gold: #b8863f;
     --sage: #eaf1ea;
     --line: #d9ddd6;
+    --surface: #ffffff;
+    --shadow: rgba(18,36,26,.12);
     --max: 640px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --ink: #eef2ec;
+      --paper: #10160f;
+      --green: #22a35b;
+      --green-deep: #3fc47a;
+      --gold: #d6a75d;
+      --sage: #182a1e;
+      --line: #2b352c;
+      --surface: #17201a;
+      --shadow: rgba(0,0,0,.4);
+    }
   }
   *{box-sizing:border-box;}
   html{-webkit-text-size-adjust:100%;}
+  html{ background:var(--paper); }
   body{
     margin:0;
     background:var(--paper);
@@ -110,7 +128,7 @@
   .langbar button{
     font-family:inherit;
     border:1px solid var(--line);
-    background:#fff;
+    background:var(--surface);
     color:var(--ink);
     opacity:.65;
     font-size:12.5px;
@@ -123,6 +141,35 @@
     border-color:var(--green);
     color:var(--green-deep);
     font-weight:600;
+  }
+
+  .langselect-wrap{ display:none; justify-content:center; padding:0 24px 8px; }
+  .langselect-wrap select{
+    font-family:inherit;
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--green-deep);
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:7px 14px;
+    appearance:none;
+    -webkit-appearance:none;
+    background-image:url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3e%3cpath fill='%230b5c2e' d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+    background-repeat:no-repeat;
+    background-position:right 10px center;
+    background-size:16px;
+    padding-right:32px;
+  }
+  html[dir="rtl"] .langselect-wrap select{
+    background-position:left 10px center;
+    padding-right:14px;
+    padding-left:32px;
+  }
+
+  @media (max-width: 480px){
+    .langbar{ display:none; }
+    .langselect-wrap{ display:flex; }
   }
 
   .hero{
@@ -178,6 +225,11 @@
     transition:opacity .3s ease;
   }
   .dl-count.show{ opacity:.8; }
+  .dl-meta{
+    margin-top:8px; font-size:12.5px; color:var(--ink); opacity:0;
+    letter-spacing:.02em; transition:opacity .3s ease;
+  }
+  .dl-meta.show{ opacity:.5; }
 
   .try-browser{
     display:block; margin-top:14px; font-size:14px;
@@ -228,8 +280,32 @@
   .note p{ margin:0 0 10px; }
   .note p:last-child{ margin-bottom:0; }
 
+  /* Feature-forward: the warm, inviting "what/why" box. */
+  .note--feature{
+    border-left:4px solid var(--green);
+    padding-left:19px;
+  }
+  html[dir="rtl"] .note--feature{
+    border-left:none; border-right:4px solid var(--green);
+    padding-left:22px; padding-right:19px;
+  }
+
+  /* Plain/practical: informational, not a highlighted card. */
+  .note--plain{
+    background:none; border-radius:0; padding:18px 0 0;
+    border-top:1px solid var(--line);
+    font-size:15px;
+  }
+
+  /* Fine print: legal boilerplate — present, but visually quiet. */
+  .note--fine{
+    background:none; border-radius:0; padding:16px 0 0;
+    border-top:1px solid var(--line);
+    font-size:13px; line-height:1.6; opacity:.65;
+  }
+
   .review-box{
-    background:#fff; border:1px solid var(--line); border-radius:12px; padding:22px;
+    background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:22px;
   }
   .review-intro{ margin:0 0 14px; font-size:15px; opacity:.8; }
   .stars{ display:flex; gap:6px; margin-bottom:14px; }
@@ -264,6 +340,31 @@
   .faq-item[open] summary::after{ content:"–"; }
   .faq-item p{ margin:0 0 16px; font-size:15.5px; opacity:.78; }
 
+  .screens{ padding:6px 0 40px; }
+  .screens h2{ margin:0 0 4px; padding:0 24px; }
+  .screens .screens-note{
+    margin:0 0 18px; padding:0 24px;
+    font-size:12.5px; opacity:.5; font-style:italic;
+  }
+  .screens-scroll{
+    display:flex; gap:16px; overflow-x:auto;
+    padding:4px 24px 12px;
+    scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  .screens-scroll::-webkit-scrollbar{ display:none; }
+  .screen-card{ flex:none; width:208px; scroll-snap-align:start; }
+  .screen-card .frame{
+    border-radius:26px;
+    box-shadow:0 16px 32px var(--shadow);
+    overflow:hidden; line-height:0;
+  }
+  .screen-card svg{ width:100%; height:auto; display:block; }
+  .screen-card .s-cap{ margin:12px 2px 0; }
+  .screen-card .s-cap-title{ font-weight:600; font-size:14px; margin:0; }
+  .screen-card .s-cap-body{ font-size:13px; opacity:.6; margin:2px 0 0; }
+
   .social-row{
     display:flex; gap:16px; justify-content:center; flex-wrap:wrap;
     padding:6px 0 4px;
@@ -297,6 +398,17 @@
   <button data-lang="ar">العربية</button>
   <button data-lang="sw">Kiswahili</button>
 </nav>
+<div class="langselect-wrap">
+  <select id="langselect" aria-label="Language">
+    <option value="en">English</option>
+    <option value="am">አማርኛ</option>
+    <option value="om">Afaan Oromoo</option>
+    <option value="ti">ትግርኛ</option>
+    <option value="fr">Français</option>
+    <option value="ar">العربية</option>
+    <option value="sw">Kiswahili</option>
+  </select>
+</div>
 
 <div class="hero">
   <img class="icon" src="icon-512.png" alt="Bejirond app icon">
@@ -306,28 +418,210 @@
   <div class="cta">
     <a class="btn" id="download-btn" href="https://bejirond-dl.teredatrades.workers.dev/?src=downloadpage" data-i18n="download_btn">Download for Android</a>
     <p class="fineprint" data-i18n="download_fine">Free · Works fully offline · Android 8.0 and up</p>
+    <p class="dl-meta" id="dl-meta"></p>
     <p class="dl-count" id="dl-count"></p>
   </div>
 </div>
 
 <script>
 (async function () {
-  const el = document.getElementById('dl-count');
+  const countEl = document.getElementById('dl-count');
+  const metaEl = document.getElementById('dl-meta');
   try {
-    let total = 0, page = 1;
+    let total = 0, page = 1, latestShown = false;
     while (true) {
       const res = await fetch(`https://api.github.com/repos/TeredaTrades/Bejirond/releases?per_page=100&page=${page}`);
       if (!res.ok) break;
       const releases = await res.json();
       if (!releases.length) break;
-      for (const rel of releases) for (const asset of rel.assets) if (asset.name === 'Bejirond.apk') total += asset.download_count;
+      for (const rel of releases) {
+        for (const asset of rel.assets) {
+          if (asset.name !== 'Bejirond.apk') continue;
+          total += asset.download_count;
+          if (!latestShown) {
+            latestShown = true;
+            metaEl.dataset.version = rel.tag_name || '';
+            metaEl.dataset.sizeMb = (asset.size / (1024 * 1024)).toFixed(1);
+            window.__renderDlMeta && window.__renderDlMeta();
+          }
+        }
+      }
       if (releases.length < 100) break;
       page++;
     }
-    if (total > 0) { el.dataset.count = total; window.__renderDlCount && window.__renderDlCount(); }
+    if (total > 0) { countEl.dataset.count = total; window.__renderDlCount && window.__renderDlCount(); }
   } catch (e) {}
 })();
 </script>
+
+<section class="screens" aria-label="App preview">
+  <h2 data-i18n="screens_title">See it in action</h2>
+  <p class="screens-note" data-i18n="screens_note">Illustrative preview of the app's screens</p>
+  <div class="screens-scroll">
+
+    <div class="screen-card">
+      <div class="frame">
+        <svg viewBox="0 0 208 424" xmlns="http://www.w3.org/2000/svg">
+          <style>
+            .sc-bg{fill:var(--surface)} .sc-header{fill:var(--sage)} .sc-line{stroke:var(--line)}
+            .sc-ink{fill:var(--ink)} .sc-muted{fill:var(--ink);opacity:.45}
+            .sc-green{fill:var(--green)} .sc-gold{fill:var(--gold)}
+            .sc-bar{fill:var(--line)} .sc-chip{fill:var(--sage);stroke:var(--green);stroke-width:1}
+          </style>
+          <rect class="sc-bg" x="0" y="0" width="208" height="424" rx="20"/>
+          <rect class="sc-header" x="0" y="0" width="208" height="64" rx="20"/>
+          <rect class="sc-header" x="0" y="30" width="208" height="34"/>
+          <circle class="sc-green" cx="22" cy="24" r="7"/>
+          <text x="36" y="28" class="sc-ink" font-family="sans-serif" font-size="11" font-weight="700">Cafe Circle</text>
+          <text x="36" y="42" class="sc-muted" font-family="sans-serif" font-size="8">August 2026</text>
+          <text x="184" y="28" class="sc-green" font-family="sans-serif" font-size="10" font-weight="700" text-anchor="end">−4,120</text>
+          <text x="184" y="42" class="sc-muted" font-family="sans-serif" font-size="7.5" text-anchor="end">ETB this month</text>
+
+          <g font-family="sans-serif">
+            <circle class="sc-gold" cx="24" cy="90" r="5"/>
+            <rect class="sc-bar" x="38" y="83" width="70" height="6" rx="3"/>
+            <rect class="sc-bar" x="38" y="93" width="44" height="5" rx="2.5" opacity=".5"/>
+            <text x="184" y="93" class="sc-ink" font-size="10" font-weight="600" text-anchor="end">−350</text>
+            <line class="sc-line" x1="16" y1="112" x2="192" y2="112"/>
+
+            <circle class="sc-green" cx="24" cy="134" r="5"/>
+            <rect class="sc-bar" x="38" y="127" width="86" height="6" rx="3"/>
+            <rect class="sc-bar" x="38" y="137" width="40" height="5" rx="2.5" opacity=".5"/>
+            <text x="184" y="137" class="sc-green" font-size="10" font-weight="600" text-anchor="end">+2,600</text>
+            <line class="sc-line" x1="16" y1="156" x2="192" y2="156"/>
+
+            <circle class="sc-gold" cx="24" cy="178" r="5"/>
+            <rect class="sc-bar" x="38" y="171" width="60" height="6" rx="3"/>
+            <rect class="sc-bar" x="38" y="181" width="50" height="5" rx="2.5" opacity=".5"/>
+            <text x="184" y="181" class="sc-ink" font-size="10" font-weight="600" text-anchor="end">−890</text>
+            <line class="sc-line" x1="16" y1="200" x2="192" y2="200"/>
+
+            <circle class="sc-gold" cx="24" cy="222" r="5"/>
+            <rect class="sc-bar" x="38" y="215" width="76" height="6" rx="3"/>
+            <rect class="sc-bar" x="38" y="225" width="36" height="5" rx="2.5" opacity=".5"/>
+            <text x="184" y="225" class="sc-ink" font-size="10" font-weight="600" text-anchor="end">−1,480</text>
+            <line class="sc-line" x1="16" y1="244" x2="192" y2="244"/>
+
+            <circle class="sc-green" cx="24" cy="266" r="5"/>
+            <rect class="sc-bar" x="38" y="259" width="54" height="6" rx="3"/>
+            <rect class="sc-bar" x="38" y="269" width="46" height="5" rx="2.5" opacity=".5"/>
+            <text x="184" y="269" class="sc-green" font-size="10" font-weight="600" text-anchor="end">+900</text>
+          </g>
+
+          <circle class="sc-green" cx="180" cy="380" r="18"/>
+          <rect class="sc-bg" x="176.5" y="372" width="7" height="16" rx="1.5"/>
+          <rect class="sc-bg" x="172" y="376.5" width="16" height="7" rx="1.5"/>
+        </svg>
+      </div>
+      <div class="s-cap">
+        <p class="s-cap-title" data-i18n="screen1_title">Ledger</p>
+        <p class="s-cap-body" data-i18n="screen1_cap">Every entry, at a glance</p>
+      </div>
+    </div>
+
+    <div class="screen-card">
+      <div class="frame">
+        <svg viewBox="0 0 208 424" xmlns="http://www.w3.org/2000/svg">
+          <style>
+            .sc-bg{fill:var(--surface)} .sc-header{fill:var(--sage)}
+            .sc-ink{fill:var(--ink)} .sc-muted{fill:var(--ink);opacity:.45}
+            .sc-green{fill:var(--green)} .sc-gold{fill:var(--gold)}
+            .sc-card{fill:var(--sage)} .sc-cardline{stroke:var(--line)}
+            .sc-dash{stroke:var(--green);stroke-dasharray:4 4;fill:none}
+          </style>
+          <rect class="sc-bg" x="0" y="0" width="208" height="424" rx="20"/>
+          <rect class="sc-header" x="0" y="0" width="208" height="52" rx="20"/>
+          <rect class="sc-header" x="0" y="28" width="208" height="24"/>
+          <text x="24" y="32" class="sc-ink" font-family="sans-serif" font-size="13" font-weight="700">Your businesses</text>
+
+          <g font-family="sans-serif">
+            <rect class="sc-card" x="20" y="70" width="168" height="66" rx="14"/>
+            <circle class="sc-gold" cx="42" cy="103" r="12"/>
+            <text x="42" y="107" text-anchor="middle" font-size="12" font-weight="700" fill="var(--surface)">C</text>
+            <text x="64" y="97" class="sc-ink" font-size="11" font-weight="700">Cafe Circle</text>
+            <text x="64" y="112" class="sc-muted" font-size="8.5">6 books</text>
+            <text x="168" y="112" class="sc-green" font-size="10" font-weight="700" text-anchor="end">−4,120</text>
+
+            <rect class="sc-card" x="20" y="146" width="168" height="66" rx="14"/>
+            <circle class="sc-green" cx="42" cy="179" r="12"/>
+            <text x="42" y="183" text-anchor="middle" font-size="12" font-weight="700" fill="var(--surface)">R</text>
+            <text x="64" y="173" class="sc-ink" font-size="11" font-weight="700">Repair Shop</text>
+            <text x="64" y="188" class="sc-muted" font-size="8.5">2 books</text>
+            <text x="168" y="188" class="sc-green" font-size="10" font-weight="700" text-anchor="end">+1,860</text>
+
+            <rect class="sc-card" x="20" y="222" width="168" height="66" rx="14"/>
+            <circle class="sc-gold" cx="42" cy="255" r="12"/>
+            <text x="42" y="259" text-anchor="middle" font-size="12" font-weight="700" fill="var(--surface)">B</text>
+            <text x="64" y="249" class="sc-ink" font-size="11" font-weight="700">Boutique</text>
+            <text x="64" y="264" class="sc-muted" font-size="8.5">4 books</text>
+            <text x="168" y="264" class="sc-ink" font-size="10" font-weight="700" text-anchor="end">−760</text>
+
+            <rect class="sc-dash" x="20" y="298" width="168" height="50" rx="14" stroke-width="1.5"/>
+            <text x="104" y="328" text-anchor="middle" class="sc-green" font-size="11" font-weight="700">+ Add a business</text>
+          </g>
+        </svg>
+      </div>
+      <div class="s-cap">
+        <p class="s-cap-title" data-i18n="screen2_title">Multiple businesses</p>
+        <p class="s-cap-body" data-i18n="screen2_cap">A separate book for each one</p>
+      </div>
+    </div>
+
+    <div class="screen-card">
+      <div class="frame">
+        <svg viewBox="0 0 208 424" xmlns="http://www.w3.org/2000/svg">
+          <style>
+            .sc-bg{fill:var(--surface)} .sc-header{fill:var(--sage)}
+            .sc-ink{fill:var(--ink)} .sc-muted{fill:var(--ink);opacity:.45}
+            .sc-green{fill:var(--green)} .sc-gold{fill:var(--gold)} .sc-deep{fill:var(--green-deep)}
+            .sc-track{stroke:var(--line);fill:none}
+            .sc-bar{fill:var(--line)}
+          </style>
+          <rect class="sc-bg" x="0" y="0" width="208" height="424" rx="20"/>
+          <rect class="sc-header" x="0" y="0" width="208" height="52" rx="20"/>
+          <rect class="sc-header" x="0" y="28" width="208" height="24"/>
+          <text x="24" y="32" class="sc-ink" font-family="sans-serif" font-size="13" font-weight="700">This month</text>
+
+          <g transform="translate(104,132)">
+            <circle r="46" stroke-width="16" style="fill:none;stroke:var(--line)"/>
+            <circle r="46" stroke-width="16" style="fill:none;stroke:var(--green)"
+              stroke-dasharray="130 199" stroke-dashoffset="0" transform="rotate(-90)"/>
+            <circle r="46" stroke-width="16" style="fill:none;stroke:var(--gold)"
+              stroke-dasharray="65 199" stroke-dashoffset="-130" transform="rotate(-90)"/>
+            <circle r="46" stroke-width="16" style="fill:none;stroke:var(--green-deep)"
+              stroke-dasharray="40 199" stroke-dashoffset="-195" transform="rotate(-90)"/>
+            <text text-anchor="middle" y="-2" class="sc-ink" font-family="sans-serif" font-size="13" font-weight="700">6,430</text>
+            <text text-anchor="middle" y="13" class="sc-muted" font-family="sans-serif" font-size="8">ETB spent</text>
+          </g>
+
+          <g font-family="sans-serif" transform="translate(0,206)">
+            <circle class="sc-green" cx="30" cy="0" r="5"/>
+            <text x="42" y="4" class="sc-ink" font-size="10">Supplies</text>
+            <text x="184" y="4" class="sc-muted" font-size="9.5" text-anchor="end">42%</text>
+
+            <circle class="sc-gold" cx="30" cy="24" r="5"/>
+            <text x="42" y="28" class="sc-ink" font-size="10">Rent</text>
+            <text x="184" y="28" class="sc-muted" font-size="9.5" text-anchor="end">33%</text>
+
+            <circle class="sc-deep" cx="30" cy="48" r="5"/>
+            <text x="42" y="52" class="sc-ink" font-size="10">Transport</text>
+            <text x="184" y="52" class="sc-muted" font-size="9.5" text-anchor="end">20%</text>
+
+            <line x1="16" y1="70" x2="192" y2="70" class="sc-track"/>
+            <text x="16" y="90" class="sc-muted" font-size="8.5">vs. last month</text>
+            <rect x="16" y="98" width="176" height="7" rx="3.5" class="sc-bar"/>
+            <rect x="16" y="98" width="112" height="7" rx="3.5" class="sc-green"/>
+          </g>
+        </svg>
+      </div>
+      <div class="s-cap">
+        <p class="s-cap-title" data-i18n="screen3_title">Reports</p>
+        <p class="s-cap-body" data-i18n="screen3_cap">See where the money goes</p>
+      </div>
+    </div>
+
+  </div>
+</section>
 
 <div class="wrap">
   <hr class="rule">
@@ -354,7 +648,7 @@
 
   <section>
     <h2 data-i18n="section_about_app">About Bejirond</h2>
-    <div class="note">
+    <div class="note note--feature">
       <p data-i18n="about_app_p1">Bejirond (በጅሮንድ) is an offline-first expense manager built by TeredaTrades for people who run more than one business and want to actually keep track of the money — without handing that data to a server somewhere.</p>
       <p data-i18n="about_app_p2">It's built in the languages people in Ethiopia and East Africa actually think in, with the Ethiopian calendar, Birr-based exchange rates, and local payment methods — Telebirr, CBE Birr, Coopay, M-Pesa — built in from day one, not bolted on later.</p>
     </div>
@@ -371,7 +665,7 @@
 
   <section>
     <h2 data-i18n="section_about">About this download</h2>
-    <div class="note">
+    <div class="note note--plain">
       <p data-i18n="about_p1">Bejirond isn't on the Play Store yet, so this page is the way to get it for now. The app is built automatically from its source code every time it's updated, and this link always points to the newest build.</p>
       <p data-i18n="about_p2">Because it's outside the Play Store, your phone may show a general warning about installing unrecognized apps — that's Android being cautious about any app from outside the Store, not a problem specific to Bejirond. The <a href="https://github.com/TeredaTrades/Bejirond">source code is public</a> if you'd like to see exactly what's in it.</p>
     </div>
@@ -428,7 +722,7 @@
 
   <section>
     <h2 data-i18n="section_disclaimer">Disclaimer</h2>
-    <div class="note">
+    <div class="note note--fine">
       <p data-i18n="disclaimer_p1">Bejirond is a personal bookkeeping tool, not a bank, payment provider, or financial institution. It doesn't move money, connect to any bank account, or offer financial, tax, or legal advice — every figure you enter or see (including exchange rates) is for your own record-keeping only.</p>
       <p data-i18n="disclaimer_p2">Telebirr, CBE Birr, Coopay, and M-Pesa are trademarks of their respective owners, listed here only as payment-method labels you can attach to entries — Bejirond has no affiliation with any of them. Android is a trademark of Google LLC.</p>
       <p data-i18n="disclaimer_p3">Bejirond is provided as-is, with no warranty of any kind. Because all data lives only on your device, uninstalling the app, losing your phone, or clearing its storage will permanently delete it — there's no cloud backup yet, so export your data from time to time (Settings → Export).</p>
@@ -540,7 +834,15 @@ const TRANSLATIONS = {
     "disclaimer_p1": "Bejirond is a personal bookkeeping tool, not a bank, payment provider, or financial institution. It doesn't move money, connect to any bank account, or offer financial, tax, or legal advice — every figure you enter or see (including exchange rates) is for your own record-keeping only.",
     "disclaimer_p2": "Telebirr, CBE Birr, Coopay, and M-Pesa are trademarks of their respective owners, listed here only as payment-method labels you can attach to entries — Bejirond has no affiliation with any of them. Android is a trademark of Google LLC.",
     "disclaimer_p3": "Bejirond is provided as-is, with no warranty of any kind. Because all data lives only on your device, uninstalling the app, losing your phone, or clearing its storage will permanently delete it — there's no cloud backup yet, so export your data from time to time (Settings → Export).",
-    "section_social": "Follow along"
+    "section_social": "Follow along",
+    "screens_title": "See it in action",
+    "screens_note": "Illustrative preview of the app's screens",
+    "screen1_title": "Ledger",
+    "screen1_cap": "Every entry, at a glance",
+    "screen2_title": "Multiple businesses",
+    "screen2_cap": "A separate book for each one",
+    "screen3_title": "Reports",
+    "screen3_cap": "See where the money goes"
   },
   "am": {
     "nav_source": "ምንጭ በGitHub",
@@ -596,7 +898,15 @@ const TRANSLATIONS = {
     "disclaimer_p1": "በጅሮንድ የግል የሂሳብ አያያዝ መሳሪያ እንጂ ባንክ፣ የክፍያ አቅራቢ ወይም የፋይናንስ ተቋም አይደለም። ገንዘብ አያንቀሳቅስም፣ ከየትኛውም የባንክ ሂሳብ ጋር አይገናኝም፣ የፋይናንስ፣ የግብር ወይም የሕግ ምክር አይሰጥም — የሚያስገቡት ወይም የሚያዩት እያንዳንዱ አሃዝ (የምንዛሪ ተመንን ጨምሮ) ለራስዎ የመዝገብ አያያዝ ብቻ ነው።",
     "disclaimer_p2": "ቴሌብር፣ ሲቢኢ ብር፣ ኩፔይ እና ኤም-ፔሳ የየራሳቸው ባለቤቶች የንግድ ምልክቶች ናቸው፣ እዚህ የተጠቀሱት ግቤቶችን ለመሰየሚያ የክፍያ ዘዴ አማራጮች ብቻ ናቸው — በጅሮንድ ከየትኛውም ጋር ግንኙነት የለውም። Android የGoogle LLC የንግድ ምልክት ነው።",
     "disclaimer_p3": "በጅሮንድ እንዳለ ይቀርባል፣ ያለ ምንም ዋስትና። ሁሉም ውሂብ የሚቀመጠው በመሳሪያዎ ላይ ብቻ ስለሆነ፣ መተግበሪያውን ማራገፍ፣ ስልክዎን ማጣት ወይም ማከማቻውን ማጽዳት ውሂቡን በቋሚነት ያጠፋዋል — እስካሁን የደመና ምትኬ የለም፣ ስለዚህ በየጊዜው ውሂብዎን ያውጡ (ቅንብሮች → ላክ/Export)።",
-    "section_social": "ተከታተሉን"
+    "section_social": "ተከታተሉን",
+    "screens_title": "በተግባር ይመልከቱት",
+    "screens_note": "የመተግበሪያው ገጾች ምሳሌያዊ ቅድመ-እይታ",
+    "screen1_title": "ደብተር",
+    "screen1_cap": "እያንዳንዱ ግቤት በአንድ እይታ",
+    "screen2_title": "ብዙ ንግዶች",
+    "screen2_cap": "ለእያንዳንዱ የተለየ ደብተር",
+    "screen3_title": "ሪፖርቶች",
+    "screen3_cap": "ገንዘብዎ ወዴት እንደሚሄድ ይመልከቱ"
   },
   "om": {
     "nav_source": "Madda GitHub irratti",
@@ -652,7 +962,15 @@ const TRANSLATIONS = {
     "disclaimer_p1": "Bejirond meeshaa herrega dhuunfaa dha, baankii, dhiyeessaa kaffaltii, yookaan dhaabbata maallaqaa miti. Maallaqa hin dabarsu, akkaawuntii baankii kamiyyuu wajjin hin walqunnamu, gorsa maallaqaa, gibiraa, yookaan seeraa hin kennu — lakkoofsi ati galchitu yookaan argitu hundi (sharafa dabalatee) galmee dhuunfaa keetiif qofa.",
     "disclaimer_p2": "Telebirr, CBE Birr, Coopay, fi M-Pesa mallattoo daldalaa abbootii qabeenyaa isaanii dha, kan asitti caqafaman filannoo mala kaffaltii galmeewwan keetiif maqeessuuf qofa — Bejirond isaan keessaa tokko wajjinuu walqabatee hin jiru. Android mallattoo daldalaa Google LLC ti.",
     "disclaimer_p3": "Bejirond akkuma jirutti dhiyaata, wabii tokko malee. Daataan hundi meeshaa kee qofa irratti waan kuufamuuf, appicha balleessuun, bilbila kee dhabuun, yookaan kuusaa isaa haqu daataa sana bara baraan ni balleessa — kuusaa duukaa buutii (cloud) hanga ammaatti hin jiru, kanaafuu yeroo yeroon daataa kee baafadhu (Settings → Export).",
-    "section_social": "Nu Hordofaa"
+    "section_social": "Nu Hordofaa",
+    "screens_title": "Hojiirra Ilaali",
+    "screens_note": "Fakkeenya agarsiisaa fuula appii",
+    "screen1_title": "Galmee",
+    "screen1_cap": "Galmee hunda tokkoon ilaali",
+    "screen2_title": "Daldalawwan hedduu",
+    "screen2_cap": "Tokkoo tokkoof galmee adda addaa",
+    "screen3_title": "Gabaasa",
+    "screen3_cap": "Maallaqni eessa akka deemu ilaali"
   },
   "ti": {
     "nav_source": "ምንጪ ኣብ GitHub",
@@ -708,7 +1026,15 @@ const TRANSLATIONS = {
     "disclaimer_p1": "ቤጂሮንድ ናይ ውልቀ ሕሳብ መሳርሒ እዩ፡ ባንክ፡ ኣቕራቢ ክፍሊት ወይ ናይ ፋይናንስ ትካል ኣይኮነን። ገንዘብ ኣየንቀሳቕስን፡ ምስ ዝኾነ ናይ ባንክ ሕሳብ ኣይራኸብን፡ ናይ ፋይናንስ፡ ግብሪ ወይ ሕጋዊ ምኽሪ ኣይህብን — እትእቱዎ ወይ እትርእዮ ነፍሲ ወከፍ ቁጽሪ (ናይ ምንዛረ ዋጋ ሓዊሱ) ንናትካ መዝገብ ጥራይ እዩ።",
     "disclaimer_p2": "ተለብር፡ ሲቢኢ ብር፡ ኩፐይን ኤም-ፐሳን ናይ ገዛእ ርእሶም ወነንቲ ናይ ንግድ ምልክታት እዮም፡ ኣብዚ እተጠቕሱ ንመእተዊታትካ ክትሰይም እትጥቀመሎም ናይ ክፍሊት ኣማራጺታት ጥራይ እዮም — ቤጂሮንድ ምስ ዝኾነ ካብኦም ርክብ የብሉን። Android ናይ Google LLC ናይ ንግዲ ምልክት እዩ።",
     "disclaimer_p3": "ቤጂሮንድ ከምዘሎ ይቐርብ፡ ብዘይ ዝኾነ ዋስትና። ኩሉ ውሂብ ኣብ መሳርሒኻ ጥራይ ስለዝቕመጥ፡ መተግበሪ ምዝንጋዕ፡ ተሌፎንካ ምስኣን ወይ ማከማቻኡ ምጽራይ ንውሂቡ ብቐዋምነት ኬጠፍእ እዩ — ክሳብ ሕጂ ናይ ደመና ምትካእ የለን፡ ስለዚ ውሂብካ ሓደ ሓደ ግዜ ኣውጽእ (ቅጥዕታት → ላክ/Export)።",
-    "section_social": "ተኸተሉና"
+    "section_social": "ተኸተሉና",
+    "screens_title": "ብተግባር ርአዮ",
+    "screens_note": "ኣብነታዊ ትርኢት ናይ ገጻት መተግበሪያ",
+    "screen1_title": "ደብተር",
+    "screen1_cap": "ነፍስወከፍ ምዝገባ ብሓንሳእ ርአ",
+    "screen2_title": "ብዙሓት ንግድታት",
+    "screen2_cap": "ንነፍስወከፍ ፍሉይ ደብተር",
+    "screen3_title": "ጸብጻባት",
+    "screen3_cap": "ገንዘብካ ናበይ ከምዝኸይድ ርአ"
   },
   "fr": {
     "nav_source": "Code source sur GitHub",
@@ -764,7 +1090,15 @@ const TRANSLATIONS = {
     "disclaimer_p1": "Bejirond est un outil de comptabilité personnelle, pas une banque, un prestataire de paiement ou une institution financière. Il ne déplace pas d'argent, ne se connecte à aucun compte bancaire et ne fournit aucun conseil financier, fiscal ou juridique — chaque chiffre que vous saisissez ou consultez (y compris les taux de change) sert uniquement à votre propre suivi.",
     "disclaimer_p2": "Telebirr, CBE Birr, Coopay et M-Pesa sont des marques de leurs propriétaires respectifs, mentionnées ici uniquement comme des libellés de moyens de paiement que vous pouvez attribuer à vos entrées — Bejirond n'a aucune affiliation avec eux. Android est une marque de Google LLC.",
     "disclaimer_p3": "Bejirond est fourni tel quel, sans garantie d'aucune sorte. Toutes les données étant stockées uniquement sur votre appareil, désinstaller l'application, perdre votre téléphone ou vider son stockage les supprimera définitivement — il n'y a pas encore de sauvegarde dans le cloud, pensez donc à exporter vos données de temps en temps (Paramètres → Exporter).",
-    "section_social": "Suivez-nous"
+    "section_social": "Suivez-nous",
+    "screens_title": "En action",
+    "screens_note": "Aperçu illustratif des écrans de l'application",
+    "screen1_title": "Registre",
+    "screen1_cap": "Chaque entrée, en un coup d'œil",
+    "screen2_title": "Plusieurs entreprises",
+    "screen2_cap": "Un registre séparé pour chacune",
+    "screen3_title": "Rapports",
+    "screen3_cap": "Voyez où va l'argent"
   },
   "ar": {
     "nav_source": "المصدر على GitHub",
@@ -820,7 +1154,15 @@ const TRANSLATIONS = {
     "disclaimer_p1": "Bejirond أداة محاسبة شخصية، وليس بنكًا أو مزود دفع أو مؤسسة مالية. لا يقوم بتحريك الأموال، ولا يتصل بأي حساب مصرفي، ولا يقدّم استشارة مالية أو ضريبية أو قانونية — كل رقم تُدخله أو تراه (بما في ذلك أسعار الصرف) هو لغرض تسجيلك الشخصي فقط.",
     "disclaimer_p2": "تيليبر وسي بي إي بر وكوباي وإم-بيسا علامات تجارية مملوكة لأصحابها، وذُكرت هنا فقط كخيارات لتسمية طريقة الدفع في إدخالاتك — لا علاقة لـ Bejirond بأي منها. أندرويد علامة تجارية لشركة Google LLC.",
     "disclaimer_p3": "يُقدَّم Bejirond كما هو، دون أي ضمان. ولأن كل البيانات تُخزَّن على جهازك فقط، فإن إلغاء تثبيت التطبيق أو فقدان هاتفك أو مسح مساحة تخزينه سيحذفها نهائيًا — لا توجد نسخة احتياطية سحابية حتى الآن، لذا صدّر بياناتك بين الحين والآخر (الإعدادات ← تصدير).",
-    "section_social": "تابعنا"
+    "section_social": "تابعنا",
+    "screens_title": "شاهدها أثناء العمل",
+    "screens_note": "معاينة توضيحية لشاشات التطبيق",
+    "screen1_title": "الدفتر",
+    "screen1_cap": "كل عملية، في لمحة واحدة",
+    "screen2_title": "أعمال متعددة",
+    "screen2_cap": "دفتر منفصل لكل عمل",
+    "screen3_title": "التقارير",
+    "screen3_cap": "اعرف أين يذهب المال"
   },
   "sw": {
     "nav_source": "Chanzo kwenye GitHub",
@@ -876,7 +1218,15 @@ const TRANSLATIONS = {
     "disclaimer_p1": "Bejirond ni chombo cha uhasibu binafsi, si benki, mtoa huduma za malipo, au taasisi ya kifedha. Haihamishi pesa, haihuiungani na akaunti yoyote ya benki, wala haitoi ushauri wa kifedha, kodi, au kisheria — kila namba unayoingiza au kuiona (ikiwemo viwango vya ubadilishaji) ni kwa ajili ya kumbukumbu zako binafsi tu.",
     "disclaimer_p2": "Telebirr, CBE Birr, Coopay, na M-Pesa ni chapa za wamiliki wao husika, zimetajwa hapa tu kama lebo za njia za malipo unazoweza kuweka kwenye viingizo — Bejirond haihusiani na yoyote kati yao. Android ni chapa ya Google LLC.",
     "disclaimer_p3": "Bejirond inatolewa kama ilivyo, bila dhamana ya aina yoyote. Kwa kuwa data yote huhifadhiwa kwenye kifaa chako pekee, kuondoa programu, kupoteza simu yako, au kufuta hifadhi yake kutaifuta data hiyo kabisa — hakuna nakala rudufu ya wingu bado, hivyo hakikisha unahamisha data yako mara kwa mara (Mipangilio → Hamisha/Export).",
-    "section_social": "Tufuate"
+    "section_social": "Tufuate",
+    "screens_title": "Iangalie ikifanya kazi",
+    "screens_note": "Muhtasari wa mfano wa skrini za programu",
+    "screen1_title": "Kitabu",
+    "screen1_cap": "Kila kiingilio, kwa mtazamo mmoja",
+    "screen2_title": "Biashara nyingi",
+    "screen2_cap": "Kitabu tofauti kwa kila moja",
+    "screen3_title": "Ripoti",
+    "screen3_cap": "Ona pesa zinakoenda"
   }
 };
 const DL_COUNT_FNS = {
@@ -889,6 +1239,16 @@ const DL_COUNT_FNS = {
   "sw": (n) => `Imepakuliwa mara ${n} hadi sasa`,
 };
 Object.keys(TRANSLATIONS).forEach((l) => { TRANSLATIONS[l].dl_count = DL_COUNT_FNS[l] || DL_COUNT_FNS.en; });
+const DL_META_FNS = {
+  "en": (v, s) => `Version ${v} · ${s} MB`,
+  "am": (v, s) => `ስሪት ${v} · ${s} MB`,
+  "om": (v, s) => `Sirna ${v} · ${s} MB`,
+  "ti": (v, s) => `ስሒት ${v} · ${s} MB`,
+  "fr": (v, s) => `Version ${v} · ${s} Mo`,
+  "ar": (v, s) => `الإصدار ${v} · ${s} م.ب`,
+  "sw": (v, s) => `Toleo ${v} · MB ${s}`,
+};
+Object.keys(TRANSLATIONS).forEach((l) => { TRANSLATIONS[l].dl_meta = DL_META_FNS[l] || DL_META_FNS.en; });
 const RTL_LANGS = ['ar'];
 let currentLang = 'en';
 
@@ -906,6 +1266,16 @@ window.__renderDlCount = function () {
   if (n > 0) { el.textContent = dlCountText(n); el.classList.add('show'); }
 };
 
+function dlMetaText(version, sizeMb) {
+  const fn = (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang].dl_meta) || TRANSLATIONS.en.dl_meta;
+  return fn(version, sizeMb);
+}
+window.__renderDlMeta = function () {
+  const el = document.getElementById('dl-meta');
+  const version = el.dataset.version, sizeMb = el.dataset.sizeMb;
+  if (version && sizeMb) { el.textContent = dlMetaText(version, sizeMb); el.classList.add('show'); }
+};
+
 function setLang(lang) {
   if (!TRANSLATIONS[lang]) lang = 'en';
   currentLang = lang;
@@ -921,7 +1291,10 @@ function setLang(lang) {
   document.documentElement.lang = lang;
   document.documentElement.dir = RTL_LANGS.includes(lang) ? 'rtl' : 'ltr';
   document.querySelectorAll('#langbar button').forEach((b) => b.classList.toggle('active', b.dataset.lang === lang));
+  const sel = document.getElementById('langselect');
+  if (sel) sel.value = lang;
   window.__renderDlCount();
+  window.__renderDlMeta();
   try { localStorage.setItem('bejirond_lang', lang); } catch (e) {}
 }
 
@@ -929,6 +1302,7 @@ document.getElementById('langbar').addEventListener('click', (e) => {
   const btn = e.target.closest('button[data-lang]');
   if (btn) setLang(btn.dataset.lang);
 });
+document.getElementById('langselect').addEventListener('change', (e) => setLang(e.target.value));
 
 (function initLang() {
   let saved = null;

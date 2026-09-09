@@ -102,6 +102,11 @@
   .fineprint{
     margin-top:12px; font-size:13px; color:var(--ink); opacity:.55;
   }
+  .dl-count{
+    margin-top:6px; font-size:13px; color:var(--green-deep); opacity:0;
+    transition:opacity .3s ease;
+  }
+  .dl-count.show{ opacity:.8; }
 
   section{ padding:38px 0; }
   .rule{ border:none; border-top:1px solid var(--line); margin:0; }
@@ -190,8 +195,44 @@
   <div class="cta">
     <a class="btn" href="https://github.com/TeredaTrades/Bejirond/releases/latest/download/Bejirond.apk">Download for Android</a>
     <p class="fineprint">Free · Works fully offline · Android 8.0 and up</p>
+    <p class="dl-count" id="dl-count"></p>
   </div>
 </div>
+
+<script>
+// Lifetime download count, built from GitHub's own per-release asset stats
+// (no separate analytics service — same data GitHub already tracks for free).
+// Each build publishes a fresh release with an asset named "Bejirond.apk",
+// so the total is the sum of that asset's download_count across every release.
+(async function () {
+  const el = document.getElementById('dl-count');
+  try {
+    let total = 0;
+    let page = 1;
+    while (true) {
+      const res = await fetch(
+        `https://api.github.com/repos/TeredaTrades/Bejirond/releases?per_page=100&page=${page}`
+      );
+      if (!res.ok) break;
+      const releases = await res.json();
+      if (!releases.length) break;
+      for (const rel of releases) {
+        for (const asset of rel.assets) {
+          if (asset.name === 'Bejirond.apk') total += asset.download_count;
+        }
+      }
+      if (releases.length < 100) break;
+      page++;
+    }
+    if (total > 0) {
+      el.textContent = `Downloaded ${total.toLocaleString()} times so far`;
+      el.classList.add('show');
+    }
+  } catch (e) {
+    // Fails silently — the download button still works without this.
+  }
+})();
+</script>
 
 <div class="wrap">
   <hr class="rule">

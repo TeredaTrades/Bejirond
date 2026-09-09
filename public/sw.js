@@ -12,8 +12,17 @@
 //
 // Bump CACHE_VERSION whenever this file or the precache list changes, so
 // old caches get cleaned up on the next activate.
-const CACHE_VERSION = "bejirond-v1";
-const APP_SHELL = ["/", "/manifest.json", "/icon-192.png", "/icon-512.png"];
+const CACHE_VERSION = "bejirond-v2";
+// Resolved relative to this file's own location so the same service worker
+// works whether it's served from a domain root (native/Capacitor origin,
+// or a custom domain) or a subpath (a GitHub Pages project URL, etc.).
+const SHELL_URL = new URL("./", self.location).href;
+const APP_SHELL = [
+  SHELL_URL,
+  new URL("./manifest.json", self.location).href,
+  new URL("./icon-192.png", self.location).href,
+  new URL("./icon-512.png", self.location).href,
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -40,10 +49,10 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       fetch(req)
         .then((res) => {
-          caches.open(CACHE_VERSION).then((cache) => cache.put("/", res.clone()));
+          caches.open(CACHE_VERSION).then((cache) => cache.put(SHELL_URL, res.clone()));
           return res;
         })
-        .catch(() => caches.match("/"))
+        .catch(() => caches.match(SHELL_URL))
     );
     return;
   }

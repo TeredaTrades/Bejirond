@@ -51,6 +51,11 @@ jobs:
           mkdir -p dist-apk
           cp android/app/build/outputs/apk/debug/app-debug.apk \
              "dist-apk/Bejirond-${BRANCH_SLUG}-${{ github.run_number }}.apk"
+          # Fixed-name copy for main builds only, so the download page/domain
+          # can link to a URL that never changes between builds.
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            cp android/app/build/outputs/apk/debug/app-debug.apk dist-apk/Bejirond.apk
+          fi
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
@@ -67,6 +72,13 @@ jobs:
         run: |
           BRANCH_SLUG=$(echo "${{ github.ref_name }}" | tr '/' '-')
           TAG="build-${BRANCH_SLUG}-${{ github.run_number }}"
-          gh release create "$TAG" "dist-apk/Bejirond-${BRANCH_SLUG}-${{ github.run_number }}.apk" \
+          ASSETS=("dist-apk/Bejirond-${BRANCH_SLUG}-${{ github.run_number }}.apk")
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            ASSETS+=("dist-apk/Bejirond.apk")
+          fi
+          gh release create "$TAG" "${ASSETS[@]}" \
             --title "Bejirond debug build — ${{ github.ref_name }} #${{ github.run_number }}" \
             --notes "Automated debug APK build from ${{ github.ref_name }} at ${{ github.sha }}."
+          # releases/latest/download/Bejirond.apk always resolves to whichever
+          # release is most recent, so the fixed-name asset above gives the
+          # download page a permanent link across every future build.

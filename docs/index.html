@@ -9,7 +9,53 @@
 <meta property="og:description" content="A multi-business expense tracker that works fully offline, in 7 languages including Amharic. Free download.">
 <meta property="og:image" content="icon-512.png">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://bejirond.app/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Bejirond — Expense Manager for Android">
+<meta name="twitter:description" content="A multi-business expense tracker that works fully offline, in 7 languages including Amharic. Free download.">
+<meta name="twitter:image" content="icon-512.png">
+<link rel="canonical" href="https://bejirond.app/">
 <link rel="icon" href="icon-192.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "MobileApplication",
+  "name": "Bejirond",
+  "alternateName": "በጅሮንድ",
+  "url": "https://bejirond.app/",
+  "description": "Bejirond (በጅሮንድ) is an offline-first, multi-business expense manager for Android, available in English, Amharic, Afaan Oromoo, Tigrinya, French, Arabic, and Swahili.",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "Android 8.0+",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "downloadUrl": "https://github.com/TeredaTrades/Bejirond/releases/latest/download/Bejirond.apk",
+  "author": {
+    "@type": "Organization",
+    "name": "TeredaTrades",
+    "url": "https://teredatrades.com",
+    "sameAs": [
+      "https://t.me/TeredaTrades",
+      "https://www.youtube.com/@TeredaTrades",
+      "https://discord.gg/Cd6qRq2PVn",
+      "https://github.com/TeredaTrades"
+    ]
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Is Bejirond free to use?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Bejirond is completely free, with no ads and no in-app purchases." } },
+    { "@type": "Question", "name": "Does it need an internet connection?", "acceptedAnswer": { "@type": "Answer", "text": "No. Bejirond works fully offline — every book, entry, and setting is stored only on your phone." } },
+    { "@type": "Question", "name": "Is my financial data safe?", "acceptedAnswer": { "@type": "Answer", "text": "Your data never leaves your device. There's no account, no server, and nothing to sync — Bejirond can't share what it never has." } },
+    { "@type": "Question", "name": "Why isn't Bejirond on the Google Play Store yet?", "acceptedAnswer": { "@type": "Answer", "text": "It hasn't been submitted there yet. Until then, this page is the official way to get it — the app is built automatically from public source code, and the download link always points to the newest version." } },
+    { "@type": "Question", "name": "Which languages does Bejirond support?", "acceptedAnswer": { "@type": "Answer", "text": "English, Amharic, Afaan Oromoo, Tigrinya, French, Arabic, and Swahili. Switch anytime from Settings." } },
+    { "@type": "Question", "name": "Can I track more than one business?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Bejirond keeps a separate book, team, and set of reports for each business you add." } },
+    { "@type": "Question", "name": "How do I report a bug or suggest a feature?", "acceptedAnswer": { "@type": "Answer", "text": "Open an issue on the GitHub repository, or use the review form on the page — both reach the person building it directly." } }
+  ]
+}
+</script>
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -203,6 +249,33 @@
 
   footer{ padding:30px 24px 50px; text-align:center; font-size:13px; color:var(--ink); opacity:.55; }
   footer a{ color:inherit; }
+
+  .faq-item{ border-top:1px solid var(--line); }
+  .faq-item:last-child{ border-bottom:1px solid var(--line); }
+  .faq-item summary{
+    cursor:pointer; list-style:none; padding:16px 0;
+    font-weight:600; font-size:15.5px; display:flex; align-items:center;
+    justify-content:space-between; gap:12px;
+  }
+  .faq-item summary::-webkit-details-marker{ display:none; }
+  .faq-item summary::after{
+    content:"+"; flex:none; font-weight:400; font-size:20px; opacity:.5;
+  }
+  .faq-item[open] summary::after{ content:"–"; }
+  .faq-item p{ margin:0 0 16px; font-size:15.5px; opacity:.78; }
+
+  .social-row{
+    display:flex; gap:16px; justify-content:center; flex-wrap:wrap;
+    padding:6px 0 4px;
+  }
+  .social-row a{
+    display:inline-flex; align-items:center; gap:7px;
+    text-decoration:none; color:var(--ink); opacity:.7;
+    font-size:14px; font-weight:600;
+    border:1px solid var(--line); border-radius:999px; padding:7px 16px;
+  }
+  .social-row a:hover{ opacity:1; border-color:var(--green); }
+  .social-row svg{ width:16px; height:16px; flex:none; }
 </style>
 </head>
 <body>
@@ -280,6 +353,14 @@
   </section>
 
   <section>
+    <h2 data-i18n="section_about_app">About Bejirond</h2>
+    <div class="note">
+      <p data-i18n="about_app_p1">Bejirond (በጅሮንድ) is an offline-first expense manager built by TeredaTrades for people who run more than one business and want to actually keep track of the money — without handing that data to a server somewhere.</p>
+      <p data-i18n="about_app_p2">It's built in the languages people in Ethiopia and East Africa actually think in, with the Ethiopian calendar, Birr-based exchange rates, and local payment methods — Telebirr, CBE Birr, Coopay, M-Pesa — built in from day one, not bolted on later.</p>
+    </div>
+  </section>
+
+  <section>
     <h2 data-i18n="section_install">Installing it</h2>
     <ol class="steps">
       <li><div><p class="s-title" data-i18n="s1_title">Download the file above</p><p class="s-body" data-i18n="s1_body">It downloads straight from GitHub, where the app is built.</p></div></li>
@@ -310,6 +391,65 @@
       <textarea id="review-comment" data-i18n-placeholder="review_placeholder" placeholder="Anything you'd add? (optional)"></textarea>
       <button class="btn" id="review-submit" type="button" data-i18n="review_submit">Send feedback</button>
       <p class="review-msg" id="review-msg"></p>
+    </div>
+  </section>
+
+  <section>
+    <h2 data-i18n="section_faq">Frequently asked questions</h2>
+    <details class="faq-item">
+      <summary data-i18n="faq_q1">Is Bejirond free to use?</summary>
+      <p data-i18n="faq_a1">Yes. Bejirond is completely free, with no ads and no in-app purchases.</p>
+    </details>
+    <details class="faq-item">
+      <summary data-i18n="faq_q2">Does it need an internet connection?</summary>
+      <p data-i18n="faq_a2">No. Bejirond works fully offline — every book, entry, and setting is stored only on your phone.</p>
+    </details>
+    <details class="faq-item">
+      <summary data-i18n="faq_q3">Is my financial data safe?</summary>
+      <p data-i18n="faq_a3">Your data never leaves your device. There's no account, no server, and nothing to sync — Bejirond can't share what it never has.</p>
+    </details>
+    <details class="faq-item">
+      <summary data-i18n="faq_q4">Why isn't Bejirond on the Google Play Store yet?</summary>
+      <p data-i18n="faq_a4">It hasn't been submitted there yet. Until then, this page is the official way to get it — the app is built automatically from public source code, and the download link above always points to the newest version.</p>
+    </details>
+    <details class="faq-item">
+      <summary data-i18n="faq_q5">Which languages does Bejirond support?</summary>
+      <p data-i18n="faq_a5">English, Amharic, Afaan Oromoo, Tigrinya, French, Arabic, and Swahili. Switch anytime from Settings.</p>
+    </details>
+    <details class="faq-item">
+      <summary data-i18n="faq_q6">Can I track more than one business?</summary>
+      <p data-i18n="faq_a6">Yes. Bejirond keeps a separate book, team, and set of reports for each business you add.</p>
+    </details>
+    <details class="faq-item">
+      <summary data-i18n="faq_q7">How do I report a bug or suggest a feature?</summary>
+      <p data-i18n="faq_a7">Open an issue on the GitHub repository, or use the review form above — both reach the person building it directly.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2 data-i18n="section_disclaimer">Disclaimer</h2>
+    <div class="note">
+      <p data-i18n="disclaimer_p1">Bejirond is a personal bookkeeping tool, not a bank, payment provider, or financial institution. It doesn't move money, connect to any bank account, or offer financial, tax, or legal advice — every figure you enter or see (including exchange rates) is for your own record-keeping only.</p>
+      <p data-i18n="disclaimer_p2">Telebirr, CBE Birr, Coopay, and M-Pesa are trademarks of their respective owners, listed here only as payment-method labels you can attach to entries — Bejirond has no affiliation with any of them. Android is a trademark of Google LLC.</p>
+      <p data-i18n="disclaimer_p3">Bejirond is provided as-is, with no warranty of any kind. Because all data lives only on your device, uninstalling the app, losing your phone, or clearing its storage will permanently delete it — there's no cloud backup yet, so export your data from time to time (Settings → Export).</p>
+    </div>
+  </section>
+
+  <section>
+    <h2 data-i18n="section_social">Follow along</h2>
+    <div class="social-row">
+      <a href="https://t.me/TeredaTrades" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.5 4.5 2.7 11.9c-1.2.5-1.2 1.2-.2 1.5l4.8 1.5 1.8 5.6c.2.6.4.8.9.8.4 0 .6-.2.9-.5l2.2-2.1 4.5 3.3c.8.5 1.4.2 1.6-.8l3-14c.3-1.2-.4-1.7-1.7-1.7ZM8.6 14.4l9-5.7c.4-.3.8-.1.5.2l-7.6 6.9-.3 3.2-1.5-4.6Z"/></svg>
+        Telegram
+      </a>
+      <a href="https://www.youtube.com/@TeredaTrades" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12s0-3.2-.4-4.7a3 3 0 0 0-2.1-2.1C17.9 4.8 12 4.8 12 4.8s-5.9 0-7.5.4A3 3 0 0 0 2.4 7.3C2 8.8 2 12 2 12s0 3.2.4 4.7a3 3 0 0 0 2.1 2.1c1.6.4 7.5.4 7.5.4s5.9 0 7.5-.4a3 3 0 0 0 2.1-2.1C22 15.2 22 12 22 12ZM10 15.3V8.7L15.8 12Z"/></svg>
+        YouTube
+      </a>
+      <a href="https://discord.gg/Cd6qRq2PVn" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.3 5.4A17.4 17.4 0 0 0 15.9 4l-.2.4a12.9 12.9 0 0 1 3.8 1.5c-1.6-.8-3.2-1.2-4.9-1.4a12 12 0 0 0-5.2 0c-1.7.2-3.3.6-4.9 1.4a13 13 0 0 1 3.8-1.5L8.1 4a17.4 17.4 0 0 0-4.4 1.4C1.4 9.6.8 13.8 1.1 17.8a17.7 17.7 0 0 0 5.3 2.6l.7-1.2a11 11 0 0 1-1.9-.9l.5-.4c3.5 1.6 7.3 1.6 10.8 0l.5.4a11 11 0 0 1-1.9.9l.7 1.2a17.6 17.6 0 0 0 5.3-2.6c.4-4.6-.6-8.7-2.8-12.4ZM8.5 15.3c-1 0-1.9-1-1.9-2.1 0-1.2.8-2.2 1.9-2.2s1.9 1 1.9 2.2c0 1.1-.8 2.1-1.9 2.1Zm7 0c-1 0-1.9-1-1.9-2.1 0-1.2.8-2.2 1.9-2.2s1.9 1 1.9 2.2c0 1.1-.9 2.1-1.9 2.1Z"/></svg>
+        Discord
+      </a>
     </div>
   </section>
 </div>
@@ -395,7 +535,30 @@ const TRANSLATIONS = {
     "review_thanks": "Thanks — this helps.",
     "review_not_connected": "Feedback isn't connected yet — check back soon.",
     "review_pick_stars": "Pick a star rating first.",
-    "footer_line": "Bejirond is made by <a href=\"https://teredatrades.com\">TeredaTrades</a>."
+    "footer_line": "Bejirond is made by <a href=\"https://teredatrades.com\">TeredaTrades</a>.",
+    "section_about_app": "About Bejirond",
+    "about_app_p1": "Bejirond (በጅሮንድ) is an offline-first expense manager built by TeredaTrades for people who run more than one business and want to actually keep track of the money — without handing that data to a server somewhere.",
+    "about_app_p2": "It's built in the languages people in Ethiopia and East Africa actually think in, with the Ethiopian calendar, Birr-based exchange rates, and local payment methods — Telebirr, CBE Birr, Coopay, M-Pesa — built in from day one, not bolted on later.",
+    "section_faq": "Frequently asked questions",
+    "faq_q1": "Is Bejirond free to use?",
+    "faq_a1": "Yes. Bejirond is completely free, with no ads and no in-app purchases.",
+    "faq_q2": "Does it need an internet connection?",
+    "faq_a2": "No. Bejirond works fully offline — every book, entry, and setting is stored only on your phone.",
+    "faq_q3": "Is my financial data safe?",
+    "faq_a3": "Your data never leaves your device. There's no account, no server, and nothing to sync — Bejirond can't share what it never has.",
+    "faq_q4": "Why isn't Bejirond on the Google Play Store yet?",
+    "faq_a4": "It hasn't been submitted there yet. Until then, this page is the official way to get it — the app is built automatically from public source code, and the download link above always points to the newest version.",
+    "faq_q5": "Which languages does Bejirond support?",
+    "faq_a5": "English, Amharic, Afaan Oromoo, Tigrinya, French, Arabic, and Swahili. Switch anytime from Settings.",
+    "faq_q6": "Can I track more than one business?",
+    "faq_a6": "Yes. Bejirond keeps a separate book, team, and set of reports for each business you add.",
+    "faq_q7": "How do I report a bug or suggest a feature?",
+    "faq_a7": "Open an issue on the GitHub repository, or use the review form above — both reach the person building it directly.",
+    "section_disclaimer": "Disclaimer",
+    "disclaimer_p1": "Bejirond is a personal bookkeeping tool, not a bank, payment provider, or financial institution. It doesn't move money, connect to any bank account, or offer financial, tax, or legal advice — every figure you enter or see (including exchange rates) is for your own record-keeping only.",
+    "disclaimer_p2": "Telebirr, CBE Birr, Coopay, and M-Pesa are trademarks of their respective owners, listed here only as payment-method labels you can attach to entries — Bejirond has no affiliation with any of them. Android is a trademark of Google LLC.",
+    "disclaimer_p3": "Bejirond is provided as-is, with no warranty of any kind. Because all data lives only on your device, uninstalling the app, losing your phone, or clearing its storage will permanently delete it — there's no cloud backup yet, so export your data from time to time (Settings → Export).",
+    "section_social": "Follow along"
   },
   "am": {
     "nav_source": "ምንጭ በGitHub",
@@ -428,7 +591,30 @@ const TRANSLATIONS = {
     "review_thanks": "እናመሰግናለን — ይረዳናል።",
     "review_not_connected": "አስተያየት እስካሁን አልተገናኘም — ቆይተው ይመልከቱ።",
     "review_pick_stars": "መጀመሪያ የኮኮብ ደረጃ ይምረጡ።",
-    "footer_line": "በጅሮንድ የተሰራው በ<a href=\"https://teredatrades.com\">TeredaTrades</a> ነው።"
+    "footer_line": "በጅሮንድ የተሰራው በ<a href=\"https://teredatrades.com\">TeredaTrades</a> ነው።",
+    "section_about_app": "ስለ በጅሮንድ",
+    "about_app_p1": "በጅሮንድ ከአንድ በላይ ንግድ ለሚያንቀሳቅሱ እና ገንዘባቸውን በትክክል ለመከታተል ለሚፈልጉ ሰዎች በTeredaTrades የተሰራ ከመስመር ውጪ የሚሰራ የወጪ አስተዳዳሪ ነው — ውሂባቸውንም ለየትኛውም አገልጋይ ሳያስረክቡ።",
+    "about_app_p2": "የተሰራው በኢትዮጵያና በምስራቅ አፍሪካ ሰዎች በሚያስቡበት ቋንቋ ነው፣ ከኢትዮጵያ የቀን መቁጠሪያ፣ በብር ላይ ከተመሰረቱ የምንዛሪ ተመኖች፣ እና እንደ ቴሌብር፣ ሲቢኢ ብር፣ ኩፔይ፣ ኤም-ፔሳ ካሉ የአካባቢ የክፍያ ዘዴዎች ጋር ከመጀመሪያው ጀምሮ የተካተተ እንጂ በኋላ የተጨመረ አይደለም።",
+    "section_faq": "በተደጋጋሚ የሚነሱ ጥያቄዎች",
+    "faq_q1": "በጅሮንድ ነጻ ነው?",
+    "faq_a1": "አዎ። በጅሮንድ ሙሉ በሙሉ ነጻ ነው፣ ምንም ማስታወቂያ ወይም በመተግበሪያ ውስጥ ግዢዎች የሉም።",
+    "faq_q2": "ኢንተርኔት ያስፈልገዋል?",
+    "faq_a2": "አያስፈልገውም። በጅሮንድ ሙሉ በሙሉ ከመስመር ውጪ ይሰራል — እያንዳንዱ ደብተር፣ ግቤት እና ቅንብር የሚቀመጠው በስልክዎ ላይ ብቻ ነው።",
+    "faq_q3": "የገንዘብ ውሂቤ ደህንነቱ የተጠበቀ ነው?",
+    "faq_a3": "ውሂብዎ ከመሳሪያዎ በፍጹም አይወጣም። መለያ፣ አገልጋይ ወይም ማመሳሰያ የለም — በጅሮንድ የሌለውን ውሂብ ማጋራት አይችልም።",
+    "faq_q4": "በጅሮንድ ለምን እስካሁን በGoogle Play Store የለም?",
+    "faq_a4": "እስካሁን አልቀረበም። እስከዚያው ድረስ ይህ ገጽ ኦፊሴላዊ የማግኛ መንገድ ነው — መተግበሪያው ከሕዝባዊ ምንጭ ኮድ በራስ-ሰር ይገነባል፣ እና ከላይ ያለው የማውረጃ አገናኝ ሁልጊዜ የቅርቡን ስሪት ያመለክታል።",
+    "faq_q5": "በጅሮንድ የትኞቹን ቋንቋዎች ይደግፋል?",
+    "faq_a5": "እንግሊዝኛ፣ አማርኛ፣ አፋን ኦሮሞ፣ ትግርኛ፣ ፈረንሳይኛ፣ ዓረብኛ እና ስዋሂሊ። በቅንብሮች ውስጥ በማንኛውም ጊዜ ይቀይሩ።",
+    "faq_q6": "ከአንድ በላይ ንግድ መከታተል እችላለሁ?",
+    "faq_a6": "አዎ። በጅሮንድ ለሚያክሉት እያንዳንዱ ንግድ የተለየ ደብተር፣ ቡድን እና ሪፖርቶች ይይዛል።",
+    "faq_q7": "ስህተት እንዴት ላሳውቅ ወይም ሃሳብ ላቅርብ እችላለሁ?",
+    "faq_a7": "በGitHub ማከማቻ ላይ Issue ይክፈቱ ወይም ከላይ ያለውን የግምገማ ቅጽ ይጠቀሙ — ሁለቱም በቀጥታ ወደሚሰራው ሰው ይደርሳሉ።",
+    "section_disclaimer": "ማስታወሻ",
+    "disclaimer_p1": "በጅሮንድ የግል የሂሳብ አያያዝ መሳሪያ እንጂ ባንክ፣ የክፍያ አቅራቢ ወይም የፋይናንስ ተቋም አይደለም። ገንዘብ አያንቀሳቅስም፣ ከየትኛውም የባንክ ሂሳብ ጋር አይገናኝም፣ የፋይናንስ፣ የግብር ወይም የሕግ ምክር አይሰጥም — የሚያስገቡት ወይም የሚያዩት እያንዳንዱ አሃዝ (የምንዛሪ ተመንን ጨምሮ) ለራስዎ የመዝገብ አያያዝ ብቻ ነው።",
+    "disclaimer_p2": "ቴሌብር፣ ሲቢኢ ብር፣ ኩፔይ እና ኤም-ፔሳ የየራሳቸው ባለቤቶች የንግድ ምልክቶች ናቸው፣ እዚህ የተጠቀሱት ግቤቶችን ለመሰየሚያ የክፍያ ዘዴ አማራጮች ብቻ ናቸው — በጅሮንድ ከየትኛውም ጋር ግንኙነት የለውም። Android የGoogle LLC የንግድ ምልክት ነው።",
+    "disclaimer_p3": "በጅሮንድ እንዳለ ይቀርባል፣ ያለ ምንም ዋስትና። ሁሉም ውሂብ የሚቀመጠው በመሳሪያዎ ላይ ብቻ ስለሆነ፣ መተግበሪያውን ማራገፍ፣ ስልክዎን ማጣት ወይም ማከማቻውን ማጽዳት ውሂቡን በቋሚነት ያጠፋዋል — እስካሁን የደመና ምትኬ የለም፣ ስለዚህ በየጊዜው ውሂብዎን ያውጡ (ቅንብሮች → ላክ/Export)።",
+    "section_social": "ተከታተሉን"
   },
   "om": {
     "nav_source": "Madda GitHub irratti",
@@ -461,7 +647,30 @@ const TRANSLATIONS = {
     "review_thanks": "Galatoomaa — kun nu gargaara.",
     "review_not_connected": "Yaadni ammatti hin hidhamne — booda deebi'ii ilaali.",
     "review_pick_stars": "Duraan sadarkaa urjii filadhu.",
-    "footer_line": "Bejirond kan hojjetame <a href=\"https://teredatrades.com\">TeredaTrades</a>'iin."
+    "footer_line": "Bejirond kan hojjetame <a href=\"https://teredatrades.com\">TeredaTrades</a>'iin.",
+    "section_about_app": "Waa'ee Bejirond",
+    "about_app_p1": "Bejirond (በጅሮንድ) meeshaa herrega baasii kan TeredaTrades'iin, namoota daldala tokkoo ol geggeessaniif fi maallaqa isaanii dhugumaan hordofuu barbaadaniif kan ijaarame, offline jalqaba irratti kan hojjetu dha — daataa sana gara sarveerii tokkoottillee osoo hin kennin.",
+    "about_app_p2": "Afaanota namoonni Itoophiyaa fi Afrikaa Bahaa keessatti dhugumaan yaadan keessatti kan ijaarame, kalendarii Itoophiyaa, sharafa dolaara Birrii irratti hundaa'e, fi mala kaffaltii naannoo — Telebirr, CBE Birr, Coopay, M-Pesa — jalqabuma irraa kan hammatame malee booda kan itti dabalame miti.",
+    "section_faq": "Gaaffiiwwan yeroo baay'ee gaafataman",
+    "faq_q1": "Bejirond bilisaa dha?",
+    "faq_a1": "Eeyyee. Bejirond guutumaan guutuutti bilisaa dha, beeksisaa fi bittaa appii keessaa hin qabu.",
+    "faq_q2": "Interneetii barbaachisaa?",
+    "faq_a2": "Hin barbaachisu. Bejirond guutumaan guutuutti offline hojjeta — galmeen, seensi, fi qindaa'inni hundi bilbila kee qofa irratti kuufama.",
+    "faq_q3": "Daataan koo maallaqaa nagaa dha?",
+    "faq_a3": "Daataan kee meeshaa kee irraa gonkumaa hin baane. Akkaawuntii, sarveerii yookaan wal-simsiisuun hin jiru — Bejirond waan gonkumaa hin qabne qooduu hin danda'u.",
+    "faq_q4": "Bejirond maaliif ammallee Google Play Store irra hin jiru?",
+    "faq_a4": "Amma hin dhiyaanne. Hanga san appichi madda koodii saaxilamaa irraa ofumaan ijaarama, hidhannoon fe'insaa armaan olii yeroo hunda gara ijaarsa isa dhumaatti si geessa — fuulli kun karaa ittiin amma argatan dha.",
+    "faq_q5": "Bejirond afaanota kamiin deeggara?",
+    "faq_a5": "Ingiliffa, Amaariffa, Afaan Oromoo, Tigrigna, Faransaayi, Arabiffa, fi Kiswahili. Yeroo barbaadetti Settings keessatti jijjiiri.",
+    "faq_q6": "Daldalawwan tokkoo ol hordofuu danda'aa?",
+    "faq_a6": "Eeyyee. Bejirond daldala ati dabaltu hundaaf galmee, garee, fi gabaasa adda addaa qabaata.",
+    "faq_q7": "Dogoggora akkamittin gabaasa yookaan yaada dhiyeessa?",
+    "faq_a7": "Kuusaa GitHub irratti Issue baniif, yookaan foormii yaadaa armaan olii fayyadami — lamaanuu kallattiidhuma nama appicha ijaaru bira gahu.",
+    "section_disclaimer": "Yaadannoo",
+    "disclaimer_p1": "Bejirond meeshaa herrega dhuunfaa dha, baankii, dhiyeessaa kaffaltii, yookaan dhaabbata maallaqaa miti. Maallaqa hin dabarsu, akkaawuntii baankii kamiyyuu wajjin hin walqunnamu, gorsa maallaqaa, gibiraa, yookaan seeraa hin kennu — lakkoofsi ati galchitu yookaan argitu hundi (sharafa dabalatee) galmee dhuunfaa keetiif qofa.",
+    "disclaimer_p2": "Telebirr, CBE Birr, Coopay, fi M-Pesa mallattoo daldalaa abbootii qabeenyaa isaanii dha, kan asitti caqafaman filannoo mala kaffaltii galmeewwan keetiif maqeessuuf qofa — Bejirond isaan keessaa tokko wajjinuu walqabatee hin jiru. Android mallattoo daldalaa Google LLC ti.",
+    "disclaimer_p3": "Bejirond akkuma jirutti dhiyaata, wabii tokko malee. Daataan hundi meeshaa kee qofa irratti waan kuufamuuf, appicha balleessuun, bilbila kee dhabuun, yookaan kuusaa isaa haqu daataa sana bara baraan ni balleessa — kuusaa duukaa buutii (cloud) hanga ammaatti hin jiru, kanaafuu yeroo yeroon daataa kee baafadhu (Settings → Export).",
+    "section_social": "Nu Hordofaa"
   },
   "ti": {
     "nav_source": "ምንጪ ኣብ GitHub",
@@ -494,7 +703,30 @@ const TRANSLATIONS = {
     "review_thanks": "የቐንየልና — እዚ ይሕግዘና።",
     "review_not_connected": "ርእይቶ ገና ኣይተታሓሓዘን — ደሓር ተመለስ።",
     "review_pick_stars": "ቅድም ብዝሒ ኮኸብ ምረጽ።",
-    "footer_line": "ቤጂሮንድ ብ<a href=\"https://teredatrades.com\">TeredaTrades</a> እዩ ተሰሪሑ።"
+    "footer_line": "ቤጂሮንድ ብ<a href=\"https://teredatrades.com\">TeredaTrades</a> እዩ ተሰሪሑ።",
+    "section_about_app": "ብዛዕባ ቤጂሮንድ",
+    "about_app_p1": "ቤጂሮንድ (በጅሮንድ) ብ TeredaTrades ንዝያዳ ካብ ሓደ ትካል ንዘካይዱ፡ ገንዘቦም ብትኽክል ክከታተሉ ንዝደልዩ ሰባት ተባሂሉ ዝተሰርሐ፡ ቅድሚ ኹሉ ብዘይ ኢንተርነት ዝሰርሕ ናይ ወጻኢታት ኣመሓዳሪ እዩ — ነቲ ውሂብ ናብ ዝኾነ ሰርቨር ከይሃበ።",
+    "about_app_p2": "ብቋንቋታት ኢትዮጵያውያንን ናይ ምብራቕ ኣፍሪቃ ሰባትን ብሓቂ ዝሓስብሉ ተሰሪሑ፡ ምስ ካላንደር ኢትዮጵያ፡ ኣብ ብር ዝተመስረተ ናይ ምንዛረ ዋጋ፡ ከምኡውን ናይ ከባቢ ናይ ክፍሊት መንገድታት — ተለብር፡ ሲቢኢ ብር፡ ኩፐይ፡ ኤም-ፐሳ — ካብ መጀመርታ እተኻተተ እምበር ብድሕሪኡ ዝተወሰኸ ኣይኮነን።",
+    "section_faq": "ብተደጋጋሚ ዝሕተቱ ሕቶታት",
+    "faq_q1": "ቤጂሮንድ ብነጻ ድዩ?",
+    "faq_a1": "እወ። ቤጂሮንድ ብምሉኡ ብነጻ እዩ፡ ዝኾነ ማስታወቂያ ወይ ኣብ ውሽጢ መተግበሪ ዝግዙኡ ነገራት የለውን።",
+    "faq_q2": "ኢንተርነት የድልዮ ድዩ?",
+    "faq_a2": "ኣየድልዮን። ቤጂሮንድ ብምሉኡ ብዘይ ኢንተርነት ይሰርሕ — ነፍሲ ወከፍ ደብተር፡ መእተዊ፡ ቅጥዕታት ኣብ ተሌፎንካ ጥራይ ይቕመጥ።",
+    "faq_q3": "ናይ ገንዘብ ውሂበይ ውሑስ ድዩ?",
+    "faq_a3": "ውሂብካ ካብ መሳርሒኻ ፈጺሙ ኣይወጽእን። ሕሳብ፡ ሰርቨር ወይ ምስንኻ የለን — ቤጂሮንድ ዘይብሉ ነገር ክካፈል ኣይክእልን።",
+    "faq_q4": "ቤጂሮንድ ስለምንታይ እዩ ገና ኣብ Google Play Store ዘየለ?",
+    "faq_a4": "ገና ኣይቐረበን። ክሳብ ሽዑ፡ እዚ ገጽ ወግዓዊ መንገዲ ንምርካቡ እዩ — መተግበሪ ካብ ህዝባዊ ምንጪ ኮድ ብኣውቶማቲክ ይስራሕ፡ ኣብ ላዕሊ ዘሎ ማውረዲ መላግቦ ድማ ኩሉ ግዜ ናብቲ ዝሓደሰ ስሪት እዩ ዝቐንዕ።",
+    "faq_q5": "ቤጂሮንድ ኣየኖት ቋንቋታት ይድግፍ?",
+    "faq_a5": "እንግሊዝኛ፡ ኣምሓርኛ፡ ኦሮምኛ፡ ትግርኛ፡ ፈረንሳይኛ፡ ዓረብኛን ስዋሂልን። ኣብ ቅጥዕታት ኣብ ዝኾነ ግዜ ቀይር።",
+    "faq_q6": "ልዕሊ ሓደ ትካል ክከታተል እኽእል ድየ?",
+    "faq_a6": "እወ። ቤጂሮንድ ንነፍሲ ወከፍ እትውስኾ ትካል ፍሉይ ደብተር፡ ጋንታ፡ ጸብጻብ ይሕዝ።",
+    "faq_q7": "ጌጋ ብከመይ ይሕብር ወይ ሓሳብ ከቕርብ?",
+    "faq_a7": "ኣብ GitHub ማከማቻ Issue ክፈት፡ ወይ ኣብ ላዕሊ ዘሎ ናይ ግምገማ ቅጥዒ ተጠቐም — ክልቲኡ ብቐጥታ ናብቲ ዝሰርሖ ሰብ ይበጽሕ።",
+    "section_disclaimer": "መተሓሳሰቢ",
+    "disclaimer_p1": "ቤጂሮንድ ናይ ውልቀ ሕሳብ መሳርሒ እዩ፡ ባንክ፡ ኣቕራቢ ክፍሊት ወይ ናይ ፋይናንስ ትካል ኣይኮነን። ገንዘብ ኣየንቀሳቕስን፡ ምስ ዝኾነ ናይ ባንክ ሕሳብ ኣይራኸብን፡ ናይ ፋይናንስ፡ ግብሪ ወይ ሕጋዊ ምኽሪ ኣይህብን — እትእቱዎ ወይ እትርእዮ ነፍሲ ወከፍ ቁጽሪ (ናይ ምንዛረ ዋጋ ሓዊሱ) ንናትካ መዝገብ ጥራይ እዩ።",
+    "disclaimer_p2": "ተለብር፡ ሲቢኢ ብር፡ ኩፐይን ኤም-ፐሳን ናይ ገዛእ ርእሶም ወነንቲ ናይ ንግድ ምልክታት እዮም፡ ኣብዚ እተጠቕሱ ንመእተዊታትካ ክትሰይም እትጥቀመሎም ናይ ክፍሊት ኣማራጺታት ጥራይ እዮም — ቤጂሮንድ ምስ ዝኾነ ካብኦም ርክብ የብሉን። Android ናይ Google LLC ናይ ንግዲ ምልክት እዩ።",
+    "disclaimer_p3": "ቤጂሮንድ ከምዘሎ ይቐርብ፡ ብዘይ ዝኾነ ዋስትና። ኩሉ ውሂብ ኣብ መሳርሒኻ ጥራይ ስለዝቕመጥ፡ መተግበሪ ምዝንጋዕ፡ ተሌፎንካ ምስኣን ወይ ማከማቻኡ ምጽራይ ንውሂቡ ብቐዋምነት ኬጠፍእ እዩ — ክሳብ ሕጂ ናይ ደመና ምትካእ የለን፡ ስለዚ ውሂብካ ሓደ ሓደ ግዜ ኣውጽእ (ቅጥዕታት → ላክ/Export)።",
+    "section_social": "ተኸተሉና"
   },
   "fr": {
     "nav_source": "Code source sur GitHub",
@@ -527,7 +759,30 @@ const TRANSLATIONS = {
     "review_thanks": "Merci — cela nous aide.",
     "review_not_connected": "Les avis ne sont pas encore connectés — revenez bientôt.",
     "review_pick_stars": "Choisissez d'abord une note.",
-    "footer_line": "Bejirond est développé par <a href=\"https://teredatrades.com\">TeredaTrades</a>."
+    "footer_line": "Bejirond est développé par <a href=\"https://teredatrades.com\">TeredaTrades</a>.",
+    "section_about_app": "À propos de Bejirond",
+    "about_app_p1": "Bejirond (በጅሮንድ) est un gestionnaire de dépenses conçu pour fonctionner hors ligne, créé par TeredaTrades pour les personnes qui gèrent plusieurs entreprises et veulent vraiment suivre leur argent — sans envoyer ces données à un serveur quelconque.",
+    "about_app_p2": "Il est conçu dans les langues que les habitants d'Éthiopie et d'Afrique de l'Est utilisent réellement pour penser, avec le calendrier éthiopien, des taux de change basés sur le birr, et des moyens de paiement locaux — Telebirr, CBE Birr, Coopay, M-Pesa — intégrés dès le départ, pas ajoutés après coup.",
+    "section_faq": "Questions fréquentes",
+    "faq_q1": "Bejirond est-il gratuit ?",
+    "faq_a1": "Oui. Bejirond est entièrement gratuit, sans publicité ni achats intégrés.",
+    "faq_q2": "A-t-il besoin d'une connexion internet ?",
+    "faq_a2": "Non. Bejirond fonctionne entièrement hors ligne — chaque compte, entrée et réglage est stocké uniquement sur votre téléphone.",
+    "faq_q3": "Mes données financières sont-elles en sécurité ?",
+    "faq_a3": "Vos données ne quittent jamais votre appareil. Il n'y a ni compte, ni serveur, ni synchronisation — Bejirond ne peut pas partager ce qu'il n'a jamais eu.",
+    "faq_q4": "Pourquoi Bejirond n'est-il pas encore sur le Google Play Store ?",
+    "faq_a4": "Il n'y a pas encore été soumis. En attendant, cette page est le moyen officiel de l'obtenir — l'application est construite automatiquement à partir du code source public, et le lien de téléchargement ci-dessus pointe toujours vers la dernière version.",
+    "faq_q5": "Quelles langues Bejirond prend-il en charge ?",
+    "faq_a5": "Anglais, amharique, afaan oromo, tigrigna, français, arabe et swahili. Changez à tout moment dans les paramètres.",
+    "faq_q6": "Puis-je suivre plusieurs entreprises ?",
+    "faq_a6": "Oui. Bejirond garde un compte, une équipe et des rapports distincts pour chaque entreprise que vous ajoutez.",
+    "faq_q7": "Comment signaler un bug ou proposer une fonctionnalité ?",
+    "faq_a7": "Ouvrez une issue sur le dépôt GitHub, ou utilisez le formulaire d'avis ci-dessus — les deux vont directement à la personne qui développe l'application.",
+    "section_disclaimer": "Avertissement",
+    "disclaimer_p1": "Bejirond est un outil de comptabilité personnelle, pas une banque, un prestataire de paiement ou une institution financière. Il ne déplace pas d'argent, ne se connecte à aucun compte bancaire et ne fournit aucun conseil financier, fiscal ou juridique — chaque chiffre que vous saisissez ou consultez (y compris les taux de change) sert uniquement à votre propre suivi.",
+    "disclaimer_p2": "Telebirr, CBE Birr, Coopay et M-Pesa sont des marques de leurs propriétaires respectifs, mentionnées ici uniquement comme des libellés de moyens de paiement que vous pouvez attribuer à vos entrées — Bejirond n'a aucune affiliation avec eux. Android est une marque de Google LLC.",
+    "disclaimer_p3": "Bejirond est fourni tel quel, sans garantie d'aucune sorte. Toutes les données étant stockées uniquement sur votre appareil, désinstaller l'application, perdre votre téléphone ou vider son stockage les supprimera définitivement — il n'y a pas encore de sauvegarde dans le cloud, pensez donc à exporter vos données de temps en temps (Paramètres → Exporter).",
+    "section_social": "Suivez-nous"
   },
   "ar": {
     "nav_source": "المصدر على GitHub",
@@ -560,7 +815,30 @@ const TRANSLATIONS = {
     "review_thanks": "شكرًا — هذا يساعدنا.",
     "review_not_connected": "التقييمات غير مفعّلة بعد — تحقق لاحقًا.",
     "review_pick_stars": "اختر تقييمًا بالنجوم أولًا.",
-    "footer_line": "Bejirond من تطوير <a href=\"https://teredatrades.com\">TeredaTrades</a>."
+    "footer_line": "Bejirond من تطوير <a href=\"https://teredatrades.com\">TeredaTrades</a>.",
+    "section_about_app": "عن Bejirond",
+    "about_app_p1": "Bejirond (በጅሮንድ) هو تطبيق لإدارة المصاريف يعمل أساسًا بلا إنترنت، طوّرته TeredaTrades لمن يديرون أكثر من نشاط تجاري ويريدون فعلًا متابعة أموالهم — دون تسليم تلك البيانات إلى أي خادم.",
+    "about_app_p2": "صُمم باللغات التي يفكر بها فعلًا سكان إثيوبيا وشرق أفريقيا، مع التقويم الإثيوبي، وأسعار صرف مرتكزة على البر، وطرق دفع محلية — تيليبر وسي بي إي بر وكوباي وإم-بيسا — مدمجة منذ البداية وليست مضافة لاحقًا.",
+    "section_faq": "الأسئلة الشائعة",
+    "faq_q1": "هل Bejirond مجاني؟",
+    "faq_a1": "نعم. Bejirond مجاني بالكامل، بلا إعلانات وبلا مشتريات داخل التطبيق.",
+    "faq_q2": "هل يحتاج إلى اتصال بالإنترنت؟",
+    "faq_a2": "لا. يعمل Bejirond بلا إنترنت بالكامل — كل دفتر وإدخال وإعداد يُخزَّن على هاتفك فقط.",
+    "faq_q3": "هل بياناتي المالية آمنة؟",
+    "faq_a3": "بياناتك لا تغادر جهازك أبدًا. لا يوجد حساب ولا خادم ولا مزامنة — لا يمكن لـ Bejirond مشاركة ما لم يمتلكه أصلًا.",
+    "faq_q4": "لماذا لا يوجد Bejirond على متجر Google Play بعد؟",
+    "faq_a4": "لم يُقدَّم إليه بعد. وإلى أن يحدث ذلك، هذه الصفحة هي الطريقة الرسمية للحصول عليه — يُبنى التطبيق تلقائيًا من الشيفرة المصدرية العامة، ورابط التحميل أعلاه يشير دائمًا إلى أحدث نسخة.",
+    "faq_q5": "ما اللغات التي يدعمها Bejirond؟",
+    "faq_a5": "الإنجليزية والأمهرية والأورومو والتغرينية والفرنسية والعربية والسواحيلية. بدّل بينها في أي وقت من الإعدادات.",
+    "faq_q6": "هل يمكنني متابعة أكثر من نشاط تجاري؟",
+    "faq_a6": "نعم. يحتفظ Bejirond بدفتر وفريق وتقارير منفصلة لكل نشاط تجاري تضيفه.",
+    "faq_q7": "كيف أبلّغ عن خلل أو أقترح ميزة؟",
+    "faq_a7": "افتح Issue في مستودع GitHub، أو استخدم نموذج التقييم أعلاه — كلاهما يصل مباشرة إلى الشخص الذي يطوّر التطبيق.",
+    "section_disclaimer": "إخلاء مسؤولية",
+    "disclaimer_p1": "Bejirond أداة محاسبة شخصية، وليس بنكًا أو مزود دفع أو مؤسسة مالية. لا يقوم بتحريك الأموال، ولا يتصل بأي حساب مصرفي، ولا يقدّم استشارة مالية أو ضريبية أو قانونية — كل رقم تُدخله أو تراه (بما في ذلك أسعار الصرف) هو لغرض تسجيلك الشخصي فقط.",
+    "disclaimer_p2": "تيليبر وسي بي إي بر وكوباي وإم-بيسا علامات تجارية مملوكة لأصحابها، وذُكرت هنا فقط كخيارات لتسمية طريقة الدفع في إدخالاتك — لا علاقة لـ Bejirond بأي منها. أندرويد علامة تجارية لشركة Google LLC.",
+    "disclaimer_p3": "يُقدَّم Bejirond كما هو، دون أي ضمان. ولأن كل البيانات تُخزَّن على جهازك فقط، فإن إلغاء تثبيت التطبيق أو فقدان هاتفك أو مسح مساحة تخزينه سيحذفها نهائيًا — لا توجد نسخة احتياطية سحابية حتى الآن، لذا صدّر بياناتك بين الحين والآخر (الإعدادات ← تصدير).",
+    "section_social": "تابعنا"
   },
   "sw": {
     "nav_source": "Chanzo kwenye GitHub",
@@ -593,7 +871,30 @@ const TRANSLATIONS = {
     "review_thanks": "Asante — hii inatusaidia.",
     "review_not_connected": "Maoni bado hayajaunganishwa — rudi tena hivi karibuni.",
     "review_pick_stars": "Chagua nyota kwanza.",
-    "footer_line": "Bejirond imetengenezwa na <a href=\"https://teredatrades.com\">TeredaTrades</a>."
+    "footer_line": "Bejirond imetengenezwa na <a href=\"https://teredatrades.com\">TeredaTrades</a>.",
+    "section_about_app": "Kuhusu Bejirond",
+    "about_app_p1": "Bejirond (በጅሮንድ) ni programu ya kusimamia matumizi inayofanya kazi bila mtandao kwanza, iliyotengenezwa na TeredaTrades kwa watu wanaoendesha zaidi ya biashara moja na wanaotaka kufuatilia pesa zao kwa uhalisia — bila kutoa data hiyo kwenye seva yoyote.",
+    "about_app_p2": "Imejengwa kwa lugha ambazo watu wa Ethiopia na Afrika Mashariki wanafikiri kwazo kwa kweli, ikiwa na kalenda ya Kiethiopia, viwango vya ubadilishaji vinavyoegemea Birr, na njia za malipo za huko — Telebirr, CBE Birr, Coopay, M-Pesa — zilizojumuishwa tangu mwanzo, si kuongezwa baadaye.",
+    "section_faq": "Maswali yanayoulizwa mara kwa mara",
+    "faq_q1": "Je, Bejirond ni bure?",
+    "faq_a1": "Ndiyo. Bejirond ni bure kabisa, hakuna matangazo wala manunuzi ndani ya programu.",
+    "faq_q2": "Je, inahitaji muunganisho wa intaneti?",
+    "faq_a2": "Hapana. Bejirond inafanya kazi bila mtandao kabisa — kila kitabu, kiingizo na mpangilio huhifadhiwa kwenye simu yako pekee.",
+    "faq_q3": "Je, data yangu ya kifedha iko salama?",
+    "faq_a3": "Data yako haitoki kwenye kifaa chako kamwe. Hakuna akaunti, seva, au usawazishaji — Bejirond haiwezi kushiriki kitu ambacho haijawahi kukimiliki.",
+    "faq_q4": "Kwa nini Bejirond bado haipo kwenye Google Play Store?",
+    "faq_a4": "Bado haijawasilishwa huko. Kwa sasa, ukurasa huu ndio njia rasmi ya kuipata — programu hujengwa kiotomatiki kutoka kwenye msimbo wake wa umma, na kiungo cha upakuaji hapo juu huelekeza kila wakati kwenye toleo jipya zaidi.",
+    "faq_q5": "Bejirond inasaidia lugha zipi?",
+    "faq_a5": "Kiingereza, Kiamhari, Kioromo, Kitigrinya, Kifaransa, Kiarabu na Kiswahili. Badilisha wakati wowote kwenye Mipangilio.",
+    "faq_q6": "Je, ninaweza kufuatilia zaidi ya biashara moja?",
+    "faq_a6": "Ndiyo. Bejirond huweka kitabu, timu na ripoti tofauti kwa kila biashara unayoongeza.",
+    "faq_q7": "Ninawezaje kuripoti hitilafu au kupendekeza kipengele?",
+    "faq_a7": "Fungua Issue kwenye hazina ya GitHub, au tumia fomu ya maoni hapo juu — zote mbili humfikia moja kwa moja mtu anayeitengeneza.",
+    "section_disclaimer": "Kanusho",
+    "disclaimer_p1": "Bejirond ni chombo cha uhasibu binafsi, si benki, mtoa huduma za malipo, au taasisi ya kifedha. Haihamishi pesa, haihuiungani na akaunti yoyote ya benki, wala haitoi ushauri wa kifedha, kodi, au kisheria — kila namba unayoingiza au kuiona (ikiwemo viwango vya ubadilishaji) ni kwa ajili ya kumbukumbu zako binafsi tu.",
+    "disclaimer_p2": "Telebirr, CBE Birr, Coopay, na M-Pesa ni chapa za wamiliki wao husika, zimetajwa hapa tu kama lebo za njia za malipo unazoweza kuweka kwenye viingizo — Bejirond haihusiani na yoyote kati yao. Android ni chapa ya Google LLC.",
+    "disclaimer_p3": "Bejirond inatolewa kama ilivyo, bila dhamana ya aina yoyote. Kwa kuwa data yote huhifadhiwa kwenye kifaa chako pekee, kuondoa programu, kupoteza simu yako, au kufuta hifadhi yake kutaifuta data hiyo kabisa — hakuna nakala rudufu ya wingu bado, hivyo hakikisha unahamisha data yako mara kwa mara (Mipangilio → Hamisha/Export).",
+    "section_social": "Tufuate"
   }
 };
 const DL_COUNT_FNS = {

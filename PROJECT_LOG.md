@@ -1,5 +1,33 @@
 # በጅሮንድ (Bejirond) — decision log
 
+## 2026-09-09 — Marketing site: About, FAQ, Disclaimer, social links, SEO/AEO
+
+Added to `docs/index.html` (all translated into the existing 7 languages,
+following the established pattern — English/Amharic/French/Arabic/Swahili
+confident, Tigrinya/Afaan Oromoo best-effort, worth a native speaker's
+once-over before wide traffic, same caveat as the language rollout):
+
+- **About Bejirond** section (what the app is/why it exists) — separate
+  from the pre-existing "About this download" section, which stays as-is.
+- **FAQ** section, 7 questions, built with native `<details>/<summary>`
+  (no JS needed for the accordion), plus a matching `FAQPage` JSON-LD
+  block for answer-engine/rich-result pickup.
+- **Disclaimer** section — not a financial institution, third-party
+  trademark notice (Telebirr/CBE Birr/Coopay/M-Pesa/Android), no-warranty
+  + local-only-data-loss notice.
+- **Social links** row — pulled the real handles from teredatrades.com
+  rather than guessing: Telegram (t.me/TeredaTrades), YouTube
+  (@TeredaTrades), Discord (discord.gg/Cd6qRq2PVn). No Twitter/Instagram/
+  Facebook found on the source site, so none added.
+- **SEO/AEO**: canonical tag + twitter:card meta, `robots.txt`,
+  `sitemap.xml`, and a `MobileApplication` JSON-LD block (alongside the
+  FAQPage one above) with `sameAs` pointing at the social links and
+  teredatrades.com.
+
+Not done in this pass: the `app.bejirond.app` PWA subdomain deploy itself
+(the relative-paths fix landed just before this) — still needs the actual
+second Pages site set up and DNS pointed at it.
+
 Copied from `TeredaTrades/bejrond-project-log` (`projects/bejrond/log.md`)
 on 2026-08-22, so the project's decision history lives alongside the code
 it's about instead of only in the separate log repo. The log repo remains

@@ -103,6 +103,8 @@ export default {
     moveRequestsSub: "Kubali au kataa maombi",
     ledgerSettingsTitle: "Mipangilio ya Daftari",
     ledgerSettingsSub: "Mipangilio mahususi kwa daftari hili",
+    enterpriseTitle: "Biashara Kubwa",
+    enterpriseSub: "Ufuatiliaji wa madeni, hesabu za bidhaa — zinakuja hivi karibuni",
     generalSettings: "Mipangilio ya Jumla",
     appSettingsTitle: "Mipangilio ya Programu",
     appSettingsSub: "Sarafu, jamii, njia za malipo",
@@ -120,6 +122,25 @@ export default {
     backupSub: "Ni hiari — hifadhi au rejesha faili la data",
     aboutTitle: "Kuhusu በጅሮንድ",
     aboutSub: "Sera ya faragha, Vigezo na masharti, Kuhusu sisi",
+  },
+  enterprise: {
+    title: "Biashara Kubwa",
+    subtitle: "Muhtasari wa kinachokuja",
+    intro: "Kwa biashara zinazohitaji zaidi ya uwekaji kumbukumbu rahisi. Zana hizi bado zinajengwa — hapa kuna muhtasari wa kilichopangwa kwa kiwango cha Biashara Kubwa.",
+    lockedBadge: "Imefungwa",
+    notAvailableYet: "Bado hazipatikani",
+    desktopTitle: "Programu maalum ya Biashara Kubwa",
+    desktopBody: "Programu tofauti kwa kiwango cha Biashara Kubwa, ikiwemo toleo la Windows, inazingatiwa pamoja na zana hizi — bado haijaanza kutengenezwa.",
+    previews: {
+      credit: {
+        title: "ዱቤ · Ufuatiliaji wa madeni",
+        body: "Fuatilia nani anayekudai na unayemdai, pamoja na tarehe za mwisho na vikumbusho.",
+      },
+      inventory: {
+        title: "Hesabu za bidhaa",
+        body: "Weka hesabu ya bidhaa iliyosasishwa, ikijumuisha ufuatiliaji wa mauzo.",
+      },
+    },
   },
   theme: {
     title: "Mwonekano",
@@ -179,6 +200,10 @@ export default {
   monthSummary: {
     title: "Mwezi Huu",
     topCategories: "Jamii Kuu",
+    trendSpendUp: "Matumizi yameongezeka kwa {pct}% ukilinganisha na mwezi uliopita",
+    trendSpendDown: "Matumizi yamepungua kwa {pct}% ukilinganisha na mwezi uliopita",
+    trendCategoryUp: "{category} imeongezeka kwa {pct}% ukilinganisha na mwezi uliopita",
+    trendCategoryDown: "{category} imepungua kwa {pct}% ukilinganisha na mwezi uliopita",
   },
   entryDetail: {
     title: "Maelezo ya Kumbukumbu",

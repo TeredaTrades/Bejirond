@@ -8,6 +8,7 @@ import {
   CheckSquare, CheckCircle2, Circle, ClipboardList, Bell, BellOff, BellRing, Calculator,
   VolumeX, Palette, Sun, Moon, LayoutGrid,
   Upload, Sparkles, Move, Languages, MessageSquarePlus,
+  Lock, Package, HandCoins, Monitor,
 } from "lucide-react";
 import { Preferences } from "@capacitor/preferences";
 import { Capacitor, registerPlugin } from "@capacitor/core";
@@ -1778,6 +1779,7 @@ function Router({ ctx, tab, setTab }) {
     case "ledgerTeam": return <LedgerTeamScreen ctx={ctx} />;
     case "moveRequests": return <MoveRequestsScreen ctx={ctx} />;
     case "ledgerSettings": return <LedgerSettingsScreen ctx={ctx} />;
+    case "enterprise": return <EnterpriseScreen ctx={ctx} />;
     case "appSettings": return <AppSettingsScreen ctx={ctx} />
     case "reminders": return <RemindersScreen ctx={ctx} />;
     case "theme": return <ThemeScreen ctx={ctx} />;
@@ -1992,6 +1994,63 @@ function SwitchLedgerScreen({ ctx, embedded, onDone }) {
 // and the top 3 expense categories with slim progress bars. Nothing is
 // shown at all if there's no activity yet this month (e.g. a brand-new
 // book) — an empty summary isn't useful and just adds clutter.
+// Comparative spending insight shown inside the Month Summary card: this
+// month's total spend and, if it moved by more than a noise threshold, its
+// single biggest-moving top category, both vs. last calendar month. Reuses
+// the same category-aggregation approach as the totals/top-categories block
+// right below it in MonthSummaryCard, just run a second time over last
+// month's entries. Returns null (renders nothing) when there's no prior
+// month of data to compare against yet, or when nothing moved meaningfully.
+function useMonthTrend(entries, monthKey, totalOut, topCategories) {
+  return useMemo(() => {
+    const prevMonthKey = (() => {
+      const d = new Date(monthKey + "-01T00:00:00");
+      d.setMonth(d.getMonth() - 1);
+      return d.toISOString().slice(0, 7);
+    })();
+    const prevMonthEntries = (entries || []).filter((e) => (e.date || "").slice(0, 7) === prevMonthKey);
+    if (prevMonthEntries.length === 0) return null; // nothing to compare against
+
+    const prevTotalOut = prevMonthEntries.filter((e) => e.type === "out").reduce((s, e) => s + e.amount, 0);
+    const prevByCategory = {};
+    prevMonthEntries.filter((e) => e.type === "out").forEach((e) => {
+      const key = e.category || "__uncategorized__";
+      prevByCategory[key] = (prevByCategory[key] || 0) + e.amount;
+    });
+
+    const NOISE_THRESHOLD_PCT = 5; // ignore small swings that aren't worth surfacing
+
+    const overallPct = prevTotalOut > 0 ? Math.round(((totalOut - prevTotalOut) / prevTotalOut) * 100) : null;
+    const overall = overallPct !== null && Math.abs(overallPct) >= NOISE_THRESHOLD_PCT ? overallPct : null;
+
+    // Biggest-moving category among this month's top 3, only if it also has
+    // spending last month to compare against (a brand-new category has
+    // nothing to compare yet, per NOTES.md).
+    let category = null;
+    for (const [cat, amt] of topCategories) {
+      const prevAmt = prevByCategory[cat];
+      if (!(prevAmt > 0)) continue;
+      const pct = Math.round(((amt - prevAmt) / prevAmt) * 100);
+      if (Math.abs(pct) >= NOISE_THRESHOLD_PCT && (!category || Math.abs(pct) > Math.abs(category.pct))) {
+        category = { cat, pct };
+      }
+    }
+
+    if (overall === null && !category) return null;
+    return { overall, category };
+  }, [entries, monthKey, totalOut, topCategories]);
+}
+
+function TrendCallout({ pct, label }) {
+  const up = pct > 0;
+  return (
+    <div className={`flex items-center gap-1.5 text-xs rounded-lg px-2.5 py-2 ${up ? "bg-rose-50 text-rose-700" : "bg-emerald-50 text-emerald-700"}`}>
+      {up ? <TrendingUp size={13} className="shrink-0" /> : <TrendingDown size={13} className="shrink-0" />}
+      <span>{label}</span>
+    </div>
+  );
+}
+
 function MonthSummaryCard({ entries, cur, t }) {
   const [expanded, setExpanded] = useState(false);
   const monthKey = todayStr().slice(0, 7); // "YYYY-MM"
@@ -2010,6 +2069,8 @@ function MonthSummaryCard({ entries, cur, t }) {
   });
   const topCategories = Object.entries(byCategory).sort((a, b) => b[1] - a[1]).slice(0, 3);
   const maxCategoryAmount = topCategories.length ? topCategories[0][1] : 0;
+
+  const trend = useMonthTrend(entries, monthKey, totalOut, topCategories);
 
   return (
     <div className="bg-white border-b border-slate-200">
@@ -2035,6 +2096,21 @@ function MonthSummaryCard({ entries, cur, t }) {
               <div className="font-semibold text-rose-800">{cur}{totalOut.toLocaleString()}</div>
             </div>
           </div>
+          {trend && (
+            <div className="space-y-1.5">
+              {trend.overall !== null && (
+                <TrendCallout pct={trend.overall}
+                  label={t(trend.overall > 0 ? "monthSummary.trendSpendUp" : "monthSummary.trendSpendDown", { pct: Math.abs(trend.overall) })} />
+              )}
+              {trend.category && (
+                <TrendCallout pct={trend.category.pct}
+                  label={t(trend.category.pct > 0 ? "monthSummary.trendCategoryUp" : "monthSummary.trendCategoryDown", {
+                    category: trend.category.cat === "__uncategorized__" ? t("reportView.uncategorized") : categoryLabel(t, trend.category.cat),
+                    pct: Math.abs(trend.category.pct),
+                  })} />
+              )}
+            </div>
+          )}
           {topCategories.length > 0 && (
             <div className="space-y-2">
               <div className="text-xs font-medium text-slate-500">{t("monthSummary.topCategories")}</div>
@@ -3797,6 +3873,7 @@ function SettingsScreen({ ctx }) {
             <Item icon={Users} title={t("settings.ledgerTeamTitle")} sub={t("settings.ledgerTeamSub")} onClick={() => push("ledgerTeam")} />
             <Item icon={ArrowRightLeft} title={t("settings.moveRequestsTitle")} sub={t("settings.moveRequestsSub")} onClick={() => push("moveRequests")} />
             <Item icon={Building2} title={t("settings.ledgerSettingsTitle")} sub={t("settings.ledgerSettingsSub")} onClick={() => push("ledgerSettings")} />
+            <Item icon={HandCoins} title={t("settings.enterpriseTitle")} sub={t("settings.enterpriseSub")} onClick={() => push("enterprise")} />
           </div>
         )}
         <div className="px-4 py-2 text-xs font-medium text-slate-400 uppercase bg-slate-100">{t("settings.generalSettings")}</div>
@@ -3809,6 +3886,60 @@ function SettingsScreen({ ctx }) {
           <Item icon={Eye} title={t("settings.profileTitle")} sub={t("settings.profileSub")} onClick={() => push("profile")} />
           <Item icon={Download} title={t("settings.backupTitle")} sub={t("settings.backupSub")} onClick={() => push("backup")} />
           <Item icon={Info} title={t("settings.aboutTitle")} sub={t("settings.aboutSub")} onClick={() => push("about")} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------- Enterprise (teaser) ----------
+// Not a real feature yet — a locked preview of what's planned for an
+// Enterprise tier (ዱቤ/credit-debt tracking, inventory & stock) so people
+// running businesses know it's coming without us having built the actual
+// ledgers, due-date reminders, supplier/customer database, or stock-count
+// logic yet. See NOTES.md "If targeting SMEs..." for the open scope. A
+// possible standalone Windows app for this tier is a product idea being
+// considered, not something in progress — deliberately not promised here.
+const ENTERPRISE_PREVIEWS = [
+  { id: "credit", icon: HandCoins },
+  { id: "inventory", icon: Package },
+];
+
+function EnterpriseScreen({ ctx }) {
+  const { pop, t } = ctx;
+  return (
+    <div className="flex-1 flex flex-col min-h-0">
+      <TopHeader ctx={ctx} title={t("enterprise.title")} subtitle={t("enterprise.subtitle")} onBack={pop} />
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-28">
+        <p className="text-sm text-slate-600">{t("enterprise.intro")}</p>
+
+        <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory -mx-4 px-4 pb-1" style={{ scrollbarWidth: "none" }}>
+          {ENTERPRISE_PREVIEWS.map(({ id, icon: Icon }) => (
+            <div key={id} className="relative flex-none w-56 snap-start bg-white border border-slate-200 rounded-xl p-4 overflow-hidden">
+              <div className="absolute inset-0 bg-white/55 backdrop-blur-[1px] flex items-start justify-end p-2.5 pointer-events-none">
+                <span className="flex items-center gap-1 bg-slate-900/80 text-white text-[10px] font-medium rounded-full px-2 py-1">
+                  <Lock size={10} /> {t("enterprise.lockedBadge")}
+                </span>
+              </div>
+              <div className="w-10 h-10 rounded-lg bg-teal-50 flex items-center justify-center text-teal-700"><Icon size={18} /></div>
+              <div className="font-medium text-slate-900 text-sm mt-3">{t(`enterprise.previews.${id}.title`)}</div>
+              <div className="text-xs text-slate-500 mt-1 leading-relaxed">{t(`enterprise.previews.${id}.body`)}</div>
+            </div>
+          ))}
+        </div>
+
+        <div className="bg-white border border-slate-200 rounded-xl p-4">
+          <div className="flex items-start gap-3">
+            <div className="w-9 h-9 rounded-lg bg-teal-50 flex items-center justify-center text-teal-700 shrink-0"><Monitor size={16} /></div>
+            <div className="flex-1 min-w-0">
+              <div className="font-medium text-slate-900 text-sm">{t("enterprise.desktopTitle")}</div>
+              <div className="text-xs text-slate-500 mt-0.5">{t("enterprise.desktopBody")}</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 text-xs text-slate-400 justify-center pt-1">
+          <Lock size={12} /> {t("enterprise.notAvailableYet")}
         </div>
       </div>
     </div>

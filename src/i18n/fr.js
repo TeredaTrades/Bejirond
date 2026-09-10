@@ -103,6 +103,8 @@ export default {
     moveRequestsSub: "Approuver ou refuser les demandes",
     ledgerSettingsTitle: "Paramètres du registre",
     ledgerSettingsSub: "Paramètres propres à ce registre",
+    enterpriseTitle: "Entreprise",
+    enterpriseSub: "Suivi des dettes, stock — bientôt disponible",
     generalSettings: "Paramètres généraux",
     appSettingsTitle: "Paramètres de l'application",
     appSettingsSub: "Devise, catégories, modes de paiement",
@@ -120,6 +122,25 @@ export default {
     backupSub: "Facultatif — enregistrer ou restaurer un fichier de données",
     aboutTitle: "À propos de በጅሮንድ",
     aboutSub: "Politique de confidentialité, CGU, À propos de nous",
+  },
+  enterprise: {
+    title: "Entreprise",
+    subtitle: "Un aperçu de ce qui arrive",
+    intro: "Pour les entreprises qui ont besoin de plus qu'une simple comptabilité. Ces outils sont encore en construction — voici un aperçu de ce qui est prévu pour l'offre Entreprise.",
+    lockedBadge: "Verrouillé",
+    notAvailableYet: "Pas encore disponible",
+    desktopTitle: "Une application Entreprise dédiée",
+    desktopBody: "Une application distincte pour l'offre Entreprise, avec une version Windows, est envisagée en parallèle de ces outils — pas encore en cours de développement.",
+    previews: {
+      credit: {
+        title: "ዱቤ · Suivi des crédits et dettes",
+        body: "Suivez qui vous doit de l'argent et à qui vous en devez, avec échéances et rappels.",
+      },
+      inventory: {
+        title: "Stock et inventaire",
+        body: "Gardez un compte à jour du stock, avec suivi des ventes intégré.",
+      },
+    },
   },
   theme: {
     title: "Apparence",
@@ -179,6 +200,10 @@ export default {
   monthSummary: {
     title: "Ce mois-ci",
     topCategories: "Catégories principales",
+    trendSpendUp: "Les dépenses ont augmenté de {pct}% par rapport au mois dernier",
+    trendSpendDown: "Les dépenses ont baissé de {pct}% par rapport au mois dernier",
+    trendCategoryUp: "{category} a augmenté de {pct}% par rapport au mois dernier",
+    trendCategoryDown: "{category} a baissé de {pct}% par rapport au mois dernier",
   },
   entryDetail: {
     title: "Détails de l'entrée",

@@ -103,6 +103,8 @@ export default {
     moveRequestsSub: "ሕቶታት ፍቀድ ወይ ኣይፍቀድ",
     ledgerSettingsTitle: "ቅንብራት መዝገብ",
     ledgerSettingsSub: "ንዚ መዝገብ እዚ ፍሉይ ቅንብራት",
+    enterpriseTitle: "ኢንተርፕራይዝ",
+    enterpriseSub: "ናይ ዱቤ ምክትታል፡ ክምችት — ኣብ ቀረባ ይመጽእ",
     generalSettings: "ሓፈሻዊ ቅንብራት",
     appSettingsTitle: "ቅንብራት መተግበሪ",
     appSettingsSub: "ባጤራ፡ ጽፍሕታት፡ ኣገባብ ክፍሊት",
@@ -120,6 +122,25 @@ export default {
     backupSub: "ምርጫ እዩ — ናይ ዳታ ፋይል ኣቐምጡ ወይ መልሱ",
     aboutTitle: "ብዛዕባ በጅሮንድ",
     aboutSub: "ፖሊሲ ግላዊነት፡ ውዕልን ኩነታትን፡ ብዛዕባና",
+  },
+  enterprise: {
+    title: "ኢንተርፕራይዝ",
+    subtitle: "ቅድመ ትርኢት ናይቲ ዝመጽእ",
+    intro: "ካብ ቀሊል ናይ ሕሳብ ምሓዝ ንላዕሊ ንዘድልዮም ትካላት። እዚ መሳርሒታት እዚ ጌና ይስራሕ ኣሎ — እነሆ ቅድመ ትርኢት ናይቲ ንደረጃ ኢንተርፕራይዝ ዝተታሕዘ።",
+    lockedBadge: "ዕጹው",
+    notAvailableYet: "ጌና ዘይርከብ",
+    desktopTitle: "ፍሉይ ናይ ኢንተርፕራይዝ መተግበሪ",
+    desktopBody: "ፍሉይ መተግበሪ ንደረጃ ኢንተርፕራይዝ፡ ስሪት ዊንዶውስ ዝርከቦ፡ ምስዞም መሳርሒታት ብሓባር ይሕሰበሉ ኣሎ — ጌና ኣይተጀመረን።",
+    previews: {
+      credit: {
+        title: "ዱቤ · ምክትታል ዱቤ",
+        body: "መን ከም ዝግብኣኩም እሞ ንመን ከም እትግብኡ፡ ምስ ዕለት መክፈሊ ከምኡውን መዘኻኸሪ ተኸታተሉ።",
+      },
+      inventory: {
+        title: "ክምችት",
+        body: "ምክትታል ሽያጭ ሓዊሱ ንዘሎ ክምችት ተቖጻጸሩ።",
+      },
+    },
   },
   theme: {
     title: "ትርኢት",
@@ -179,6 +200,10 @@ export default {
   monthSummary: {
     title: "እዚ ወርሒ",
     topCategories: "ላዕለዎት ጽፍሕታት",
+    trendSpendUp: "ወጻኢ ካብቲ ዝሓለፈ ወርሒ ብ{pct}% ወሲኹ",
+    trendSpendDown: "ወጻኢ ካብቲ ዝሓለፈ ወርሒ ብ{pct}% ነኪዩ",
+    trendCategoryUp: "{category} ካብቲ ዝሓለፈ ወርሒ ብ{pct}% ወሲኹ",
+    trendCategoryDown: "{category} ካብቲ ዝሓለፈ ወርሒ ብ{pct}% ነኪዩ",
   },
   entryDetail: {
     title: "ዝርዝር ምዝገባ",

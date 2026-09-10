@@ -104,6 +104,8 @@ export default {
     moveRequestsSub: "الموافقة على الطلبات أو رفضها",
     ledgerSettingsTitle: "إعدادات السجل",
     ledgerSettingsSub: "إعدادات خاصة بهذا السجل",
+    enterpriseTitle: "المؤسسات",
+    enterpriseSub: "تتبع الديون والمخزون — قريبًا",
     generalSettings: "الإعدادات العامة",
     appSettingsTitle: "إعدادات التطبيق",
     appSettingsSub: "العملة والفئات وطرق الدفع",
@@ -121,6 +123,25 @@ export default {
     backupSub: "اختياري — احفظ ملف بياناتك أو استعده",
     aboutTitle: "حول በጅሮንድ",
     aboutSub: "سياسة الخصوصية، الشروط والأحكام، من نحن",
+  },
+  enterprise: {
+    title: "المؤسسات",
+    subtitle: "نظرة مسبقة على ما هو قادم",
+    intro: "للأنشطة التجارية التي تحتاج إلى أكثر من مجرد دفتر حسابات بسيط. هذه الأدوات لا تزال قيد الإنشاء — إليك نظرة مسبقة على ما هو مخطَّط لفئة المؤسسات.",
+    lockedBadge: "مقفل",
+    notAvailableYet: "غير متاح بعد",
+    desktopTitle: "تطبيق مخصص للمؤسسات",
+    desktopBody: "يجري النظر في تطبيق منفصل لفئة المؤسسات، يشمل نسخة لويندوز، إلى جانب هذه الأدوات — لم يبدأ العمل عليه بعد.",
+    previews: {
+      credit: {
+        title: "ዱቤ · تتبع الديون والائتمان",
+        body: "تتبّع من يدين لك ومن تدين له، مع مواعيد استحقاق وتذكيرات.",
+      },
+      inventory: {
+        title: "المخزون",
+        body: "احتفظ بعدد محدث للمخزون، مع تتبع المبيعات المدمج.",
+      },
+    },
   },
   theme: {
     title: "المظهر",
@@ -180,6 +201,10 @@ export default {
   monthSummary: {
     title: "هذا الشهر",
     topCategories: "أهم الفئات",
+    trendSpendUp: "ارتفع الإنفاق بنسبة {pct}% مقارنة بالشهر الماضي",
+    trendSpendDown: "انخفض الإنفاق بنسبة {pct}% مقارنة بالشهر الماضي",
+    trendCategoryUp: "ارتفع {category} بنسبة {pct}% مقارنة بالشهر الماضي",
+    trendCategoryDown: "انخفض {category} بنسبة {pct}% مقارنة بالشهر الماضي",
   },
   entryDetail: {
     title: "تفاصيل القيد",

@@ -106,6 +106,8 @@ export default {
     moveRequestsSub: "Gaaffiiwwan hayyamiu ykn didi",
     ledgerSettingsTitle: "Qindaa'ina Galmee",
     ledgerSettingsSub: "Qindaa'ina galmee kanaaf addaa",
+    enterpriseTitle: "Enterprise",
+    enterpriseSub: "Hordoffii liqii, kuusaa — dhiyootti dhufa",
     generalSettings: "Qindaa'ina Waliigalaa",
     appSettingsTitle: "Qindaa'ina App",
     appSettingsSub: "Maallaqa, ramaddii, gosa kaffaltii",
@@ -123,6 +125,25 @@ export default {
     backupSub: "Filannoo qofa — faayilii daataa keessanii olkaa'aa ykn deebisaa",
     aboutTitle: "Waa'ee በጅሮንድ",
     aboutSub: "Imaammata dhuunfaa, waliigaltee, waa'ee keenya",
+  },
+  enterprise: {
+    title: "Enterprise",
+    subtitle: "Waan dhufaa jiru ilaali",
+    intro: "Daldaltoota galmee salphaa caalaa barbaadaniif. Meeshaaleen kun ammallee ijaaramaa jiru — kunis waan sadarkaa Enterprise keessatti karoorfame ilaaluudha.",
+    lockedBadge: "Cufame",
+    notAvailableYet: "Ammatti hin argamu",
+    desktopTitle: "Appii Enterprise addaa",
+    desktopBody: "Appiin addaa sadarkaa Enterprise, kan Windows dabalatu, meeshaalee kana waliin yaadamaa jira — ammatti hin jalqabamne.",
+    previews: {
+      credit: {
+        title: "ዱቤ · Hordoffii Liqii",
+        body: "Eenyutu liqii siif qabu fi eenyuuf liqii akka qabdu, guyyaa xumuraa fi yaadachiisaa waliin hordofi.",
+      },
+      inventory: {
+        title: "Kuusaa",
+        body: "Lakkoofsa kuusaa, hordoffii gurgurtaa waliin ta'e eegi.",
+      },
+    },
   },
   theme: {
     title: "Bifa",
@@ -182,6 +203,10 @@ export default {
   monthSummary: {
     title: "Ji'a Kana",
     topCategories: "Ramaddiiwwan Guguddaa",
+    trendSpendUp: "Baasiin ji'a darbe waliin yoo wal bira qabamu {pct}% dabaleera",
+    trendSpendDown: "Baasiin ji'a darbe waliin yoo wal bira qabamu {pct}% hir'ateera",
+    trendCategoryUp: "{category} ji'a darbe waliin yoo wal bira qabamu {pct}% dabaleera",
+    trendCategoryDown: "{category} ji'a darbe waliin yoo wal bira qabamu {pct}% hir'ateera",
   },
   entryDetail: {
     title: "Bal'ina Galmee",

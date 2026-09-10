@@ -105,6 +105,8 @@ export default {
     moveRequestsSub: "Approve or deny requests",
     ledgerSettingsTitle: "Ledger Settings",
     ledgerSettingsSub: "Settings specific to this ledger",
+    enterpriseTitle: "Enterprise",
+    enterpriseSub: "Credit tracking, inventory — coming soon",
     generalSettings: "General Settings",
     appSettingsTitle: "App Settings",
     appSettingsSub: "Currency, categories, payment modes",
@@ -122,6 +124,25 @@ export default {
     backupSub: "Optional — save or bring back a data file",
     aboutTitle: "About በጅሮንድ",
     aboutSub: "Privacy policy, T&C, About us",
+  },
+  enterprise: {
+    title: "Enterprise",
+    subtitle: "A preview of what's coming",
+    intro: "For businesses that need more than simple bookkeeping. These tools are still being built — here's a preview of what's planned for the Enterprise tier.",
+    lockedBadge: "Locked",
+    notAvailableYet: "Not available yet",
+    desktopTitle: "A dedicated Enterprise app",
+    desktopBody: "A separate app for the Enterprise tier, including a Windows version, is being considered alongside these tools — not yet in progress.",
+    previews: {
+      credit: {
+        title: "ዱቤ · Credit & debt tracking",
+        body: "Track who owes you and who you owe, with due dates and reminders.",
+      },
+      inventory: {
+        title: "Inventory & stock",
+        body: "Keep a running count of stock, with sales tracking built in.",
+      },
+    },
   },
   theme: {
     title: "Appearance",
@@ -181,6 +202,10 @@ export default {
   monthSummary: {
     title: "This month",
     topCategories: "Top categories",
+    trendSpendUp: "Spending is up {pct}% vs. last month",
+    trendSpendDown: "Spending is down {pct}% vs. last month",
+    trendCategoryUp: "{category} is up {pct}% vs. last month",
+    trendCategoryDown: "{category} is down {pct}% vs. last month",
   },
   entryDetail: {
     title: "Entry Details",

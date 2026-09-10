@@ -18,23 +18,14 @@ _(add notes here as you think of them)_
   time/date, to/from whom, current balance, reference, sender/receiver,
   and any related fees.
 - Give shops/businesses a "ዱቤ" (credit) tracking option — track who owes
-  you / whom you owe, with due dates and reminders.
+  you / whom you owe, with due dates and reminders. Not built yet; a
+  locked preview card for this now exists on the new Enterprise screen
+  (see Done) so people know it's coming, but the actual ledger, due-date
+  reminders, and notifications are still unbuilt.
 - If targeting SMEs, also consider: customer/supplier database, simple
   invoicing & receipts (in their preferred language), basic inventory &
-  sales tracking.
-- Comparative spending insights — surface automatic comparisons like
-  "fuel spending this month is higher than last year's monthly average"
-  or "food spending is down from last month," with a trendline or chart
-  per category rather than just a number. Needs scoping: which
-  comparisons to run by default (month vs. last month, month vs. same
-  month last year, month vs. trailing average), whether it's a feed of
-  auto-generated callouts inside the per-book month summary (see Done)
-  or a dedicated insights/trends screen, and how far back category
-  history needs to go before a comparison is even meaningful (a
-  brand-new category has nothing to compare against yet). Natural fit
-  alongside the per-book month summary and the existing Reports/category
-  pie chart — likely reuses the same category-aggregation logic rather
-  than needing new data collection.
+  sales tracking. Inventory & stock also has a locked preview card on the
+  new Enterprise screen (see Done) — same caveat, not built yet.
 
 ## To add
 - Scan receipt — camera/OCR capture that reads a receipt and pre-fills an
@@ -109,10 +100,35 @@ via a normal merge from `individual-base`.
   platform, App Store listing) is the separate, bigger remaining piece —
   still blocked on a Mac with Xcode and an Apple Developer Program
   membership ($99/yr), not started.
+- Possible standalone Enterprise app (separate from the main
+  bundle/individual-app structure above), including a Windows build, for
+  the paywalled ዱቤ/inventory tier once those features are actually built.
+  Just an idea raised while adding the Enterprise teaser screen (see
+  Done) — not scoped, not started, and deliberately not promised to
+  users anywhere in the app yet.
 
 ## Done
 _(move items here once handled, with the date)_
 
+- Comparative spending insights, scoped down to a first version: the
+  per-book Month Summary card (see below) now shows 1-2 auto-generated
+  callout lines comparing this month vs. last calendar month — overall
+  spend, plus whichever top category moved the most — when the swing is
+  5% or more (smaller swings are treated as noise and hidden). Returns
+  nothing if there's no prior month of data yet, or if a category is new
+  this month with nothing to compare against. Reuses the same category-
+  aggregation the totals/top-categories block already computes. A
+  dedicated Insights/Trends screen and month-vs-same-month-last-year
+  comparison are still open, deferred until this simpler version proves
+  useful (2026-09-10).
+- Enterprise screen added (Settings, on business ledgers) as a locked
+  preview only — not the real ዱቤ/inventory features. A horizontal
+  carousel shows two "coming soon" cards (credit/debt tracking,
+  inventory & stock) with a locked badge, plus a note that a separate
+  Enterprise app (possibly including Windows) is being considered. No
+  payment gating exists yet; this is honestly labeled as unbuilt rather
+  than functional. See Open decisions for the standalone-app idea and
+  the Inbox ዱቤ/SME items for what's still actually unbuilt (2026-09-10).
 - PDF entries import added to Book Settings, alongside CSV import
   (2026-08-22). Best-effort recovery from the app's own "All Entries"
   PDF report, for people who only have an old PDF and not the CSV.

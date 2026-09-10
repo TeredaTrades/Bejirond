@@ -104,6 +104,8 @@ export default {
     moveRequestsSub: "ጥያቄዎችን ፍቀድ ወይም ውድቅ አድርግ",
     ledgerSettingsTitle: "የመዝገብ ቅንብሮች",
     ledgerSettingsSub: "ለዚህ መዝገብ የተለዩ ቅንብሮች",
+    enterpriseTitle: "ኢንተርፕራይዝ",
+    enterpriseSub: "የዱቤ መከታተያ፣ ክምችት — በቅርቡ ይመጣል",
     generalSettings: "አጠቃላይ ቅንብሮች",
     appSettingsTitle: "የመተግበሪያ ቅንብሮች",
     appSettingsSub: "ገንዘብ ዓይነት፣ ምድቦች፣ የክፍያ ዓይነቶች",
@@ -121,6 +123,25 @@ export default {
     backupSub: "አማራጭ ነው — የውሂብ ፋይል ያስቀምጡ ወይም ይመልሱ",
     aboutTitle: "ስለ በጅሮንድ",
     aboutSub: "የግላዊነት ፖሊሲ፣ ውል እና ሁኔታዎች፣ ስለ እኛ",
+  },
+  enterprise: {
+    title: "ኢንተርፕራይዝ",
+    subtitle: "ወደፊት የሚመጣው ቅድመ እይታ",
+    intro: "ከቀላል የሂሳብ አያያዝ በላይ ለሚያስፈልጋቸው ንግዶች። እነዚህ መሳሪያዎች እየተገነቡ ናቸው — ለኢንተርፕራይዝ ደረጃ የታቀደው ቅድመ እይታ እነሆ።",
+    lockedBadge: "ዝግ",
+    notAvailableYet: "ገና አይገኝም",
+    desktopTitle: "የተለየ የኢንተርፕራይዝ መተግበሪያ",
+    desktopBody: "ለኢንተርፕራይዝ ደረጃ የተለየ መተግበሪያ፣ የዊንዶውስ ስሪትን ጨምሮ፣ ከእነዚህ መሳሪያዎች ጎን ለጎን እየታሰበበት ነው — ገና ስራ አልተጀመረም።",
+    previews: {
+      credit: {
+        title: "ዱቤ · የዱቤ መከታተያ",
+        body: "ማን ዕዳ እንዳለበት እና ለማን ዕዳ እንዳለብዎት፣ ከመክፈያ ቀን እና ማስታወሻ ጋር ይከታተሉ።",
+      },
+      inventory: {
+        title: "ክምችት",
+        body: "የሽያጭ መከታተያን ጨምሮ ያለውን ክምችት ይቆጣጠሩ።",
+      },
+    },
   },
   theme: {
     title: "መልክ",
@@ -180,6 +201,10 @@ export default {
   monthSummary: {
     title: "ይህ ወር",
     topCategories: "ከፍተኛ ምድቦች",
+    trendSpendUp: "ወጪ ካለፈው ወር ጋር ሲነጻጸር በ{pct}% ጨምሯል",
+    trendSpendDown: "ወጪ ካለፈው ወር ጋር ሲነጻጸር በ{pct}% ቀንሷል",
+    trendCategoryUp: "{category} ካለፈው ወር ጋር ሲነጻጸር በ{pct}% ጨምሯል",
+    trendCategoryDown: "{category} ካለፈው ወር ጋር ሲነጻጸር በ{pct}% ቀንሷል",
   },
   entryDetail: {
     title: "የግቤት ዝርዝር",

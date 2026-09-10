@@ -365,6 +365,26 @@
   .screen-card .s-cap-title{ font-weight:600; font-size:14px; margin:0; }
   .screen-card .s-cap-body{ font-size:13px; opacity:.6; margin:2px 0 0; }
 
+  .screens-nav{
+    display:flex; align-items:center; justify-content:center;
+    gap:14px; margin-top:14px; padding:0 24px;
+  }
+  .screens-nav-btn{
+    width:34px; height:34px; border-radius:50%; border:none;
+    background:var(--sage); color:var(--ink);
+    font-size:19px; line-height:1; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:background .15s ease;
+  }
+  .screens-nav-btn:hover{ background:var(--line); }
+  .screens-nav-btn:active{ transform:scale(.94); }
+  .screens-dots{ display:flex; align-items:center; gap:6px; }
+  .screens-dots button{
+    width:6px; height:6px; padding:0; border:none; border-radius:50%;
+    background:var(--line); cursor:pointer; transition:background .15s ease, width .15s ease;
+  }
+  .screens-dots button.active{ background:var(--green); width:16px; border-radius:3px; }
+
   .social-row{
     display:flex; gap:16px; justify-content:center; flex-wrap:wrap;
     padding:6px 0 4px;
@@ -457,7 +477,7 @@
 <section class="screens" aria-label="App preview">
   <h2 data-i18n="screens_title">See it in action</h2>
   <p class="screens-note" data-i18n="screens_note">Illustrative preview of the app's screens</p>
-  <div class="screens-scroll">
+  <div class="screens-scroll" id="screens-scroll">
 
     <div class="screen-card">
       <div class="frame">
@@ -867,31 +887,114 @@
     </div>
 
   </div>
+  <div class="screens-nav">
+    <button type="button" class="screens-nav-btn" id="screens-prev" aria-label="Previous screenshot">‹</button>
+    <div class="screens-dots" id="screens-dots" aria-hidden="true"></div>
+    <button type="button" class="screens-nav-btn" id="screens-next" aria-label="Next screenshot">›</button>
+  </div>
 </section>
 
 <script>
 (function () {
-  const track = document.querySelector('.screens-scroll');
+  const track = document.getElementById('screens-scroll');
+  const prevBtn = document.getElementById('screens-prev');
+  const nextBtn = document.getElementById('screens-next');
+  const dotsWrap = document.getElementById('screens-dots');
   if (!track) return;
-  const cards = track.querySelectorAll('.screen-card');
-  if (cards.length < 2) return;
-  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const realCards = Array.from(track.querySelectorAll('.screen-card'));
+  const total = realCards.length;
+  if (total < 2) return;
+  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  let index = 0;
+  // Clone the first card and append it after the last one, so advancing
+  // past the last real slide scrolls forward into a look-alike slide
+  // instead of visibly rewinding all the way back to the start - then,
+  // once that scroll settles, silently snap (no animation) to the real
+  // first slide. Manual Prev at slide 0 does the mirror image: an
+  // instant, unanimated cut straight to the last real slide rather than
+  // a long reverse-scroll across every slide in between. Either way,
+  // it always reads as moving forward or backward, never as rewinding.
+  const firstClone = realCards[0].cloneNode(true);
+  firstClone.setAttribute('aria-hidden', 'true');
+  firstClone.querySelectorAll('a,button,[tabindex]').forEach((el) => el.setAttribute('tabindex', '-1'));
+  track.appendChild(firstClone);
+
+  let index = 0; // always a real slide (0..total-1) once settled
+  let wrapping = false;
   let timer = null;
   let resumeTimer = null;
 
-  function goTo(i) {
-    index = (i + cards.length) % cards.length;
-    const card = cards[index];
-    track.scrollTo({ left: card.offsetLeft - track.offsetLeft, behavior: 'smooth' });
+  const dots = [];
+  if (dotsWrap) {
+    for (let i = 0; i < total; i++) {
+      const d = document.createElement('button');
+      d.type = 'button';
+      d.setAttribute('aria-label', 'Go to screenshot ' + (i + 1));
+      d.addEventListener('click', () => goToIndex(i, true));
+      dotsWrap.appendChild(d);
+      dots.push(d);
+    }
   }
+  function updateDots() {
+    dots.forEach((d, i) => d.classList.toggle('active', i === index));
+  }
+
+  function scrollToEl(el, smooth) {
+    track.scrollTo({ left: el.offsetLeft - track.offsetLeft, behavior: smooth && !reduceMotion ? 'smooth' : 'auto' });
+  }
+
+  function goToIndex(i, manual) {
+    if (wrapping || i === index) { if (manual) restart(); return; }
+    index = i;
+    scrollToEl(realCards[index], true);
+    updateDots();
+    if (manual) restart();
+  }
+
+  function next(manual) {
+    if (wrapping) return;
+    if (index >= total - 1) {
+      wrapping = true;
+      scrollToEl(firstClone, true);
+      setTimeout(() => {
+        scrollToEl(realCards[0], false);
+        index = 0;
+        updateDots();
+        wrapping = false;
+      }, reduceMotion ? 0 : 420);
+    } else {
+      index += 1;
+      scrollToEl(realCards[index], true);
+    }
+    updateDots();
+    if (manual) restart();
+  }
+
+  function prev(manual) {
+    if (wrapping) return;
+    if (index <= 0) {
+      index = total - 1;
+      scrollToEl(realCards[index], false);
+    } else {
+      index -= 1;
+      scrollToEl(realCards[index], true);
+    }
+    updateDots();
+    if (manual) restart();
+  }
+
   function start() {
     stop();
-    timer = setInterval(function () { goTo(index + 1); }, 3000);
+    if (reduceMotion) return; // no unattended motion for reduced-motion users
+    timer = setInterval(() => next(false), 3000);
   }
   function stop() {
     if (timer) { clearInterval(timer); timer = null; }
+  }
+  function restart() {
+    stop();
+    clearTimeout(resumeTimer);
+    start();
   }
   function pauseThenResume() {
     stop();
@@ -899,11 +1002,38 @@
     resumeTimer = setTimeout(start, 4000);
   }
 
+  if (nextBtn) nextBtn.addEventListener('click', () => next(true));
+  if (prevBtn) prevBtn.addEventListener('click', () => prev(true));
   track.addEventListener('mouseenter', stop);
   track.addEventListener('mouseleave', start);
   track.addEventListener('touchstart', pauseThenResume, { passive: true });
   track.addEventListener('wheel', pauseThenResume, { passive: true });
 
+  // Keep `index`/dots in sync with manual swipes or trackpad scrolling
+  // too, not just the Prev/Next buttons - otherwise a manual swipe would
+  // leave the buttons/dots pointing at the wrong slide.
+  let scrollSyncTimer = null;
+  track.addEventListener('scroll', () => {
+    if (wrapping) return;
+    clearTimeout(scrollSyncTimer);
+    scrollSyncTimer = setTimeout(() => {
+      const pos = track.scrollLeft + track.offsetLeft;
+      let nearest = 0, nearestDist = Infinity;
+      realCards.forEach((el, i) => {
+        const dist = Math.abs(el.offsetLeft - pos);
+        if (dist < nearestDist) { nearestDist = dist; nearest = i; }
+      });
+      if (Math.abs(firstClone.offsetLeft - pos) < nearestDist) {
+        scrollToEl(realCards[0], false);
+        index = 0;
+      } else {
+        index = nearest;
+      }
+      updateDots();
+    }, 120);
+  }, { passive: true });
+
+  updateDots();
   start();
 })();
 </script>

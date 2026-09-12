@@ -463,8 +463,28 @@
 (async function () {
   const countEl = document.getElementById('dl-count');
   const metaEl = document.getElementById('dl-meta');
+
+  // Version + size come from a single "latest release" call — cheap and
+  // unlikely to hit GitHub's anonymous rate limit, so this shows even if
+  // the heavier download-count tally below fails.
   try {
-    let total = 0, page = 1, latestShown = false;
+    const res = await fetch('https://api.github.com/repos/TeredaTrades/Bejirond/releases/latest');
+    if (res.ok) {
+      const rel = await res.json();
+      const asset = (rel.assets || []).find((a) => a.name === 'Bejirond.apk');
+      if (asset) {
+        metaEl.dataset.version = rel.tag_name || '';
+        metaEl.dataset.sizeMb = (asset.size / (1024 * 1024)).toFixed(1);
+        window.__renderDlMeta && window.__renderDlMeta();
+      }
+    }
+  } catch (e) {}
+
+  // Total download count requires paging through every release, which is
+  // heavier and more likely to hit a rate limit — kept in its own try/catch
+  // so a failure here never blocks version/size above from showing.
+  try {
+    let total = 0, page = 1;
     while (true) {
       const res = await fetch(`https://api.github.com/repos/TeredaTrades/Bejirond/releases?per_page=100&page=${page}`);
       if (!res.ok) break;
@@ -472,14 +492,7 @@
       if (!releases.length) break;
       for (const rel of releases) {
         for (const asset of rel.assets) {
-          if (asset.name !== 'Bejirond.apk') continue;
-          total += asset.download_count;
-          if (!latestShown) {
-            latestShown = true;
-            metaEl.dataset.version = rel.tag_name || '';
-            metaEl.dataset.sizeMb = (asset.size / (1024 * 1024)).toFixed(1);
-            window.__renderDlMeta && window.__renderDlMeta();
-          }
+          if (asset.name === 'Bejirond.apk') total += asset.download_count;
         }
       }
       if (releases.length < 100) break;

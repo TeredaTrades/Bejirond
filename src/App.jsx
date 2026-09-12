@@ -2699,14 +2699,14 @@ function AddEntryScreen({ ctx, bookId, type, editEntry }) {
       )}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         <div className="flex gap-3">
-          <label className="flex-1">
+          <div className="flex-1">
             <div className="text-xs text-slate-500 mb-1 flex items-center gap-1"><Calendar size={12} /> {t("addEntry.date")}</div>
             <CustomDatePicker value={form.date} onChange={(d) => setForm({ ...form, date: d })} language={ctx.dtPref.language} />
-          </label>
-          <label className="flex-1">
+          </div>
+          <div className="flex-1">
             <div className="text-xs text-slate-500 mb-1 flex items-center gap-1"><Clock size={12} /> {t("addEntry.time")}</div>
             <CustomTimePicker value={form.time} onChange={(tm) => setForm({ ...form, time: tm })} language={ctx.dtPref.language} timeFormat={ctx.dtPref.timeFormat} />
-          </label>
+          </div>
         </div>
         {appSettings.calendarType === "ethiopian" && form.date && (
           <div className="-mt-2 text-xs text-teal-700 flex items-center gap-1">

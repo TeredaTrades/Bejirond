@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+    <meta name="theme-color" content="#0C1D37" />
+    <title>በጅሮንድ</title>
+
+    <!-- PWA: installable + offline via manifest.json + sw.js -->
+    <link rel="manifest" href="./manifest.json" />
+    <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
+
+    <!-- iOS "Add to Home Screen" support — Safari ignores the manifest for
+         these bits, so they're spelled out separately here. -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="በጅሮንድ" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <script type="module" crossorigin src="./assets/index-CES3sEDh.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-DDMUfWZ6.css">
+  </head>
+  <body class="bg-slate-100">
+    <div id="root"></div>
+    <script>
+      // Only register the service worker for real web visitors — inside the
+      // native Android/iOS shell, Capacitor already serves the bundled
+      // assets directly, so a caching layer on top is unnecessary and
+      // avoids any chance of it interfering with how native app updates land.
+      var isNativeShell = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+      if ("serviceWorker" in navigator && !isNativeShell) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("./sw.js").catch(() => {});
+        });
+      }
+    </script>
+  </body>
+</html>

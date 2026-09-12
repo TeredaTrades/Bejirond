@@ -219,6 +219,20 @@
   }
   .btn:hover{ background:var(--green-deep); }
   .btn:disabled{ opacity:.5; cursor:default; }
+  .btn-secondary{
+    display:inline-block;
+    background:transparent;
+    color:var(--green-deep);
+    text-decoration:none;
+    font-weight:600;
+    font-size:15px;
+    padding:12px 26px;
+    border-radius:10px;
+    border:1.5px solid var(--green);
+    margin-top:10px;
+    transition:background .15s ease;
+  }
+  .btn-secondary:hover{ background:rgba(18,122,63,.08); }
   .fineprint{ margin-top:12px; font-size:13px; color:var(--ink); opacity:.55; }
   .dl-count{
     margin-top:6px; font-size:13px; color:var(--green-deep); opacity:0;
@@ -440,6 +454,8 @@
     <p class="fineprint" data-i18n="download_fine">Free · Works fully offline · Android 8.0 and up</p>
     <p class="dl-meta" id="dl-meta"></p>
     <p class="dl-count" id="dl-count"></p>
+    <br>
+    <a class="btn-secondary" id="pwa-btn" href="./app/" data-i18n="pwa_btn">Windows &amp; iOS (Web App)</a>
   </div>
 </div>
 
@@ -1200,6 +1216,7 @@ const TRANSLATIONS = {
     "tagline": "Track spending across several businesses, on your own phone, in the language you actually think in.",
     "download_btn": "Download for Android",
     "download_fine": "Free · Works fully offline · Android 8.0 and up",
+    "pwa_btn": "Windows & iOS (Web App)",
     "section_features": "What it does",
     "f1_title": "Multiple businesses, one app",
     "f1_body": "Keep separate books for each business, with team roles and reports for every one of them.",
@@ -1273,7 +1290,8 @@ const TRANSLATIONS = {
     "nav_source": "ምንጭ በGitHub",
     "tagline": "በስልክዎ ላይ፣ በሚያውቁት ቋንቋ፣ የብዙ ንግዶችዎን ወጪ ይከታተሉ።",
     "download_btn": "ለAndroid አውርድ",
-    "download_fine": "ነጻ · ሙሉ በሙሉ ከመስመር ውጪ ይሰራል · Android 8.0 እና ከዚያ በላይ",
+    "download_fine": "ነጻ · ያለምንም internet ይሰራል · Android 8.0 እና ከዚያ በላይ",
+    "pwa_btn": "ለWindows እና iOS (የድር መተግበሪያ)",
     "section_features": "ምን እንደሚሰራ",
     "f1_title": "ብዙ ንግዶች፣ አንድ መተግበሪያ",
     "f1_body": "ለእያንዳንዱ ንግድ የተለየ ደብተር፣ የቡድን ሚናዎች እና ሪፖርቶች ይያዙ።",
@@ -1308,7 +1326,7 @@ const TRANSLATIONS = {
     "faq_q1": "በጅሮንድ ነጻ ነው?",
     "faq_a1": "አዎ። በጅሮንድ ሙሉ በሙሉ ነጻ ነው፣ ምንም ማስታወቂያ ወይም በመተግበሪያ ውስጥ ግዢዎች የሉም።",
     "faq_q2": "ኢንተርኔት ያስፈልገዋል?",
-    "faq_a2": "አያስፈልገውም። በጅሮንድ ሙሉ በሙሉ ከመስመር ውጪ ይሰራል — እያንዳንዱ ደብተር፣ ግቤት እና ቅንብር የሚቀመጠው በስልክዎ ላይ ብቻ ነው።",
+    "faq_a2": "አያስፈልገውም። በጅሮንድ ያለምንም internet ይሰራል — እያንዳንዱ ደብተር፣ ግቤት እና ቅንብር የሚቀመጠው በስልክዎ ላይ ብቻ ነው።",
     "faq_q3": "የገንዘብ ውሂቤ ደህንነቱ የተጠበቀ ነው?",
     "faq_a3": "ውሂብዎ ከመሳሪያዎ በፍጹም አይወጣም። መለያ፣ አገልጋይ ወይም ማመሳሰያ የለም — በጅሮንድ የሌለውን ውሂብ ማጋራት አይችልም።",
     "faq_q4": "በጅሮንድ ለምን እስካሁን በGoogle Play Store የለም?",
@@ -1348,6 +1366,7 @@ const TRANSLATIONS = {
     "tagline": "Baasii daldala kee hedduu, bilbila keetii irratti, afaan ati dhugumaan yaaddu keessatti hordofi.",
     "download_btn": "Android'f Buufadhu",
     "download_fine": "Bilisa · Offline guutumaan guutuutti ni hojjeta · Android 8.0 fi isaa ol",
+    "pwa_btn": "Windows fi iOS'f (Aappii Weebii)",
     "section_features": "Waan hojjetu",
     "f1_title": "Daldalawwan hedduu, appii tokko",
     "f1_body": "Daldala hunda keessaaf galmee adda addaa, gahee garee, fi gabaasa qabaadhu.",
@@ -1422,6 +1441,7 @@ const TRANSLATIONS = {
     "tagline": "ወጻኢታት ብዙሓት ትካላትካ፡ ኣብ ተሌፎንካ፡ ብቋንቋ እትሓስበሉ ተኸታተል።",
     "download_btn": "ን Android ኣውርድ",
     "download_fine": "ብነጻ · ብዘይ ኢንተርነት ምሉእ ብምሉእ ይሰርሕ · Android 8.0 ን ልዕሊኡ",
+    "pwa_btn": "ንWindows ከምኡውን iOS (ናይ ወብ መተግበሪ)",
     "section_features": "እንታይ ይገብር",
     "f1_title": "ብዙሓት ትካላት፡ ሓደ መተግበሪ",
     "f1_body": "ንነፍሲ ወከፍ ትካል ፍሉይ ደብተር፡ ግደ ጋንታን ጸብጻብን ሓዝ።",
@@ -1496,6 +1516,7 @@ const TRANSLATIONS = {
     "tagline": "Suivez les dépenses de plusieurs entreprises, sur votre téléphone, dans la langue que vous maîtrisez vraiment.",
     "download_btn": "Télécharger pour Android",
     "download_fine": "Gratuit · Fonctionne entièrement hors ligne · Android 8.0 et plus",
+    "pwa_btn": "Windows et iOS (application web)",
     "section_features": "Ce que fait l'application",
     "f1_title": "Plusieurs entreprises, une seule application",
     "f1_body": "Gardez des comptes séparés pour chaque entreprise, avec des rôles d'équipe et des rapports pour chacune.",
@@ -1570,6 +1591,7 @@ const TRANSLATIONS = {
     "tagline": "تتبّع مصاريف عدة أنشطة تجارية، على هاتفك، باللغة التي تفكر بها فعلًا.",
     "download_btn": "تحميل لأندرويد",
     "download_fine": "مجاني · يعمل بلا إنترنت بالكامل · أندرويد 8.0 فأعلى",
+    "pwa_btn": "لِـ Windows و iOS (تطبيق ويب)",
     "section_features": "ما الذي يقدّمه",
     "f1_title": "عدة أنشطة تجارية، تطبيق واحد",
     "f1_body": "احتفظ بدفاتر منفصلة لكل نشاط تجاري، مع أدوار للفريق وتقارير لكل واحد منها.",
@@ -1644,6 +1666,7 @@ const TRANSLATIONS = {
     "tagline": "Fuatilia matumizi ya biashara kadhaa, kwenye simu yako, kwa lugha unayoifahamu vizuri.",
     "download_btn": "Pakua kwa Android",
     "download_fine": "Bure · Inafanya kazi bila mtandao kabisa · Android 8.0 na zaidi",
+    "pwa_btn": "Windows na iOS (Programu ya Wavuti)",
     "section_features": "Inachofanya",
     "f1_title": "Biashara nyingi, programu moja",
     "f1_body": "Weka vitabu tofauti kwa kila biashara, ukiwa na majukumu ya timu na ripoti kwa kila moja.",

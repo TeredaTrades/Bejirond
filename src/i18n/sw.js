@@ -403,6 +403,7 @@ export default {
     description: "በጅሮንድ ni njia rahisi ya kufuatilia fedha zinazoingia na kutoka katika daftari na vitabu, yenye majukumu mepesi ya timu na ripoti zinazoweza kutolewa.",
     privacyNote: "Data yako yote inahifadhiwa kwa faragha na inabaki kwenye akaunti yako pekee.",
     version: "Toleo 1.0.0 · Mfano wa maonyesho",
+    developedBy: "Imetengenezwa na Forjalem Studios",
   },
   roles: {
     bookAdmin: "Msimamizi wa Kitabu",

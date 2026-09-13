@@ -4455,6 +4455,7 @@ function AboutScreen({ ctx }) {
         <p>{t("about.description")}</p>
         <p>{t("about.privacyNote")}</p>
         <p className="text-xs text-slate-400 pt-4">{t("about.version")}</p>
+        <p className="text-xs text-slate-400">{t("about.developedBy")}</p>
       </div>
     </div>
   );

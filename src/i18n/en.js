@@ -377,6 +377,7 @@ export default {
     description: "በጅሮንድ is a simple way to track cash in and cash out across ledgers and books, with lightweight team roles and exportable reports.",
     privacyNote: "All your data is stored privately and stays on your account only.",
     version: "Version 1.0.0 · Demo build",
+    developedBy: "Developed by Forjalem Studios",
   },
   activity: {
     title: "Book Activity",

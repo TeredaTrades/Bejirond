@@ -457,6 +457,7 @@ export default {
     description: "በጅሮንድ karaa salphaa maallaqa seenu fi bahu galmeewwanii fi kitaabota gidduutti hordofuudha, gahee garee salphaa fi gabaasa baafamuu danda'u waliin.",
     privacyNote: "Odeeffannoon kee hundi dhoksaan kuufamee herrega kee qofa keessatti hafa.",
     version: "Sarara 1.0.0 · Ijaarsa Agarsiisaa",
+    developedBy: "Forjalem Studios tiin qophaa'e",
   },
   roles: {
     bookAdmin: "Bulchaa Kitaabaa",

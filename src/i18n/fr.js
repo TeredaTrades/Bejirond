@@ -375,6 +375,7 @@ export default {
     description: "በጅሮንድ est un moyen simple de suivre les entrées et sorties d'argent entre vos registres et livres, avec des rôles d'équipe légers et des rapports exportables.",
     privacyNote: "Toutes vos données sont stockées de manière privée et restent uniquement sur votre compte.",
     version: "Version 1.0.0 · Version de démonstration",
+    developedBy: "Développé par Forjalem Studios",
   },
   activity: {
     title: "Activité du livre",

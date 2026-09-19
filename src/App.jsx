@@ -475,7 +475,7 @@ function TopHeader({ title, subtitle, onBack, right, ctx }) {
 function AppLogoIcon({ size = 24, className = "", style = {} }) {
   return (
     <img
-      src="/logo-tinted.png"
+      src={`${import.meta.env.BASE_URL}logo-tinted.png`}
       alt=""
       width={size}
       height={size}
@@ -918,7 +918,7 @@ function ReminderAlarmModal({ alarm, onDismiss, onMarkDone, onSnooze, t }) {
 
   useEffect(() => {
     if (!alarm) return;
-    const audio = new Audio("/reminder-alarm.wav");
+    const audio = new Audio(`${import.meta.env.BASE_URL}reminder-alarm.wav`);
     audio.loop = true;
     audioRef.current = audio;
     audio.play().catch(() => {}); // browser may block autoplay without a prior gesture — fine, silent fallback

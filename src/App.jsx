@@ -2605,6 +2605,46 @@ function EntryDetailScreen({ ctx, bookId, entryId }) {
 }
 
 // ---------- Add / Edit entry ----------
+// Receipt photos come straight from the phone camera (capture="environment"),
+// which on any recent phone means a multi-megabyte, multi-thousand-pixel JPEG.
+// That was previously read as-is via FileReader and stored verbatim as a base64
+// data URL inside the entry, which then gets persisted through Capacitor's
+// Preferences plugin (Android SharedPreferences under the hood) — a store
+// meant for small key/value data, not multi-MB strings. A large enough photo
+// can blow past what the WebView<->native bridge and SharedPreferences can
+// reliably move in one call, which is a well-known way for a hybrid app to
+// hard-crash (rather than throw a catchable JS error) right at the point of
+// saving — exactly matching reports of a crash while logging a new entry.
+// Downscaling + re-encoding as JPEG before it ever reaches state/storage
+// keeps every receipt photo to roughly tens-to-low-hundreds of KB instead.
+const MAX_RECEIPT_DIMENSION = 1280;
+const RECEIPT_JPEG_QUALITY = 0.72;
+function resizeReceiptImage(file, maxDim = MAX_RECEIPT_DIMENSION, quality = RECEIPT_JPEG_QUALITY) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(reader.error);
+    reader.onload = () => {
+      const img = new window.Image();
+      img.onerror = reject;
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxDim || height > maxDim) {
+          const scale = maxDim / Math.max(width, height);
+          width = Math.round(width * scale);
+          height = Math.round(height * scale);
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 function AddEntryScreen({ ctx, bookId, type, editEntry }) {
   const { pop, getEntries, saveEntries, appSettings, logActivity, viewer, activeLedger, setBackHandler, t } = ctx;
   const isEdit = !!editEntry;
@@ -2629,9 +2669,9 @@ function AddEntryScreen({ ctx, bookId, type, editEntry }) {
   const onReceiptChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => setForm((f) => ({ ...f, receipt: reader.result }));
-    reader.readAsDataURL(file);
+    resizeReceiptImage(file)
+      .then((dataUrl) => setForm((f) => ({ ...f, receipt: dataUrl })))
+      .catch((err) => console.error("receipt resize failed", err)); // leave receipt unset rather than risk storing an oversized original
   };
 
   useEffect(() => { getEntries(bookId).then((es) => {

@@ -2140,8 +2140,6 @@ function MonthSummaryCard({ entries, cur, t }) {
   const monthKey = todayStr().slice(0, 7); // "YYYY-MM"
   const monthEntries = (entries || []).filter((e) => (e.date || "").slice(0, 7) === monthKey);
 
-  if (monthEntries.length === 0) return null;
-
   const totalIn = monthEntries.filter((e) => e.type === "in").reduce((s, e) => s + e.amount, 0);
   const totalOut = monthEntries.filter((e) => e.type === "out").reduce((s, e) => s + e.amount, 0);
   const net = totalIn - totalOut;
@@ -2154,7 +2152,11 @@ function MonthSummaryCard({ entries, cur, t }) {
   const topCategories = Object.entries(byCategory).sort((a, b) => b[1] - a[1]).slice(0, 3);
   const maxCategoryAmount = topCategories.length ? topCategories[0][1] : 0;
 
+  // Hook must run unconditionally on every render (Rules of Hooks) — the
+  // "nothing to show yet" bail-out below has to come after this, not before.
   const trend = useMonthTrend(entries, monthKey, totalOut, topCategories);
+
+  if (monthEntries.length === 0) return null;
 
   return (
     <div className="bg-white border-b border-slate-200">

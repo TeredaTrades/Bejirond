@@ -378,6 +378,7 @@ export default {
     privacyNote: "All your data is stored privately and stays on your account only.",
     version: "Version 1.0.0 · Demo build",
     developedBy: "Developed by KimuDev",
+    watchIntroAgain: "Watch the intro again",
   },
   activity: {
     title: "Book Activity",

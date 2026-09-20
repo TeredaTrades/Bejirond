@@ -1044,6 +1044,13 @@ export default function TallyBookApp() {
   // persisted, since it just sequences "picker" -> "about splash" within a
   // single first-launch session.
   const [showAboutSplash, setShowAboutSplash] = useState(false);
+  // Re-shows the same About splash once after a real update (a newer build
+  // than whatever this device last recorded — see __APP_BUILD__ in
+  // vite.config.js), and/or on demand via "Watch intro again" in the About
+  // screen. Kept separate from firstRunDone/showAboutSplash above, which is
+  // strictly the brand-new-install path.
+  const [updateSplashPending, setUpdateSplashPending] = useState(false);
+  const [manualAboutSplash, setManualAboutSplash] = useState(false);
   const t = useMemo(() => getTranslator(language), [language]);
   // The Expenses Manager standalone build has no Home screen — it lands directly on
   // the ledger selector (the Cashbooks/"books" tab, which shows the Select Ledger
@@ -1093,6 +1100,10 @@ export default function TallyBookApp() {
       setLanguage(savedLanguage);
       const savedFirstRunDone = await onboardingGet("first-run-done", false);
       setFirstRunDone(savedFirstRunDone);
+      if (savedFirstRunDone) {
+        const lastSeenBuild = await storeGet("last-seen-build", null);
+        if (lastSeenBuild !== __APP_BUILD__) setUpdateSplashPending(true);
+      }
       const savedFabPos = await storeGet("planned-fab-pos", null);
       if (savedFabPos) setFabPos(clampFabPos(savedFabPos));
       const planned = await storeGet("planned-items", []);
@@ -1163,6 +1174,14 @@ export default function TallyBookApp() {
   const completeFirstRun = useCallback(async () => {
     setFirstRunDone(true);
     await onboardingSet("first-run-done", true);
+    // Stamps this build as "seen" so the once-per-update splash below doesn't
+    // immediately re-trigger on the very next open of the same build.
+    await storeSet("last-seen-build", __APP_BUILD__);
+  }, []);
+  const dismissAboutSplash = useCallback(async () => {
+    setUpdateSplashPending(false);
+    setManualAboutSplash(false);
+    await storeSet("last-seen-build", __APP_BUILD__);
   }, []);
   // Mirror the theme onto <html> too, so backgrounds outside the app's root wrapper
   // (e.g. iOS overscroll/bounce edges) match instead of flashing white/black.
@@ -1351,6 +1370,10 @@ export default function TallyBookApp() {
     );
   }
 
+  if (updateSplashPending || manualAboutSplash) {
+    return <AboutSplashScreen theme={theme} t={t} onDone={dismissAboutSplash} />;
+  }
+
   // Bundles the current language + calendar/time display preferences so date/time
   // helpers can be called as ctx.fmtDate(iso) etc. without every call site having
   // to assemble { language, calendarType, timeFormat } itself.
@@ -1370,6 +1393,7 @@ export default function TallyBookApp() {
     fmtDateTime: (iso) => fmtDateTime(iso, dtPref),
     fmtTime: (time) => fmtTime(time, dtPref),
     setBackHandler: (fn) => { backHandlerRef.current = fn; },
+    watchIntroAgain: () => setManualAboutSplash(true),
   };
 
   const pendingPlannedCount = plannedItems.filter((p) => !p.done).length;
@@ -4548,13 +4572,17 @@ function BackupRestoreScreen({ ctx }) {
 }
 
 function AboutScreen({ ctx }) {
-  const { pop, t } = ctx;
+  const { pop, t, watchIntroAgain } = ctx;
   return (
     <div className="flex-1 flex flex-col min-h-0">
       <TopHeader ctx={ctx} title={t("about.title")} onBack={pop} />
       <div className="flex-1 overflow-y-auto p-4 space-y-3 text-sm text-slate-600">
         <p>{t("about.description")}</p>
         <p>{t("about.privacyNote")}</p>
+        <button onClick={() => { watchIntroAgain(); pop(); }}
+          className="w-full text-sm font-medium bg-white border border-teal-700 text-teal-700 rounded-lg px-3 py-2.5 flex items-center justify-center gap-2">
+          <AppLogoIcon size={16} /> {t("about.watchIntroAgain")}
+        </button>
         <p className="text-xs text-slate-400 pt-4">{t("about.version")}</p>
         <p className="text-xs text-slate-400">{t("about.developedBy")}</p>
       </div>

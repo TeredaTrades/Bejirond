@@ -774,11 +774,67 @@ function BottomNav({ tab, setTab, t }) {
 // A floating shortcut that's available on every screen — it never blocks the
 // app underneath (it's a slide-over, not a full-screen modal) and isn't
 // buried inside Settings.
-function PlannedFAB({ pendingCount, onClick, hidden, t }) {
+//
+// Draggable: on some screens its default bottom-right spot sits over real
+// content, so it can be dragged anywhere on screen and stays there (position
+// persisted via storeGet/storeSet under FAB_POSITION_KEY, same mechanism as
+// every other app-wide preference) until dragged again. `position` is null
+// until the user has ever moved it, in which case it just renders at its
+// original fixed right-4/bottom-36 spot via className; once moved, it
+// switches to inline left/top and remembers that.
+const FAB_SIZE = 56; // matches w-14 h-14
+const FAB_EDGE_MARGIN = 8;
+const clampFabPos = (pos) => ({
+  x: Math.min(Math.max(pos.x, FAB_EDGE_MARGIN), window.innerWidth - FAB_SIZE - FAB_EDGE_MARGIN),
+  y: Math.min(Math.max(pos.y, FAB_EDGE_MARGIN), window.innerHeight - FAB_SIZE - FAB_EDGE_MARGIN),
+});
+
+function PlannedFAB({ pendingCount, onClick, hidden, t, position, onDragEnd }) {
+  const btnRef = useRef(null);
+  const [live, setLive] = useState(null); // position while actively dragging, overrides `position` prop
+  const drag = useRef({ active: false, moved: false, startX: 0, startY: 0, origX: 0, origY: 0 });
+
+  const onPointerDown = (e) => {
+    const el = btnRef.current;
+    if (!el) return;
+    el.setPointerCapture(e.pointerId);
+    const rect = el.getBoundingClientRect();
+    drag.current = { active: true, moved: false, startX: e.clientX, startY: e.clientY, origX: rect.left, origY: rect.top };
+  };
+  const onPointerMove = (e) => {
+    const d = drag.current;
+    if (!d.active) return;
+    const dx = e.clientX - d.startX;
+    const dy = e.clientY - d.startY;
+    if (!d.moved && Math.hypot(dx, dy) < 6) return; // small movement threshold so a tap never reads as a drag
+    d.moved = true;
+    setLive(clampFabPos({ x: d.origX + dx, y: d.origY + dy }));
+  };
+  const endDrag = () => {
+    const d = drag.current;
+    if (d.active && d.moved) {
+      if (live) onDragEnd(live);
+      setLive(null);
+    } else if (d.active) {
+      onClick();
+    }
+    drag.current.active = false;
+  };
+
+  const current = live || position;
+  const style = current
+    ? { position: "fixed", left: current.x, top: current.y, touchAction: "none" }
+    : { touchAction: "none" };
+
   return (
     <button
-      onClick={onClick}
-      className={`fixed right-4 bottom-36 z-30 w-14 h-14 rounded-full bg-teal-700 text-white shadow-lg shadow-teal-900/20 flex items-center justify-center active:scale-95 transition-opacity duration-150 ${hidden ? "opacity-0 pointer-events-none" : "opacity-100"}`}
+      ref={btnRef}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={endDrag}
+      onPointerCancel={endDrag}
+      style={style}
+      className={`${current ? "" : "fixed right-4 bottom-36"} z-30 w-14 h-14 rounded-full bg-teal-700 text-white shadow-lg shadow-teal-900/20 flex items-center justify-center active:scale-95 transition-opacity duration-150 ${hidden ? "opacity-0 pointer-events-none" : "opacity-100"}`}
       title={t("planned.fabTitle")}
     >
       <ClipboardList size={20} />
@@ -1000,6 +1056,7 @@ export default function TallyBookApp() {
   const [activityCache, setActivityCache] = useState({}); // bookId -> activity
   const [plannedItems, setPlannedItems] = useState([]); // things to buy / pay for (global, not tied to a book)
   const [plannedSidebarOpen, setPlannedSidebarOpen] = useState(false);
+  const [fabPos, setFabPos] = useState(null); // null = default bottom-right spot; else a persisted {x,y} the user dragged it to
   const [notifPermission, setNotifPermission] = useState("unknown");
   const [inputFocused, setInputFocused] = useState(false); // hides the floating list button while typing so it can't sit on top of a Save button
   const [activeAlarm, setActiveAlarm] = useState(null); // reminder popup payload, shown on notification receipt/tap
@@ -1036,6 +1093,8 @@ export default function TallyBookApp() {
       setLanguage(savedLanguage);
       const savedFirstRunDone = await onboardingGet("first-run-done", false);
       setFirstRunDone(savedFirstRunDone);
+      const savedFabPos = await storeGet("planned-fab-pos", null);
+      if (savedFabPos) setFabPos(clampFabPos(savedFabPos));
       const planned = await storeGet("planned-items", []);
       setAccount(acct);
       setLedgers(biz);
@@ -1325,7 +1384,8 @@ export default function TallyBookApp() {
           all the way out one step at a time. Tapping a tab here always resets to that tab's
           top-level screen regardless of how deep the current stack is. */}
       <BottomNav tab={tab} setTab={(nextTab) => { setTab(nextTab); resetTo(nextTab); }} t={t} />
-      <PlannedFAB pendingCount={pendingPlannedCount} onClick={() => setPlannedSidebarOpen(true)} hidden={inputFocused} t={t} />
+      <PlannedFAB pendingCount={pendingPlannedCount} onClick={() => setPlannedSidebarOpen(true)} hidden={inputFocused} t={t}
+        position={fabPos} onDragEnd={(pos) => { setFabPos(pos); storeSet("planned-fab-pos", pos); }} />
       <PlannedSidebar ctx={ctx} open={plannedSidebarOpen} onClose={() => setPlannedSidebarOpen(false)} />
       <ReminderAlarmModal alarm={activeAlarm} onDismiss={dismissAlarm} onMarkDone={markAlarmDone} onSnooze={snoozeAlarm} t={t} />
     </div>
@@ -2605,16 +2665,17 @@ function EntryDetailScreen({ ctx, bookId, entryId }) {
 }
 
 // ---------- Add / Edit entry ----------
-// Receipt photos come straight from the phone camera (capture="environment"),
-// which on any recent phone means a multi-megabyte, multi-thousand-pixel JPEG.
-// That was previously read as-is via FileReader and stored verbatim as a base64
-// data URL inside the entry, which then gets persisted through Capacitor's
-// Preferences plugin (Android SharedPreferences under the hood) — a store
-// meant for small key/value data, not multi-MB strings. A large enough photo
-// can blow past what the WebView<->native bridge and SharedPreferences can
-// reliably move in one call, which is a well-known way for a hybrid app to
-// hard-crash (rather than throw a catchable JS error) right at the point of
-// saving — exactly matching reports of a crash while logging a new entry.
+// Receipt photos come from either the phone camera or the gallery (plain
+// accept="image/*", no capture attribute — see onReceiptChange's input below),
+// which on any recent phone can mean a multi-megabyte, multi-thousand-pixel
+// JPEG either way. That was previously read as-is via FileReader and stored
+// verbatim as a base64 data URL inside the entry, which then gets persisted
+// through Capacitor's Preferences plugin (Android SharedPreferences under the
+// hood) — a store meant for small key/value data, not multi-MB strings. A
+// large enough photo can blow past what the WebView<->native bridge and
+// SharedPreferences can reliably move in one call, which is a well-known way
+// for a hybrid app to hard-crash (rather than throw a catchable JS error)
+// right at the point of saving — exactly matching reports of a crash while logging a new entry.
 // Downscaling + re-encoding as JPEG before it ever reaches state/storage
 // keeps every receipt photo to roughly tens-to-low-hundreds of KB instead.
 const MAX_RECEIPT_DIMENSION = 1280;
@@ -2792,7 +2853,7 @@ function AddEntryScreen({ ctx, bookId, type, editEntry }) {
           ) : (
             <label className="flex items-center justify-center gap-2 border border-dashed border-slate-300 rounded-lg py-3 text-sm text-slate-500 cursor-pointer">
               <Camera size={16} /> {t("addEntry.addReceiptHint")}
-              <input type="file" accept="image/*" capture="environment" className="hidden" onChange={onReceiptChange} />
+              <input type="file" accept="image/*" className="hidden" onChange={onReceiptChange} />
             </label>
           )}
         </div>

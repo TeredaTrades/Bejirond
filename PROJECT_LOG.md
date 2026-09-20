@@ -1,5 +1,53 @@
 # በጅሮንድ (Bejirond) — decision log
 
+## 2026-09-20 — Crash fix: React error #310 in MonthSummaryCard
+
+**Reported:** screenshot of the app's crash-safety-net screen (added last
+night, `eb3ce24`) showing "Minified React error #310" with a minified
+stack trace, no other context on what screen or action triggered it.
+
+**Investigation:**
+- First suspected the same-day splash-screen commit (`0f842ad`, "Re-show
+  the intro splash once per update") since the timing lined up and it
+  added a new top-level conditional early-return in `App.jsx`. Manually
+  traced every hook call in the main `TallyBookApp` component against
+  every early return — all hooks are declared before any of them, so
+  that commit was cleared as the cause.
+- Installed `eslint` + `eslint-plugin-react-hooks` (dev-only, not
+  committed) and ran its `rules-of-hooks` check across the whole
+  codebase rather than continuing to eyeball it. That's what actually
+  found it.
+
+**Root cause:** `MonthSummaryCard` (the collapsible "this month" summary
+on the book screen) called the `useMonthTrend` hook *after* an early
+`if (monthEntries.length === 0) return null;`. React requires the exact
+same hooks, same order, every render. Trigger: open a book with nothing
+logged yet this month (card renders null → 1 hook), then log that
+month's first entry without leaving the screen (card now renders content
+→ 2 hooks) — React detects the mismatch mid-render and throws. Introduced
+by `2be4bb4` (the trend-analysis feature), so it predates last night's
+crash-safety-net commit by a day — the boundary didn't cause this, it
+just turned an existing silent-blank-screen bug into a visible, reportable
+one.
+
+**Fix:** moved the `useMonthTrend()` call above the early return so it
+always runs. The hook itself already handled the "nothing to compare
+yet" case safely (returns `null`), so no behavior change for users —
+only the crash is gone.
+
+**Verified:** `rules-of-hooks` re-run clean across every `.jsx` file
+after the fix (was: exactly this one violation, nowhere else).
+`npm run build` succeeds. Rebuilt and re-synced `docs/app/` (web build)
+and ran `npx cap sync android` (native build — not tracked in git, so
+this alone doesn't update any already-installed APK).
+
+**Still open:** the actual device that hit this crash is running a local
+APK build from before the fix. It needs a fresh `npm run build` +
+`npx cap sync android` + APK rebuild/reinstall to pick this up — not yet
+confirmed done.
+
+---
+
 ## 2026-09-09 — Marketing site: About, FAQ, Disclaimer, social links, SEO/AEO
 
 Added to `docs/index.html` (all translated into the existing 7 languages,

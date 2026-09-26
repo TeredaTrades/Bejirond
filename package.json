@@ -16,6 +16,7 @@
     "@capacitor/filesystem": "^6.0.4",
     "@capacitor/local-notifications": "^6.1.0",
     "@capacitor/preferences": "^6.0.2",
+    "@capacitor/push-notifications": "^6.0.5",
     "@capacitor/share": "^6.0.4",
     "@supabase/supabase-js": "^2.45.4",
     "jspdf": "^4.2.1",

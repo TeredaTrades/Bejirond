@@ -31,7 +31,9 @@ import {
   signUpEmail, signInEmail, signOutCloud, getCloudUser, onCloudAuthChange,
   shareLedger, createInvite, joinWithInviteCode, fetchRemoteMembers,
   syncEntriesToCloud, pullEntriesForLocalBook, subscribeToBookEntries, getCachedUserId,
+  registerDeviceToken,
 } from "./cloudSync";
+import { PushNotifications } from "@capacitor/push-notifications";
 
 // Native-only local plugin (no JS package — implemented directly in the Android project,
 // see android/app/src/main/java/com/teredatrades/bejirond/TallyWidgetPlugin.java) that
@@ -1131,7 +1133,37 @@ export default function TallyBookApp() {
     })();
   }, []);
 
-  // ---- reminder notifications: pop up an alarm card whether the notification
+  // ---- push notifications for shared books: register this device's FCM
+  // token against the signed-in cloud user, so notify-entry (an Edge
+  // Function, see docs/db/004_push_notifications.sql) knows where to push
+  // when a teammate logs a new entry. No-op entirely on web/dev and for
+  // anyone who never signs in to share a book. ----
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform() || !isSyncConfigured()) return;
+    let tokenHandle, errorHandle;
+    const unsubAuth = onCloudAuthChange(async (user) => {
+      if (!user) return;
+      try {
+        const perm = await PushNotifications.checkPermissions();
+        if (perm.receive !== "granted") {
+          const req = await PushNotifications.requestPermissions();
+          if (req.receive !== "granted") return;
+        }
+        tokenHandle = await PushNotifications.addListener("registration", (token) => {
+          registerDeviceToken(token.value, "android").catch((e) => console.error("push token registration failed", e));
+        });
+        errorHandle = await PushNotifications.addListener("registrationError", (e) => console.error("push registration error", e));
+        await PushNotifications.register();
+      } catch (e) {
+        // Firebase not configured yet (no google-services.json at build
+        // time) or permission denied — push is an enhancement, not core
+        // functionality, so fail silently rather than surface this.
+        console.error("push notification setup skipped", e);
+      }
+    });
+    return () => { unsubAuth(); tokenHandle?.remove(); errorHandle?.remove(); };
+  }, []);
+
   // fires while the app is open, or is tapped from the tray / a cold start ----
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;

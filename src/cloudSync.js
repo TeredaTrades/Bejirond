@@ -220,3 +220,20 @@ export function subscribeToBookEntries(remoteBookId, onChange) {
     .subscribe();
   return () => { supabase.removeChannel(channel); };
 }
+
+// ---------- push notifications ----------
+// Registers (or re-registers) this device's FCM token against the
+// signed-in user, so the notify-entry Edge Function knows where to push.
+// Safe to call every time the app gets a token (e.g. on every launch) —
+// upserted by (user_id, token), so re-registering the same device is a
+// no-op rather than creating duplicate rows.
+export async function registerDeviceToken(token, platform = "android") {
+  const sb = requireSupabase();
+  const user = await getCloudUser();
+  if (!user) return; // not signed in — nothing to attach the token to yet
+  const { error } = await sb.from("device_tokens").upsert(
+    { user_id: user.id, token, platform },
+    { onConflict: "user_id,token" },
+  );
+  if (error) throw error;
+}

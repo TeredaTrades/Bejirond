@@ -26,6 +26,11 @@ import { exportProductData, readExportFile, importProductData, hasExistingData, 
 // downloads on every app launch.
 import { getSuggestions, addSuggestion, removeSuggestion, shareSuggestions } from "./translationSuggestions";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { isSyncConfigured } from "./supabaseClient";
+import {
+  signUpEmail, signInEmail, signOutCloud, getCloudUser, onCloudAuthChange,
+  shareLedger, createInvite, joinWithInviteCode, fetchRemoteMembers,
+} from "./cloudSync";
 
 // Native-only local plugin (no JS package — implemented directly in the Android project,
 // see android/app/src/main/java/com/teredatrades/bejirond/TallyWidgetPlugin.java) that
@@ -4073,13 +4078,80 @@ function EnterpriseScreen({ ctx }) {
   );
 }
 
+// Cloud sign-in/sign-up used inline wherever a cloud action (sharing,
+// joining) needs an authenticated user first. Deliberately tiny —
+// email + password only, no separate screen/route.
+function CloudAuthInline({ onSignedIn, t }) {
+  const [mode, setMode] = useState("signin"); // "signin" | "signup"
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+
+  const submit = async () => {
+    setErr(""); setBusy(true);
+    try {
+      if (mode === "signup") await signUpEmail(email.trim(), password);
+      else await signInEmail(email.trim(), password);
+      const user = await getCloudUser();
+      onSignedIn(user);
+    } catch (e) {
+      setErr(e?.message || String(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="bg-white border border-slate-200 rounded-xl p-4 space-y-3">
+      <div className="font-medium text-slate-800">
+        {mode === "signup" ? t("members.cloudSignUpTitle") : t("members.cloudSignInTitle")}
+      </div>
+      <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+        placeholder={t("members.cloudEmailPlaceholder")} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
+      <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
+        placeholder={t("members.cloudPasswordPlaceholder")} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
+      {err && <div className="text-xs text-rose-600">{err}</div>}
+      <button onClick={submit} disabled={busy || !email.trim() || !password}
+        className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-semibold ${!busy && email.trim() && password ? "bg-teal-700 text-white" : "bg-slate-200 text-slate-400"}`}>
+        {busy ? <Loader2 size={16} className="animate-spin" /> : null}
+        {mode === "signup" ? t("members.cloudSignUpButton") : t("members.cloudSignInButton")}
+      </button>
+      <button onClick={() => setMode(mode === "signup" ? "signin" : "signup")} className="w-full text-xs text-teal-700 text-center">
+        {mode === "signup" ? t("members.cloudSwitchToSignIn") : t("members.cloudSwitchToSignUp")}
+      </button>
+    </div>
+  );
+}
+
 function LedgerTeamScreen({ ctx }) {
-  const { activeLedger, ledgers, persistLedgers, pop, t } = ctx;
+  const { activeLedger, ledgers, persistLedgers, pop, t, canManage, getEntries, saveEntries, session, persistSession, confirmLedgerSelection } = ctx;
   const members = activeLedger?.members || [];
   const [adding, setAdding] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [role, setRole] = useState("Data Operator");
+
+  // ---- cloud sync state ----
+  const [cloudUser, setCloudUser] = useState(null);
+  const [showAuth, setShowAuth] = useState(null); // null | "share" | "join"
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const [inviteCode, setInviteCode] = useState("");
+  const [inviteRole, setInviteRole] = useState("data_operator");
+  const [remoteMembers, setRemoteMembers] = useState([]);
+  const [joinCode, setJoinCode] = useState("");
+  const [showJoin, setShowJoin] = useState(false);
+
+  useEffect(() => {
+    if (!isSyncConfigured()) return;
+    return onCloudAuthChange(setCloudUser);
+  }, []);
+
+  useEffect(() => {
+    if (!activeLedger?.remoteId) { setRemoteMembers([]); return; }
+    fetchRemoteMembers(activeLedger.remoteId).then(setRemoteMembers).catch(() => {});
+  }, [activeLedger?.remoteId]);
 
   const addMember = async () => {
     if (!name.trim() || !activeLedger) return;
@@ -4094,6 +4166,65 @@ function LedgerTeamScreen({ ctx }) {
     await persistLedgers(next);
   };
 
+  const doShare = async () => {
+    if (!activeLedger || !cloudUser) return;
+    setErr(""); setBusy(true);
+    try {
+      const remoteId = await shareLedger(activeLedger, getEntries);
+      const next = ledgers.map((b) => b.id === activeLedger.id ? { ...b, remoteId, synced: true } : b);
+      await persistLedgers(next);
+      setShowAuth(null);
+    } catch (e) {
+      setErr(e?.message || String(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const doCreateInvite = async () => {
+    if (!activeLedger?.remoteId) return;
+    setErr(""); setBusy(true);
+    try {
+      const code = await createInvite(activeLedger.remoteId, inviteRole);
+      setInviteCode(code);
+    } catch (e) {
+      setErr(e?.message || String(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const doJoin = async () => {
+    if (!joinCode.trim() || !cloudUser) return;
+    setErr(""); setBusy(true);
+    try {
+      const { bookRow, entries } = await joinWithInviteCode(joinCode.trim());
+      const localBooks = (bookRow.books_meta || []).map((b) => ({ id: b.id, name: b.name, createdAt: new Date().toISOString() }));
+      const newLedger = {
+        id: uid(), name: bookRow.name, createdAt: new Date().toISOString(),
+        books: localBooks, members: [], moveRequests: [],
+        remoteId: bookRow.id, synced: true,
+      };
+      await persistLedgers([...ledgers, newLedger]);
+      for (const b of localBooks) {
+        const forThisBook = entries
+          .filter((row) => row.data?.localBookId === b.id)
+          .map((row) => { const { localBookId, ...entry } = row.data; return entry; });
+        await saveEntries(b.id, forThisBook);
+      }
+      await persistSession({ ...session, activeLedgerId: newLedger.id });
+      confirmLedgerSelection();
+      setShowAuth(null); setShowJoin(false); setJoinCode("");
+      pop();
+    } catch (e) {
+      setErr(e?.message || String(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const isShared = !!activeLedger?.remoteId;
+
   return (
     <div className="flex-1 flex flex-col min-h-0">
       <TopHeader ctx={ctx} title={t("members.teamTitle")} onBack={pop}
@@ -4104,6 +4235,77 @@ function LedgerTeamScreen({ ctx }) {
           <div className="flex-1"><div className="font-medium text-slate-900 text-sm">{t("common.you")}</div><div className="text-xs text-slate-500">{roleLabel(t, "Primary Admin")}</div></div>
           <ShieldCheck size={16} className="text-teal-700" />
         </div>
+
+        {isSyncConfigured() && canManage && (
+          <div className="bg-white border border-slate-200 rounded-xl p-4 space-y-3">
+            {isShared ? (
+              <>
+                <div className="font-medium text-slate-800 flex items-center gap-2">
+                  <Share2 size={16} className="text-teal-700" /> {t("members.cloudSyncedTitle")}
+                </div>
+                {remoteMembers.length > 0 && (
+                  <div className="text-xs text-slate-500">
+                    {t("members.cloudMemberCount", { count: remoteMembers.length })}
+                  </div>
+                )}
+                <div className="flex gap-2 flex-wrap">
+                  {["book_admin", "data_operator", "viewer"].map((r) => (
+                    <Chip key={r} active={inviteRole === r} onClick={() => setInviteRole(r)}>{r}</Chip>
+                  ))}
+                </div>
+                <button onClick={doCreateInvite} disabled={busy}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-semibold bg-teal-700 text-white">
+                  {busy ? <Loader2 size={16} className="animate-spin" /> : <UserPlus size={16} />}
+                  {t("members.generateInviteCode")}
+                </button>
+                {inviteCode && (
+                  <div className="text-xs bg-slate-50 border border-slate-200 rounded-lg p-2 break-all">
+                    {t("members.inviteCodeLabel")}: <span className="font-mono">{inviteCode}</span>
+                  </div>
+                )}
+              </>
+            ) : showAuth === "share" ? (
+              cloudUser ? (
+                <button onClick={doShare} disabled={busy}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-semibold bg-teal-700 text-white">
+                  {busy ? <Loader2 size={16} className="animate-spin" /> : <Share2 size={16} />}
+                  {t("members.shareThisBusiness")}
+                </button>
+              ) : (
+                <CloudAuthInline t={t} onSignedIn={setCloudUser} />
+              )
+            ) : (
+              <button onClick={() => setShowAuth("share")}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-semibold border border-teal-700 text-teal-700">
+                <Share2 size={16} /> {t("members.shareThisBusiness")}
+              </button>
+            )}
+            {err && <div className="text-xs text-rose-600">{err}</div>}
+          </div>
+        )}
+
+        {isSyncConfigured() && (
+          <div className="bg-white border border-slate-200 rounded-xl p-4 space-y-3">
+            <button onClick={() => setShowJoin((v) => !v)} className="w-full text-sm font-medium text-teal-700 text-left">
+              {t("members.joinSharedBusiness")}
+            </button>
+            {showJoin && (
+              cloudUser ? (
+                <>
+                  <input value={joinCode} onChange={(e) => setJoinCode(e.target.value)}
+                    placeholder={t("members.inviteCodeLabel")} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm font-mono" />
+                  <button onClick={doJoin} disabled={busy || !joinCode.trim()}
+                    className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-semibold ${!busy && joinCode.trim() ? "bg-teal-700 text-white" : "bg-slate-200 text-slate-400"}`}>
+                    {busy ? <Loader2 size={16} className="animate-spin" /> : null}
+                    {t("members.joinButton")}
+                  </button>
+                </>
+              ) : (
+                <CloudAuthInline t={t} onSignedIn={setCloudUser} />
+              )
+            )}
+          </div>
+        )}
 
         {adding && (
           <div className="bg-white border border-slate-200 rounded-xl p-4 space-y-3">

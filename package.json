@@ -17,6 +17,7 @@
     "@capacitor/local-notifications": "^6.1.0",
     "@capacitor/preferences": "^6.0.2",
     "@capacitor/share": "^6.0.4",
+    "@supabase/supabase-js": "^2.45.4",
     "jspdf": "^4.2.1",
     "lucide-react": "^0.383.0",
     "pdfjs-dist": "^4.10.38",

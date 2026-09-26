@@ -92,6 +92,7 @@ export async function shareLedger(ledger, getEntriesForBook) {
     for (const entry of entries) {
       rows.push({
         book_id: bookRow.id,
+        local_id: entry.id,
         data: { ...entry, localBookId: b.id },
         created_by: user.id,
         updated_by: user.id,
@@ -147,4 +148,75 @@ export async function fetchRemoteMembers(remoteBookId) {
   const { data, error } = await sb.from("book_members").select("*").eq("book_id", remoteBookId);
   if (error) throw error;
   return data || [];
+}
+
+// ---------- Phase 2: continuous sync ----------
+// Cached synchronously (not via an async getCloudUser() call) so the hot
+// path — every single local save — doesn't have to await an auth check
+// before it can decide whether to push. Populated as soon as this module
+// loads and kept current via onAuthStateChange.
+let _cachedUserId = null;
+if (supabase) {
+  supabase.auth.getSession().then(({ data }) => { _cachedUserId = data?.session?.user?.id || null; });
+  supabase.auth.onAuthStateChange((_event, session) => { _cachedUserId = session?.user?.id || null; });
+}
+export function getCachedUserId() {
+  return _cachedUserId;
+}
+
+// Upserts the given local book's entire current entry list, keyed by
+// each entry's own id (see docs/db/003_continuous_sync.sql — local_id
+// is unique per book_id, so this updates existing rows in place rather
+// than duplicating them), then deletes any remote rows for that local
+// book that no longer exist locally (covers edits AND deletions).
+export async function syncEntriesToCloud(remoteBookId, localBookId, entries, userId) {
+  const sb = requireSupabase();
+  if (!remoteBookId || !userId) return;
+
+  if (entries.length > 0) {
+    const rows = entries.map((e) => ({
+      book_id: remoteBookId,
+      local_id: e.id,
+      data: { ...e, localBookId },
+      created_by: userId,
+      updated_by: userId,
+    }));
+    const { error } = await sb.from("entries").upsert(rows, { onConflict: "book_id,local_id" });
+    if (error) throw error;
+  }
+
+  const { data: existing, error: selErr } = await sb
+    .from("entries").select("id, local_id").eq("book_id", remoteBookId).eq("data->>localBookId", localBookId);
+  if (selErr) throw selErr;
+  const keep = new Set(entries.map((e) => e.id));
+  const toDelete = (existing || []).filter((r) => !keep.has(r.local_id)).map((r) => r.id);
+  if (toDelete.length > 0) {
+    const { error: delErr } = await sb.from("entries").delete().in("id", toDelete);
+    if (delErr) throw delErr;
+  }
+}
+
+// Downloads the current remote state of one local book within a shared
+// ledger — used both to pull on opening a shared book and to refresh
+// after a realtime change notification from another device.
+export async function pullEntriesForLocalBook(remoteBookId, localBookId) {
+  const sb = requireSupabase();
+  const { data, error } = await sb
+    .from("entries").select("data").eq("book_id", remoteBookId).eq("data->>localBookId", localBookId);
+  if (error) throw error;
+  return (data || []).map((row) => { const { localBookId: _lb, ...entry } = row.data; return entry; });
+}
+
+// Subscribes to live changes on a shared ledger's entries. onChange is
+// called with no arguments on any insert/update/delete — callers should
+// re-pull rather than trying to reconstruct state from the raw payload,
+// since one change can affect more than one local book at once.
+// Returns an unsubscribe function; call it on unmount.
+export function subscribeToBookEntries(remoteBookId, onChange) {
+  if (!supabase || !remoteBookId) return () => {};
+  const channel = supabase
+    .channel(`entries-book-${remoteBookId}`)
+    .on("postgres_changes", { event: "*", schema: "public", table: "entries", filter: `book_id=eq.${remoteBookId}` }, onChange)
+    .subscribe();
+  return () => { supabase.removeChannel(channel); };
 }

@@ -30,6 +30,7 @@ import { isSyncConfigured } from "./supabaseClient";
 import {
   signUpEmail, signInEmail, signOutCloud, getCloudUser, onCloudAuthChange,
   shareLedger, createInvite, joinWithInviteCode, fetchRemoteMembers,
+  syncEntriesToCloud, pullEntriesForLocalBook, subscribeToBookEntries, getCachedUserId,
 } from "./cloudSync";
 
 // Native-only local plugin (no JS package — implemented directly in the Android project,
@@ -1263,10 +1264,32 @@ export default function TallyBookApp() {
     return e;
   }, [entriesCache]);
 
+  // Used only when applying data that just came FROM the cloud (initial
+  // pull on opening a shared book, or a realtime update from a teammate).
+  // Persists locally exactly like saveEntries but deliberately does NOT
+  // push back to cloud — pushing an unmodified pull back would upsert
+  // identical rows, which Postgres still reports as a change, which would
+  // re-fire the realtime subscription that got us here, forever.
+  const applyRemoteEntries = useCallback(async (bookId, next) => {
+    setEntriesCache((c) => ({ ...c, [bookId]: next }));
+    await storeSet(`entries:${bookId}`, next);
+    pushWidgetBalance(ledgers, appSettings);
+  }, [ledgers, appSettings]);
+
   const saveEntries = useCallback(async (bookId, next) => {
     setEntriesCache((c) => ({ ...c, [bookId]: next }));
     await storeSet(`entries:${bookId}`, next);
     pushWidgetBalance(ledgers, appSettings);
+    // Local save always wins/happens first (offline-first) — the cloud
+    // push is fire-and-forget so a slow or absent connection never blocks
+    // the person from continuing to work. See docs/MULTI_USER_SYNC_SCOPE.md.
+    const owningLedger = ledgers.find((l) => l.books.some((b) => b.id === bookId));
+    if (owningLedger?.remoteId) {
+      const userId = getCachedUserId();
+      if (userId) {
+        syncEntriesToCloud(owningLedger.remoteId, bookId, next, userId).catch((e) => console.error("cloud sync push failed", e));
+      }
+    }
   }, [ledgers, appSettings]);
 
   // Stores a translation key + params rather than baked-in English text, so
@@ -1386,7 +1409,7 @@ export default function TallyBookApp() {
   const ctx = {
     ledgers, activeLedger, session, appSettings, viewer, canManage, canAddEntries,
     persistLedgers, persistSession, persistSettings,
-    getEntries, saveEntries, getActivity, logActivity,
+    getEntries, saveEntries, applyRemoteEntries, getActivity, logActivity,
     createLedger, createBook,
     sessionLedgerConfirmed, confirmLedgerSelection,
     push, pop, resetTo, stack, top,
@@ -2225,7 +2248,7 @@ function MonthSummaryCard({ entries, cur, t }) {
 }
 
 function BookScreen({ ctx, bookId }) {
-  const { activeLedger, ledgers, push, pop, getEntries, saveEntries, appSettings, canAddEntries, viewer, logActivity, setBackHandler, t } = ctx;
+  const { activeLedger, ledgers, push, pop, getEntries, saveEntries, applyRemoteEntries, appSettings, canAddEntries, viewer, logActivity, setBackHandler, t } = ctx;
   const book = activeLedger?.books.find((b) => b.id === bookId);
   const [entries, setEntries] = useState(null);
   const [search, setSearch] = useState("");
@@ -2236,6 +2259,29 @@ function BookScreen({ ctx, bookId }) {
   const [selectedIds, setSelectedIds] = useState(new Set());
 
   useEffect(() => { getEntries(bookId).then(setEntries); }, [bookId]);
+
+  // Phase 2: for a shared ledger, pull the current remote state on open
+  // (so this device sees what teammates already did) and subscribe to
+  // live changes while the screen stays open (so it sees what they do
+  // next). Local-only books/ledgers are completely untouched by this.
+  const remoteBookId = activeLedger?.remoteId;
+  useEffect(() => {
+    if (!remoteBookId) return;
+    let cancelled = false;
+    const pullAndApply = () => {
+      pullEntriesForLocalBook(remoteBookId, bookId)
+        .then((pulled) => {
+          if (cancelled) return;
+          setEntries(pulled);
+          applyRemoteEntries(bookId, pulled);
+        })
+        .catch((e) => console.error("cloud sync pull failed", e));
+    };
+    pullAndApply();
+    const unsubscribe = subscribeToBookEntries(remoteBookId, pullAndApply);
+    return () => { cancelled = true; unsubscribe(); };
+  }, [remoteBookId, bookId]);
+
 
   // Let the hardware back button close whichever overlay is open (confirm prompt,
   // move/copy sheet, select mode) one step at a time instead of leaving the screen.

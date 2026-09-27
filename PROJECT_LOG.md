@@ -83,16 +83,24 @@ security boundary from the unrelated articles-CMS data.
   Firebase stack. Confirmed a fresh Firebase project is genuinely
   needed, not duplicate work.
 
-**Still open, waiting on the user:** create the Firebase project,
-register the Android app as `com.teredatrades.bejirond`, send back
-`google-services.json` (safe to commit — no secrets in it) to be placed
-at `android/app/google-services.json`, generate a service-account key
-(sensitive — stays in Firebase/Supabase dashboards, never sent in
-chat), run `004_push_notifications.sql`, deploy `notify-entry` via the
-Supabase dashboard's Edge Functions UI, set its three secrets, then set
-`app.notify_entry_url` / `app.notify_entry_secret` via SQL. Nothing
-sends a single notification yet until that's done — everything shipped
-so far is inert scaffolding until Firebase is wired up.
+**Push notifications: fully wired end to end (2026-09-27).** Firebase
+project "bejirond" created (Spark/free plan — confirmed FCM is free and
+unlimited on both tiers). `google-services.json` received and committed
+(`5de8490`) — first build where the `google-services` gradle plugin
+actually activated, confirmed green. `notify-entry` deployed via the
+Supabase dashboard's browser editor; had to turn off "Verify JWT with
+legacy secret" on the function (it uses its own `x-notify-secret` header
+instead). All three secrets set (`NOTIFY_SECRET`, `FCM_SERVICE_ACCOUNT_JSON`,
+`FCM_PROJECT_ID`). **Found a real platform limit:** `ALTER DATABASE SET`
+is not permitted on Supabase's hosted plans at all, even via the SQL
+editor as the project owner (`ERROR: 42501: permission denied to set
+parameter`) — so the planned "configure via Postgres settings" approach
+in `004_push_notifications.sql` doesn't work as originally written.
+Worked around by baking the real function URL + secret directly into
+`notify_new_entry()`'s body via `CREATE OR REPLACE FUNCTION` instead;
+migration file updated (`248a90f`) to document this as the actual path
+for any future from-scratch setup. Not yet tested with a real second
+device — that's the natural next step.
 
 
 

@@ -1,6 +1,100 @@
 # በጅሮንድ (Bejirond) — decision log
 
-## 2026-09-20 — Crash fix: React error #310 in MonthSummaryCard
+## 2026-09-25 to 27 — Multi-user book/ledger sync (Phases 1–2) + push notifications
+
+**The ask:** let two or more people, each on their own phone, view and
+edit the same business/ledger — closing the gap where "Business Team"
+roles were purely a local, single-device simulation with no real
+cross-device access behind them.
+
+**Scoping (`docs/MULTI_USER_SYNC_SCOPE.md`, `b6efcdf`):** Supabase
+(Postgres + Auth + RLS), sync opt-in per ledger so solo/unshared
+businesses stay fully offline exactly as before — nothing changes for
+anyone who never shares. A brand-new dedicated Supabase project
+(`bejirond-sync`, ref `isiwxmahjmtfvejebevu`, under the existing
+TeredaTrades Org — isolation is per-project, not per-org, so sharing
+the org was fine) rather than reusing `teredatrades-auth`, for a clean
+security boundary from the unrelated articles-CMS data.
+
+**Phase 1 — share / invite / join (`800b5ef`, `7e56f78`, `e5add20`):**
+- Schema: `books` / `book_members` / `entries` / `activity_log`, RLS
+  matching the existing Primary Admin / Book Admin / Data Operator /
+  Viewer roles (`001_multi_user_sync.sql`)
+- Invite-by-code: an `invites` table + `redeem_invite()` RPC — the
+  invite id itself is the code, redeemable once, expires in 7 days
+  (`002_invites_and_books_meta.sql`)
+- Client: `src/supabaseClient.js` (no-ops with no env vars — sync stays
+  fully optional), `src/cloudSync.js` (email auth, `shareLedger` with a
+  one-time seed upload of existing entries, `createInvite`/
+  `joinWithInviteCode`)
+- UI: real Share this business / Generate invite code / Join a shared
+  business controls added to `LedgerTeamScreen` (Settings > Business
+  Team), gated behind `isSyncConfigured()`
+- Credentials committed as `.env.production` (deliberately — the
+  publishable/anon key is meant to be public, protected by RLS, not a
+  secret) so both the GitHub Actions APK build and the `docs/app`
+  Pages build pick it up with no extra CI config
+
+**Phase 2 — continuous sync (`b74325a`, `0a8ab56`):**
+- `003_continuous_sync.sql`: added a `local_id` column (backfilled from
+  each entry's own id) + unique `(book_id, local_id)` constraint so
+  saves can upsert in place instead of duplicating rows; enabled
+  Supabase Realtime on `entries`/`book_members`
+- Every local save now also pushes to cloud (upsert + delete-diff, so
+  deletions propagate too) whenever the owning ledger is shared —
+  fire-and-forget, local write always happens first and is never
+  blocked by the network
+- `BookScreen` pulls a shared book's current state on open and
+  subscribes to live Realtime updates while open
+- **Bug caught before shipping:** naively re-saving pulled cloud data
+  through the normal save path would re-push it, which Postgres
+  reports as a change even when the data is identical, re-firing the
+  realtime subscription — an infinite loop. Fixed with a separate
+  `applyRemoteEntries` path that persists pulled data locally without
+  re-pushing it.
+- Known, accepted gap: conflict handling is last-write-wins only, no
+  per-field merge. Real risk only if two people edit the *exact same
+  entry* within the same couple of seconds — rare for this use case,
+  explicitly deprioritized versus notifications.
+
+**Push notifications on new entries (`e61e800`, in progress):**
+- Confirmed via search that Google fully shut down the legacy FCM
+  server-key API in 2024 — the current HTTP v1 API (OAuth via a
+  Firebase service account) is the only path, so a real Firebase
+  project is unavoidable, not a nice-to-have
+- `@capacitor/push-notifications` added and synced into the Android
+  native project (the `google-services` conditional-apply block in
+  `app/build.gradle` already existed as unused boilerplate)
+- `004_push_notifications.sql`: `device_tokens` table (RLS: own tokens
+  only) + a `pg_net` trigger on `entries` insert calling an Edge
+  Function
+- `supabase/functions/notify-entry/index.ts`: looks up the book's other
+  active members, their device tokens, gets an FCM OAuth token by
+  signing a JWT with the service account key, sends via
+  `fcm.googleapis.com/v1/.../messages:send`
+- App registers the device's token on sign-in (native only), wrapped in
+  try/catch so a not-yet-configured Firebase project fails silently —
+  verified both CI builds (APK + Pages) still pass with the plugin
+  present but no `google-services.json` yet
+- Checked all 22 other repos in the org for any prior Firebase usage to
+  potentially reuse — none found; only a discarded "Firebase or
+  Supabase" naming mention (this Supabase decision) and an unrelated,
+  never-built dating-app brainstorm doc that happened to sketch a
+  Firebase stack. Confirmed a fresh Firebase project is genuinely
+  needed, not duplicate work.
+
+**Still open, waiting on the user:** create the Firebase project,
+register the Android app as `com.teredatrades.bejirond`, send back
+`google-services.json` (safe to commit — no secrets in it) to be placed
+at `android/app/google-services.json`, generate a service-account key
+(sensitive — stays in Firebase/Supabase dashboards, never sent in
+chat), run `004_push_notifications.sql`, deploy `notify-entry` via the
+Supabase dashboard's Edge Functions UI, set its three secrets, then set
+`app.notify_entry_url` / `app.notify_entry_secret` via SQL. Nothing
+sends a single notification yet until that's done — everything shipped
+so far is inert scaffolding until Firebase is wired up.
+
+
 
 **Reported:** screenshot of the app's crash-safety-net screen (added last
 night, `eb3ce24`) showing "Minified React error #310" with a minified

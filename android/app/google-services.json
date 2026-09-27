@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1044698013114",
+    "project_id": "bejirond",
+    "storage_bucket": "bejirond.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1044698013114:android:49b029fb64ddf3deee5183",
+        "android_client_info": {
+          "package_name": "com.teredatrades.bejirond"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBe4UcoUZX2UIOjwBFFtkbyKc_wFRMmc4M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

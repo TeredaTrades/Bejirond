@@ -25,12 +25,31 @@ create policy "a user manages only their own device tokens"
 -- Requires the pg_net extension (bundled with every Supabase project).
 create extension if not exists pg_net with schema extensions;
 
--- The Edge Function URL and a shared secret it checks are stored as
--- Postgres settings rather than hardcoded, so they can be set once via
--- SQL without editing this file. Run, once, with your real values:
---   alter database postgres set app.notify_entry_url = 'https://<project-ref>.functions.supabase.co/notify-entry';
---   alter database postgres set app.notify_entry_secret = '<a random string you choose>';
--- (Both are also referenced in the client hookup — see cloudSync.js.)
+-- The Edge Function URL and a shared secret it checks are baked directly
+-- into the function body below rather than read from Postgres settings.
+-- ALTER DATABASE SET is NOT permitted on Supabase's hosted plans (even
+-- via the SQL editor) — confirmed by trying it: "ERROR: 42501:
+-- permission denied to set parameter". So instead, after deploying
+-- notify-entry and getting its real URL, re-run just this function with
+-- your real values substituted directly into the literals below:
+--
+-- create or replace function public.notify_new_entry()
+-- returns trigger language plpgsql security definer set search_path = public
+-- as $$
+-- begin
+--   perform net.http_post(
+--     url := 'https://<project-ref>.supabase.co/functions/v1/notify-entry',
+--     headers := jsonb_build_object('Content-Type', 'application/json', 'x-notify-secret', '<your random secret>'),
+--     body := jsonb_build_object('book_id', new.book_id, 'entry_id', new.id, 'actor_id', new.created_by)
+--   );
+--   return new;
+-- end;
+-- $$;
+--
+-- The placeholder version below (using current_setting, which will
+-- always return null since the settings can never be set) is what this
+-- migration creates initially — it's a safe no-op until you replace it
+-- with the block above containing your real values.
 
 create or replace function public.notify_new_entry()
 returns trigger

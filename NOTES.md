@@ -26,6 +26,35 @@ _(add notes here as you think of them)_
   invoicing & receipts (in their preferred language), basic inventory &
   sales tracking. Inventory & stock also has a locked preview card on the
   new Enterprise screen (see Done) — same caveat, not built yet.
+- **"Statement" feature (raised 2026-09-28) — NOT BUILT, saved for later.**
+  Feasible; which version is wanted isn't decided yet. Three readings:
+  1. *Book/period statement* — opening balance, every entry with a running
+     balance, closing balance, shareable as a PDF. Easiest: reuses
+     `ReportsScreen` (filters) and `buildReportPdfBase64`, and the book
+     screen already computes running balances. Still missing: a custom
+     date range (today only allTime / thisMonth / last7 / today), opening
+     and closing balance (sum of entries before the start date), a
+     running-balance column, and a proper header (business name, period,
+     generated date).
+  2. *Contact/party statement* — every entry for one contact, net owed or
+     due. Entries already carry a free-text `contact` field, so the data
+     exists, but "Abebe" vs "abebe " are different people today — needs name
+     normalising/merging. This is the natural foundation for the ዱቤ
+     (credit tracking) item above: a customer statement is what you'd send
+     someone who owes you.
+  3. *Importing a third-party bank/Telebirr statement* — hardest; every
+     bank's format differs. The existing importers (`pdfImport.js`,
+     `flexibleImport.js`) only handle this app's own PDF/CSV and hand-made
+     CSVs. Closely related to the SMS-parsing item above.
+  **The catch for 1 and 2: fonts.** jsPDF's default font has no Ge'ez or
+  Arabic glyphs (same known gap as the existing PDF export), so Amharic
+  business/contact names would come out garbled. Two fixes: embed an
+  Ethiopic (and Arabic) font — text stays selectable, bundle grows — or
+  render the statement to an image and wrap that in a PDF using
+  `html2canvas`, which is already in the bundle — handles every script, but
+  text isn't selectable. Recommendation: settle the font approach first,
+  since a statement that garbles names defeats its purpose in this app.
+  Decide which reading (1, 2, or both) before building.
 
 ## To add
 - Scan receipt — camera/OCR capture that reads a receipt and pre-fills an

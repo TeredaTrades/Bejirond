@@ -1,5 +1,101 @@
 # በጅሮንድ (Bejirond) — decision log
 
+## 2026-09-28 — Addendum to the sync/push work: decisions, rationale, verification
+
+Companion to the 2026-09-25-to-27 entry below (which records *what* was
+built). This one records the decisions made along the way and why, what was
+verified afterward, and the known gaps going into real-device testing.
+
+### Design decisions and why
+
+- **The shared unit is the ledger (business), not an individual cash book.**
+  Members and roles already live at the ledger level in this app, and a
+  ledger holds several local cash books. So one `books` row in Supabase
+  represents one *ledger*; its list of local cash books is stored in
+  `books_meta`, and every synced entry's JSON carries a `localBookId` so a
+  joining device can sort entries back into the right local book. This
+  differs from the wording in `docs/MULTI_USER_SYNC_SCOPE.md`, which treated
+  "book" as the unit; the code follows the app's real structure and the
+  scoping doc was not rewritten.
+- **Invite-by-code, not invite-by-email.** The client must never hold a
+  service-role key, and there is no server to look users up by email. The
+  invite row's UUID *is* the code (single use, expires after 7 days), and a
+  `security definer` function `redeem_invite()` does the membership insert
+  server-side. Simplest design that needs no extra infrastructure.
+- **Email/password auth, not phone.** Phone sign-in needs a paid SMS
+  provider; email is free. Supabase's "Confirm email" was left at its
+  default (on), so a new account must click the confirmation link before
+  its first sign-in. Flip it off in the dashboard if that friction gets in
+  the way of testing.
+- **Last-write-wins, no per-field merge.** Only bites if two people edit the
+  *exact same entry* within seconds of each other — rare for a small team's
+  expense book, and per-field merge is real engineering. Deliberately
+  deferred in favor of notifications.
+- **Credentials live in `.env.production`, committed on purpose.** The
+  publishable key is designed to be public (RLS is the protection), and the
+  session's GitHub token could not write Actions secrets anyway. This means
+  both CI builds (APK and Pages) pick the config up with no extra setup.
+- **Firebase on the free Spark plan; Analytics left off.** FCM is free and
+  unlimited on Spark and Blaze alike, and the server logic runs on Supabase
+  Edge Functions, not Firebase, so nothing here needs a paid tier. Analytics
+  isn't needed for per-member pushes (it only powers behavioral audience
+  targeting, A/B tests, etc.). It can be enabled later from Project
+  Settings > Integrations. If it ever is, mention it in a privacy policy,
+  since the app's pitch to solo users is that their data never leaves the
+  phone.
+- **A custom domain is not needed for any of this, and was not bought.**
+  The app still lives at `teredatrades.github.io/Bejirond/` (no `CNAME`
+  anywhere). The plan on record is `bejirond.app` for the landing page and
+  `app.bejirond.app` for the PWA. Reasoning: sync and push use the Supabase
+  project's own `*.supabase.co` URL, so the two are fully independent. The
+  domain is worth having before a public/Play Store push (a store listing
+  wants a real site and privacy-policy URL, links stop depending on GitHub
+  hosting, and it reads as more trustworthy at the moment someone installs a
+  finance app), but nothing is blocked on it. Moving later costs one config
+  change: add the new site URL to Supabase Auth's allowed URL list.
+
+### Verified 2026-09-28
+
+- Latest GitHub Release `build-main-127` (`Bejirond.apk`, ~6.6 MB, not a
+  prerelease) is built from `40c4874`, which is the head of `main`. It
+  includes `google-services.json` and all sync/push code. The download
+  page's button goes through the `bejirond-dl` Cloudflare worker to the
+  latest release.
+- GitHub Pages reports `built` on the same commit; the deployed bundle
+  contains the Supabase project config; the PWA manifest is standalone with
+  192/512 icons and a registered service worker.
+- The chat sandbox's network proxy blocks `*.github.io`, so the live PWA
+  page itself was NOT loaded from here; it was checked through the GitHub
+  Pages API and the repo contents instead.
+
+### Known gaps going into real-device testing
+
+- **Nothing has been tested on a real second device.** The `notify-entry`
+  function has never actually been invoked; the first real test is also its
+  first real run. If no notification arrives, check the function's Logs tab
+  in Supabase.
+- **Push is native-only.** The PWA gets sharing and live updates while a
+  book is open, but no background notifications.
+- **The trigger fires on INSERT only**, so editing an existing entry does
+  not notify anyone.
+- **Authorship fields aren't stable.** Every save upserts the whole book, and
+  that overwrites `created_by`/`updated_by` with whoever pushed last.
+  Harmless today; worth fixing before anything relies on "who added this".
+- **Android 13+ needs the notification permission granted** on the receiving
+  phone, or the token registers but nothing displays.
+- The trigger function in the database has the function URL and shared
+  secret baked in (see the 2026-09-25-to-27 entry for why); they are not in
+  git, and `004_push_notifications.sql` carries placeholders. The secret was
+  generated in chat, so rotate it (function secret and trigger function
+  together) if that matters.
+
+### Test plan
+
+Install the latest APK on two phones, sign in on both, accept the
+notification prompt. Share a business from one, generate an invite code,
+join from the other. Close the app on the second phone, then log an entry on
+the first and see whether a notification lands.
+
 ## 2026-09-25 to 27 — Multi-user book/ledger sync (Phases 1–2) + push notifications
 
 **The ask:** let two or more people, each on their own phone, view and
